@@ -1,0 +1,74 @@
+@import "tailwindcss";
+
+/* Custom fonts */
+@font-face {
+  font-family: "Firago";
+  src: url("/assets/fonts/firago-latin-400-normal.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "GL Gordeziani";
+  src: url("/assets/fonts/gl-gordeziani-medium.ttf") format("truetype");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+  --font-normal: "Firago", sans-serif;
+  --font-medium: "GL Gordeziani", sans-serif;
+  /* Header nav link colors */
+  --nav-link: #52525b; /* zinc-600 */
+  --nav-link-hover: #18181b; /* zinc-900 */
+  --nav-link-active: #8a052d;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+html {
+  color-scheme: light;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-normal);
+}
+
+/* Header navigation */
+.nav-font-medium {
+  font-family: var(--font-medium);
+}
+
+.nav-link {
+  color: var(--nav-link);
+  transition: color 0.2s;
+}
+.nav-link:hover {
+  color: var(--nav-link-hover);
+}
+.nav-link.nav-link-active,
+.nav-link-active {
+  color: var(--nav-link-active);
+}
+.nav-link.nav-link-active:hover {
+  color: var(--nav-link-active);
+}
+
+.medium-font {
+  font-family: var(--font-medium);
+}
+
+.normal-font {
+  font-family: var(--font-normal);
+}
