@@ -1,10 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { CATEGORIES } from "@/constants/categories";
 import { REGIONS } from "@/constants/regions";
+import { getCategories } from "@/lib/api";
 import type { ListingType } from "@/types/listing";
 
 const HERO_PLACEHOLDER = "/next.svg";
@@ -15,6 +15,24 @@ export function HeroSection() {
   const [keyword, setKeyword] = useState("");
   const [category, setCategory] = useState("");
   const [region, setRegion] = useState("");
+  const [categories, setCategories] = useState<{ slug: string; label: string }[]>([]);
+
+  useEffect(() => {
+    let cancelled = false;
+    getCategories({ roots: true })
+      .then((list) => {
+        if (cancelled) return;
+        setCategories(
+          list.filter((c) => c.active).map((c) => ({ slug: c.slug, label: c.name }))
+        );
+      })
+      .catch(() => {
+        if (!cancelled) setCategories([]);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const searchHref = listingType === "buy" ? "/buy" : "/rent";
   const params = new URLSearchParams();
@@ -95,7 +113,7 @@ export function HeroSection() {
                 aria-label="Category"
               >
                 <option value="">ყველა კატეგორია</option>
-                {CATEGORIES.map((c) => (
+                {categories.map((c) => (
                   <option key={c.slug} value={c.slug}>
                     {c.label}
                   </option>

@@ -7,13 +7,7 @@ export type ListingType = "buy" | "rent";
  * Category for winemaking equipment (extensible for future filters)
  */
 export type EquipmentCategory =
-  | "crushers-destemmers"
-  | "presses"
-  | "fermentation"
-  | "barrels-storage"
-  | "bottling"
-  | "cleaning"
-  | "other";
+{ name: string; slug: string };
 
 /**
  * URL slug for /category/[slug] — aligns with homepage categories grid
@@ -45,6 +39,7 @@ export interface Listing {
   /** Short excerpt for cards and meta description */
   excerpt: string;
   price: number;
+  currency: string;
   /** For rent: price per day/week/month */
   priceUnit?: "day" | "week" | "month";
   imageUrl: string;

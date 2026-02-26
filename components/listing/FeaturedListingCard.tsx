@@ -3,15 +3,20 @@ import Link from "next/link";
 import type { Listing } from "@/types/listing";
 
 function formatPrice(listing: Listing): string {
-  const value = listing.price.toLocaleString("en-US", {
-    style: "currency",
-    currency: "USD",
-    maximumFractionDigits: 0,
-  });
+  const currencySymbol = listing.currency === "GEL" ? "₾" : "$";
+  const value = listing.price.toLocaleString("en-US", { maximumFractionDigits: 0 });
   if (listing.type === "rent" && listing.priceUnit) {
-    return `${value}/${listing.priceUnit}`;
+    const unitLabel =
+      listing.priceUnit === "day"
+        ? "დღე"
+        : listing.priceUnit === "week"
+          ? "კვირა"
+          : listing.priceUnit === "month"
+            ? "თვე"
+            : listing.priceUnit;
+    return `${currencySymbol}${value}/${unitLabel}`;
   }
-  return value;
+  return `${currencySymbol}${value}`;
 }
 
 interface FeaturedListingCardProps {

@@ -29,7 +29,7 @@ export default async function BuyPage() {
       </div>
 
       {/* Placeholder: filters will be added here (components/filters or app-level) */}
-      <section aria-label="Buy listings" className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+      <section aria-label="Buy listings" className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
         {listings.length === 0 ? (
           <p className="col-span-full text-zinc-500">
             No equipment for sale at the moment. Check back soon.

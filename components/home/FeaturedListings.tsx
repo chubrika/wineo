@@ -13,11 +13,8 @@ export async function FeaturedListings() {
     >
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <h2 id="featured-heading" className="text-2xl font-bold tracking-tight text-zinc-900 sm:text-3xl">
-          Featured Listings
+          რეკომენდირული პროდუქტები
         </h2>
-        <p className="mt-2 text-zinc-600">
-          Highlighted equipment and land from trusted sellers.
-        </p>
         <ul className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {listings.map((listing) => (
             <li key={listing.id}>

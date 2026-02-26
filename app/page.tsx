@@ -5,7 +5,6 @@ import {
   BuyRentSection,
   FeaturedListings,
   RegionSection,
-  LatestListings,
   HowItWorks,
 } from "@/components/home";
 import { SITE_NAME, SITE_DESCRIPTION, SITE_URL } from "@/constants/site";
@@ -29,7 +28,6 @@ export default function HomePage() {
       <BuyRentSection />
       <FeaturedListings />
       <RegionSection />
-      <LatestListings />
       <HowItWorks />
     </>
   );

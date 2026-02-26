@@ -19,16 +19,7 @@ export default async function RentPage() {
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold tracking-tight text-zinc-900">
-          Rent Winemaking Equipment
-        </h1>
-        <p className="mt-2 text-zinc-600">
-          Flexible rentals for harvest and production. Tanks, presses, racks, and more.
-        </p>
-      </div>
-
-      <section aria-label="Rent listings" className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+      <section aria-label="Rent listings" className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
         {listings.length === 0 ? (
           <p className="col-span-full text-zinc-500">
             No equipment for rent at the moment. Check back soon.

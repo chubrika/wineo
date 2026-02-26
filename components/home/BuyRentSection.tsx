@@ -1,15 +1,15 @@
 import Link from "next/link";
-import { getListings } from "@/lib/listings";
+import { getListingsFromApi } from "@/lib/listings";
 import { ListingCard } from "@/components/listing";
 
 export async function BuyRentSection() {
   const [buyListings, rentListings] = await Promise.all([
-    getListings("buy"),
-    getListings("rent"),
+    getListingsFromApi("buy", 4),
+    getListingsFromApi("rent", 4),
   ]);
 
-  const buyLatest = buyListings.slice(0, 4);
-  const rentLatest = rentListings.slice(0, 4);
+  const buyLatest = buyListings;
+  const rentLatest = rentListings;
 
   return (
     <section
