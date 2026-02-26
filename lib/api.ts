@@ -10,6 +10,7 @@ export type AuthUser = {
   email: string;
   firstName: string;
   lastName: string;
+  role: 'customer' | 'admin';
 };
 
 export type RegisterBody = {

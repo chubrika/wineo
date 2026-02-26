@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
@@ -33,9 +33,24 @@ function MenuIcon({ open }: { open: boolean }) {
   );
 }
 
+function getUserInitials(firstName: string, lastName: string, email: string) {
+  if (firstName && lastName) {
+    return `${firstName[0]}${lastName[0]}`.toUpperCase();
+  }
+  if (email?.length >= 2) return email.slice(0, 2).toUpperCase();
+  return "?";
+}
+
+function getUserDisplayName(firstName: string, lastName: string, email: string) {
+  if (firstName && lastName) return `${firstName} ${lastName}`.trim();
+  return email || "";
+}
+
 export function Header() {
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const userMenuRef = useRef<HTMLDivElement>(null);
   const { user, loading, logout } = useAuth();
 
   useEffect(() => {
@@ -46,8 +61,20 @@ export function Header() {
     };
   }, [menuOpen]);
 
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (userMenuRef.current && !userMenuRef.current.contains(event.target as Node)) {
+        setUserMenuOpen(false);
+      }
+    }
+    if (userMenuOpen) {
+      document.addEventListener("click", handleClickOutside);
+      return () => document.removeEventListener("click", handleClickOutside);
+    }
+  }, [userMenuOpen]);
+
   return (
-    <header className="border-b border-zinc-200 bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/80">
+    <header className="relative z-50 border-b border-zinc-200 bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/80">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
         <Link
           href="/"
@@ -74,16 +101,42 @@ export function Header() {
           ))}
           {!loading &&
             (user ? (
-              <span className="flex items-center gap-3">
-                <span className="text-[16px] text-zinc-600">{user.email}</span>
+              <div className="relative" ref={userMenuRef}>
                 <button
                   type="button"
-                  onClick={logout}
-                  className="nav-link text-[20px] font-medium hover:underline"
+                  onClick={() => setUserMenuOpen((o) => !o)}
+                  className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[var(--nav-link-active)] text-sm font-medium text-white transition-opacity hover:opacity-90"
+                  aria-expanded={userMenuOpen}
+                  aria-haspopup="true"
+                  aria-label="User menu"
                 >
-                  გასვლა
+                  {getUserInitials(user.firstName, user.lastName, user.email)}
                 </button>
-              </span>
+                {userMenuOpen && (
+                  <div
+                    className="absolute right-0 top-full z-[100] mt-2 min-w-[180px] rounded-lg border border-zinc-200 bg-white py-2 shadow-lg"
+                    role="menu"
+                  >
+                    <div className="border-b border-zinc-100 px-4 py-2">
+                      <p className="truncate text-sm font-medium text-zinc-900">
+                        {getUserDisplayName(user.firstName, user.lastName, user.email)}
+                      </p>
+                      <p className="truncate text-xs text-zinc-500">{user.email}</p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setUserMenuOpen(false);
+                        logout();
+                      }}
+                      className="nav-link w-full px-4 py-2 text-left text-sm font-medium hover:bg-zinc-50"
+                      role="menuitem"
+                    >
+                      გასვლა
+                    </button>
+                  </div>
+                )}
+              </div>
             ) : (
               <Link
                 href="/login"
@@ -134,7 +187,10 @@ export function Header() {
             {!loading &&
               (user ? (
                 <li className="border-t border-zinc-200 pt-2 mt-2">
-                  <span className="block px-3 py-2 text-sm text-zinc-600">{user.email}</span>
+                  <span className="block px-3 py-2 text-sm font-medium text-zinc-900">
+                    {getUserDisplayName(user.firstName, user.lastName, user.email)}
+                  </span>
+                  <span className="block px-3 pb-2 text-xs text-zinc-500">{user.email}</span>
                   <button
                     type="button"
                     onClick={() => {

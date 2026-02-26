@@ -91,7 +91,7 @@ export function HeroSection() {
                 name="category"
                 value={category}
                 onChange={(e) => setCategory(e.target.value)}
-                className="w-full rounded-lg border border-zinc-300 bg-white px-3 py-2.5 text-zinc-900 focus:border-zinc-900 focus:outline-none focus:ring-1 focus:ring-zinc-900 sm:w-[180px]"
+                className="w-full rounded-lg border border-zinc-300 bg-white px-3 py-2.5 text-zinc-500 sm:w-[180px]"
                 aria-label="Category"
               >
                 <option value="">ყველა კატეგორია</option>
@@ -103,11 +103,10 @@ export function HeroSection() {
               </select>
             </label>
             <div className="flex items-center gap-2" role="group" aria-label="Listing type">
-              <span className="text-sm text-zinc-600">ტიპი:</span>
               <button
                 type="button"
                 onClick={() => setListingType("buy")}
-                className={`rounded-lg cursor-pointer px-3 py-2 text-sm font-medium transition ${
+                className={`rounded-lg cursor-pointer px-3 py-2.5 text-sm font-medium transition ${
                   listingType === "buy"
                     ? "bg-[#8a052d] text-white"
                     : "bg-zinc-100 text-zinc-600 hover:bg-zinc-200"
@@ -118,7 +117,7 @@ export function HeroSection() {
               <button
                 type="button"
                 onClick={() => setListingType("rent")}
-                className={`rounded-lg cursor-pointer px-3 py-2 text-sm font-medium transition ${
+                className={`rounded-lg cursor-pointer px-3 py-2.5 text-sm font-medium transition ${
                   listingType === "rent"
                     ? "bg-[#8a052d] text-white"
                     : "bg-zinc-100 text-zinc-600 hover:bg-zinc-200"
@@ -133,7 +132,7 @@ export function HeroSection() {
                 name="region"
                 value={region}
                 onChange={(e) => setRegion(e.target.value)}
-                className="w-full rounded-lg border border-zinc-300 bg-white px-3 py-2.5 text-zinc-900 focus:border-zinc-900 focus:outline-none focus:ring-1 focus:ring-zinc-900 sm:w-[160px]"
+                className="w-full rounded-lg border border-zinc-300 bg-white px-3 py-2.5 text-zinc-500 sm:w-[130px]"
                 aria-label="Region"
               >
                 <option value="">ყველა</option>
