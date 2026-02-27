@@ -40,7 +40,7 @@ export default function RootLayout({
       >
         <AuthProvider>
           <Header />
-          <main className="flex-1">{children}</main>
+          <main className="flex-1 bg-[color:#f1f3f6]">{children}</main>
           <Footer />
         </AuthProvider>
       </body>

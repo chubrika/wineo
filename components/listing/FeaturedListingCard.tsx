@@ -24,7 +24,7 @@ interface FeaturedListingCardProps {
 }
 
 export function FeaturedListingCard({ listing }: FeaturedListingCardProps) {
-  const href = `/${listing.type}/${listing.slug}`;
+  const href = `/${listing.type}/listing/${listing.slug}`;
   const priceLabel = formatPrice(listing);
 
   return (

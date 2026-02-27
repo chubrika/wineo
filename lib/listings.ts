@@ -2,10 +2,10 @@ import type {
   Listing,
   ListingType,
   ListingSearchParams,
-  CategorySlug,
+  ListingSortOption,
   EquipmentCategory,
 } from "@/types/listing";
-import { getProducts, type ApiProduct } from "@/lib/api";
+import { getProducts, getProductBySlug, type ApiProduct } from "@/lib/api";
 
 /** Map backend product to frontend Listing for display. */
 function mapApiProductToListing(api: ApiProduct): Listing {
@@ -32,12 +32,16 @@ function mapApiProductToListing(api: ApiProduct): Listing {
     imageUrl: api.thumbnail || api.images?.[0] || "/next.svg",
     imageAlt: api.title,
     category: api.category as unknown as EquipmentCategory,
-    categorySlug: api.category?.slug as CategorySlug | undefined,
+    categorySlug: api.category?.slug,
     location: api.location
       ? `${api.location.city}, ${api.location.region}`
       : undefined,
     createdAt: api.createdAt,
     featured: api.isFeatured,
+    specifications:
+      api.specifications?.condition === "new" || api.specifications?.condition === "used"
+        ? { condition: api.specifications.condition as "new" | "used" }
+        : undefined,
   };
 }
 
@@ -84,9 +88,9 @@ export async function getListingBySlug(
 ): Promise<Listing | null> {
   try {
     const apiType = type === "buy" ? "sell" : "rent";
-    const list = await getProducts({ type: apiType, status: "active", limit: 100 });
-    const found = list.find((p) => p.slug === slug);
-    return found ? mapApiProductToListing(found) : null;
+    let product = await getProductBySlug(slug, apiType);
+    if (!product) product = await getProductBySlug(slug);
+    return product ? mapApiProductToListing(product) : null;
   } catch {
     return null;
   }
@@ -142,7 +146,8 @@ export async function getFeaturedListings(limit: number = 6): Promise<Listing[]>
 }
 
 /**
- * Search/filter — uses backend API for type/category; keyword/region filtered in-memory.
+ * Search/filter — uses backend API for type/category; keyword/region/price filtered in-memory.
+ * Sort applied in-memory. Prepared for ElasticSearch: move filter/sort to API when ready.
  */
 export async function searchListings(
   params: ListingSearchParams
@@ -152,6 +157,9 @@ export async function searchListings(
     categorySlug,
     type,
     regionSlug,
+    priceMin,
+    priceMax,
+    sort = "newest",
     page = 1,
     limit = 12,
   } = params;
@@ -159,17 +167,30 @@ export async function searchListings(
   try {
     const list = await getProducts({
       status: "active",
-      limit: 200,
+      limit: 500,
       skip: 0,
       ...(type && { type: type === "buy" ? "sell" : "rent" }),
       ...(categorySlug && { categorySlug }),
     });
     let result = list.map(mapApiProductToListing);
 
-    if (regionSlug) {
+    if (categorySlug) {
+      const slugLower = categorySlug.toLowerCase();
       result = result.filter(
-        (l) => l.location?.toLowerCase().includes(regionSlug.toLowerCase())
+        (l) => l.categorySlug?.toLowerCase() === slugLower
       );
+    }
+    if (regionSlug) {
+      const slugLower = regionSlug.toLowerCase();
+      result = result.filter((l) =>
+        l.location?.toLowerCase().includes(slugLower)
+      );
+    }
+    if (priceMin != null) {
+      result = result.filter((l) => l.price >= priceMin);
+    }
+    if (priceMax != null) {
+      result = result.filter((l) => l.price <= priceMax);
     }
     if (keyword) {
       const q = keyword.toLowerCase();
@@ -181,17 +202,28 @@ export async function searchListings(
       );
     }
 
-    const total = result.length;
+    const sorted = [...result].sort(sortListings(sort));
+    const total = sorted.length;
     const offset = (page - 1) * limit;
-    const items = [...result]
-      .sort(
-        (a, b) =>
-          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-      )
-      .slice(offset, offset + limit);
+    const items = sorted.slice(offset, offset + limit);
 
     return { items, total };
   } catch {
     return { items: [], total: 0 };
+  }
+}
+
+function sortListings(sort: ListingSortOption): (a: Listing, b: Listing) => number {
+  switch (sort) {
+    case "price_asc":
+      return (a, b) => a.price - b.price;
+    case "price_desc":
+      return (a, b) => b.price - a.price;
+    case "featured":
+      return (a, b) => (b.featured ? 1 : 0) - (a.featured ? 1 : 0);
+    case "newest":
+    default:
+      return (a, b) =>
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
   }
 }

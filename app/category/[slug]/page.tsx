@@ -47,7 +47,7 @@ export default async function CategoryPage({ params }: PageProps) {
           {total} listing{total !== 1 ? "s" : ""} in this category.
         </p>
       </header>
-      <section aria-label={`${category.name} listings`} className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+      <section aria-label={`${category.name} listings`} className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
         {items.length === 0 ? (
           <p className="col-span-full text-zinc-500">
             No listings in this category yet.

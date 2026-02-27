@@ -1,7 +1,17 @@
 import type { Metadata } from "next";
-import { getListings } from "@/lib/listings";
-import { ListingCard } from "@/components/listing";
-import { SITE_NAME } from "@/constants/site";
+import { getCategories, getRegions } from "@/lib/api";
+import { buildCategoryTree } from "@/lib/categories";
+import { searchListings } from "@/lib/listings";
+import {
+  parseListingSearchParams,
+  DEFAULT_PAGE_SIZE,
+} from "@/lib/listing-search";
+import {
+  ListingPageLayout,
+  ListingToolbar,
+  ListingGrid,
+  Pagination,
+} from "@/components/listing";
 
 export const metadata: Metadata = {
   title: "Rent Winemaking Equipment",
@@ -14,20 +24,64 @@ export const metadata: Metadata = {
   },
 };
 
-export default async function RentPage() {
-  const listings = await getListings("rent");
+interface PageProps {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}
+
+export default async function RentPage({ searchParams }: PageProps) {
+  const resolved = await searchParams;
+  const type = "rent" as const;
+  const state = parseListingSearchParams(type, resolved);
+
+  const [categoriesRes, regionsRes, { items, total }] = await Promise.all([
+    getCategories(),
+    getRegions(),
+    searchListings({
+      type,
+      categorySlug: state.categorySlug,
+      priceMin: state.priceMin ? Number(state.priceMin) : undefined,
+      priceMax: state.priceMax ? Number(state.priceMax) : undefined,
+      regionSlug: state.region,
+      sort: state.sort,
+      page: state.page ? Number(state.page) : 1,
+      limit: DEFAULT_PAGE_SIZE,
+      keyword: state.keyword,
+    }),
+  ]);
+
+  const categoryTree = buildCategoryTree(categoriesRes);
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
-      <section aria-label="Rent listings" className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-        {listings.length === 0 ? (
-          <p className="col-span-full text-zinc-500">
-            No equipment for rent at the moment. Check back soon.
+    <ListingPageLayout
+      type={type}
+      state={state}
+      categoryTree={categoryTree}
+      regions={regionsRes}
+    >
+      <div className="space-y-6">
+        <header className="mb-2">
+          <h1 className="text-2xl font-bold tracking-tight text-zinc-900">
+            Rent
+          </h1>
+          <p className="mt-1 text-sm text-zinc-600">
+            {total} listing{total !== 1 ? "s" : ""} available
           </p>
-        ) : (
-          listings.map((listing) => <ListingCard key={listing.id} listing={listing} />)
-        )}
-      </section>
-    </div>
+        </header>
+        <ListingToolbar
+          total={total}
+          state={state}
+          pageSize={DEFAULT_PAGE_SIZE}
+        />
+        <ListingGrid
+          listings={items}
+          emptyMessage="No equipment for rent at the moment. Check back soon."
+        />
+        <Pagination
+          total={total}
+          pageSize={DEFAULT_PAGE_SIZE}
+          state={state}
+        />
+      </div>
+    </ListingPageLayout>
   );
 }

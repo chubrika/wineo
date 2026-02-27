@@ -1,7 +1,9 @@
 import Link from "next/link";
-import { REGIONS } from "@/constants/regions";
+import { getRegions } from "@/lib/api";
 
-export function RegionSection() {
+export async function RegionSection() {
+  const regions = await getRegions();
+
   return (
     <section
       className="border-b border-zinc-200 bg-white py-14 sm:py-18"
@@ -9,13 +11,13 @@ export function RegionSection() {
     >
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <h2 id="regions-heading" className="text-2xl font-bold tracking-tight text-zinc-900 sm:text-3xl">
-          Browse by Region
+          რეგიონებით ძებნა
         </h2>
         <p className="mt-2 text-zinc-600">
-          Explore listings across Georgian wine regions.
+          მოიძიეთ პროდუქტები საქართველოს რეგიონებში.
         </p>
         <ul className="mt-8 flex flex-wrap gap-3">
-          {REGIONS.map(({ slug, label }) => (
+          {regions.map(({ slug, label }) => (
             <li key={slug}>
               <Link
                 href={`/location/${slug}`}

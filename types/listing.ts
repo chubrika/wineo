@@ -6,19 +6,13 @@ export type ListingType = "buy" | "rent";
 /**
  * Category for winemaking equipment (extensible for future filters)
  */
-export type EquipmentCategory =
-{ name: string; slug: string };
+export type EquipmentCategory = { name: string; slug: string };
 
 /**
- * URL slug for /category/[slug] — aligns with homepage categories grid
+ * URL slug for /category/[slug] — aligns with homepage categories grid.
+ * Extended at runtime from API categories.
  */
-export type CategorySlug =
-  | "wine-bottles"
-  | "winery-machinery"
-  | "vineyard-land"
-  | "barrels"
-  | "wine-press-crusher"
-  | "agricultural-equipment";
+export type CategorySlug = string;
 
 /**
  * URL slug for /location/[slug] — Georgian wine regions
@@ -53,7 +47,9 @@ export interface Listing {
   /** ISO date string */
   createdAt: string;
   /** Optional for future filtering */
-  condition?: "new" | "like-new" | "good" | "fair";
+  specifications?: {
+    condition?: "new" | "used";
+  };
   /** Highlighted on homepage; prepared for monetization */
   featured?: boolean;
 }
@@ -63,11 +59,20 @@ export interface ListingCardProps {
 }
 
 /** Search/filter params — prepared for ElasticSearch and URL query */
+export type ListingSortOption =
+  | "newest"
+  | "price_asc"
+  | "price_desc"
+  | "featured";
+
 export interface ListingSearchParams {
   keyword?: string;
-  categorySlug?: CategorySlug;
+  categorySlug?: string;
   type?: ListingType;
   regionSlug?: RegionSlug;
+  priceMin?: number;
+  priceMax?: number;
+  sort?: ListingSortOption;
   page?: number;
   limit?: number;
 }

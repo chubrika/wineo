@@ -1,43 +1,87 @@
 import type { Metadata } from "next";
-import { getListings } from "@/lib/listings";
-import { ListingCard } from "@/components/listing";
-import { SITE_NAME } from "@/constants/site";
+import { getCategories, getRegions } from "@/lib/api";
+import { buildCategoryTree } from "@/lib/categories";
+import { searchListings } from "@/lib/listings";
+import {
+  parseListingSearchParams,
+  DEFAULT_PAGE_SIZE,
+} from "@/lib/listing-search";
+import {
+  ListingPageLayout,
+  ListingToolbar,
+  ListingGrid,
+  Pagination,
+} from "@/components/listing";
 
 export const metadata: Metadata = {
-  title: "Buy Winemaking Equipment",
+  title: "იყიდე პროდუქტები",
   description:
-    "Browse winemaking equipment for sale: crushers, presses, fermentation tanks, barrels, and more. Find quality gear for your wineo or home winery.",
+    "პროდუქტების მოძიება და ყიდვა. კრუსერები, პრესები, ფერმენტაციის ტანკები, ბარელები და ა.შ.",
   openGraph: {
-    title: "Buy Winemaking Equipment",
+    title: "იყიდე პროდუქტები",
     description:
-      "Browse winemaking equipment for sale. Crushers, presses, tanks, barrels.",
+      "პროდუქტების მოძიება და ყიდვა. კრუსერები, პრესები, ფერმენტაციის ტანკები, ბარელები და ა.შ.",
   },
 };
 
-export default async function BuyPage() {
-  const listings = await getListings("buy");
+interface PageProps {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}
+
+export default async function BuyPage({ searchParams }: PageProps) {
+  const resolved = await searchParams;
+  const type = "buy" as const;
+  const state = parseListingSearchParams(type, resolved);
+
+  const [categoriesRes, regionsRes, { items, total }] = await Promise.all([
+    getCategories(),
+    getRegions(),
+    searchListings({
+      type,
+      categorySlug: state.categorySlug,
+      priceMin: state.priceMin ? Number(state.priceMin) : undefined,
+      priceMax: state.priceMax ? Number(state.priceMax) : undefined,
+      regionSlug: state.region,
+      sort: state.sort,
+      page: state.page ? Number(state.page) : 1,
+      limit: DEFAULT_PAGE_SIZE,
+      keyword: state.keyword,
+    }),
+  ]);
+
+  const categoryTree = buildCategoryTree(categoriesRes);
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold tracking-tight text-zinc-900">
-          Buy Winemaking Equipment
-        </h1>
-        <p className="mt-2 text-zinc-600">
-          Quality equipment for sale. Crushers, presses, fermentation, barrels, and more.
-        </p>
-      </div>
-
-      {/* Placeholder: filters will be added here (components/filters or app-level) */}
-      <section aria-label="Buy listings" className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-        {listings.length === 0 ? (
-          <p className="col-span-full text-zinc-500">
-            No equipment for sale at the moment. Check back soon.
+    <ListingPageLayout
+      type={type}
+      state={state}
+      categoryTree={categoryTree}
+      regions={regionsRes}
+    >
+      <div className="space-y-6">
+        <header className="mb-2">
+          <h1 className="text-2xl font-bold tracking-tight text-zinc-900">
+            იყიდე
+          </h1>
+          <p className="mt-1 text-sm text-zinc-600">
+            {total} listing{total !== 1 ? "s" : ""} available
           </p>
-        ) : (
-          listings.map((listing) => <ListingCard key={listing.id} listing={listing} />)
-        )}
-      </section>
-    </div>
+        </header>
+        <ListingToolbar
+          total={total}
+          state={state}
+          pageSize={DEFAULT_PAGE_SIZE}
+        />
+        <ListingGrid
+          listings={items}
+          emptyMessage="პროდუქტები ჯერ არ არის. მოგვიანებით დაემატება."
+        />
+        <Pagination
+          total={total}
+          pageSize={DEFAULT_PAGE_SIZE}
+          state={state}
+        />
+      </div>
+    </ListingPageLayout>
   );
 }

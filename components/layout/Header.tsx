@@ -118,18 +118,32 @@ export function Header() {
                     role="menu"
                   >
                     <div className="border-b border-zinc-100 px-4 py-2">
-                      <p className="truncate text-sm font-medium text-zinc-900">
+                      <p className="truncate text-sm normal-font font-medium text-zinc-900">
                         {getUserDisplayName(user.firstName, user.lastName, user.email)}
                       </p>
-                      <p className="truncate text-xs text-zinc-500">{user.email}</p>
+                      <p className="truncate text-xs normal-font text-zinc-500">{user.email}</p>
                     </div>
+                  <div className="flex flex-col gap-2">
+                  <Link
+                        href="/profile"
+                        className="nav-link border-b border-zinc-100 cursor-pointer w-full px-4 py-2 text-left text-sm normal-font font-medium hover:bg-zinc-50"
+                      >
+                        პროფილი
+                      </Link>
+                      <Link
+                        href="/products"
+                        className="nav-link border-b border-zinc-100 cursor-pointer w-full px-4 py-2 text-left text-sm normal-font font-medium hover:bg-zinc-50"
+                      >
+                        განცხადებები
+                      </Link>
+                  </div>
                     <button
                       type="button"
                       onClick={() => {
                         setUserMenuOpen(false);
                         logout();
                       }}
-                      className="nav-link w-full px-4 py-2 text-left text-sm font-medium hover:bg-zinc-50"
+                      className="nav-link cursor-pointer w-full px-4 py-2 text-left text-sm normal-font font-medium hover:bg-zinc-50"
                       role="menuitem"
                     >
                       გასვლა

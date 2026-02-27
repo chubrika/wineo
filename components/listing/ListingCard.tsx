@@ -26,7 +26,7 @@ interface ListingCardProps {
 }
 
 export function ListingCard({ listing }: ListingCardProps) {
-  const href = `/${listing.type}/${listing.slug}`;
+  const href = `/${listing.type}/listing/${listing.slug}`;
   const priceLabel = formatPrice(listing);
 
   return (
@@ -43,6 +43,17 @@ export function ListingCard({ listing }: ListingCardProps) {
           <span className="absolute left-3 top-3 rounded-full bg-white/90 px-2.5 py-0.5 text-xs font-medium capitalize text-zinc-800">
             {listing.type === "buy" ? "იყიდე" : "იქირავე"}
           </span>
+          {listing.specifications && listing.specifications?.condition && (
+            <span
+              className={`absolute right-3 top-3 rounded-full px-2.5 py-0.5 text-xs font-medium capitalize ${
+                listing.specifications.condition === "new"
+                  ? "bg-green-500 text-white"
+                  : "bg-blue-500 text-white"
+              }`}
+            >
+              {listing.specifications?.condition === "new" ? "ახალი" : "მეორადი"}
+            </span>
+          )}
         </div>
         <div className="p-4">
           <h2 className="font-medium text-zinc-900 line-clamp-2">
