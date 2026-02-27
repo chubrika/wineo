@@ -10,14 +10,19 @@ export type AuthUser = {
   email: string;
   firstName: string;
   lastName: string;
+  businessName?: string;
   role: 'customer' | 'admin';
+  phone?: string;
+  userType?: 'physical' | 'business';
 };
 
 export type RegisterBody = {
   email: string;
   password: string;
-  firstName: string;
-  lastName: string;
+  userType: 'physical' | 'business';
+  firstName?: string;
+  lastName?: string;
+  businessName?: string;
 };
 export type LoginBody = { email: string; password: string };
 
@@ -68,6 +73,29 @@ export async function login(body: LoginBody): Promise<AuthResponse> {
 export async function getMe(token: string): Promise<MeResponse> {
   const res = await fetch(`${API_URL}/auth/me`, {
     headers: { Authorization: `Bearer ${token}` },
+  });
+  return handleRes<MeResponse>(res);
+}
+
+/** Body for PATCH /auth/me */
+export type UpdateMeBody = {
+  phone?: string;
+  firstName?: string;
+  lastName?: string;
+  businessName?: string;
+};
+
+/**
+ * PATCH /auth/me — update current user profile. Returns updated user.
+ */
+export async function updateMe(token: string, body: UpdateMeBody): Promise<MeResponse> {
+  const res = await fetch(`${API_URL}/auth/me`, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(body),
   });
   return handleRes<MeResponse>(res);
 }
@@ -181,12 +209,18 @@ export type ApiProduct = {
   type: "sell" | "rent";
   category: { name: string; slug: string };
   categoryId?: string;
+  /** Attribute values from category filters (filterId as string, value as stored) */
+  attributes?: { filterId: string; value: string | number | boolean | string[] }[];
   price: number;
   currency?: string;
   rentPeriod?: "hour" | "day" | "week" | "month";
   images?: string[];
   thumbnail?: string;
   location?: { region: string; city: string };
+  /** Owner display name (when API populates ownerId) */
+  ownerName?: string;
+  /** business = show ownerName; physical = show "ფიზიკური პირი" */
+  ownerType?: "physical" | "business";
   status?: string;
   isFeatured?: boolean;
   /** From DB: flexible key-value (e.g. { condition: "new" | "used", brand, model, ... }) */
@@ -226,6 +260,17 @@ export async function getProducts(params?: GetProductsParams): Promise<ApiProduc
   if (params?.regionSlug) search.set("regionSlug", params.regionSlug);
   const qs = search.toString();
   const res = await fetch(`${API_URL}/products${qs ? `?${qs}` : ""}`, { cache: "no-store" });
+  return handleRes<ApiProduct[]>(res);
+}
+
+/**
+ * GET /products/mine — list current user's products. Requires auth token.
+ */
+export async function getMyProducts(token: string): Promise<ApiProduct[]> {
+  const res = await fetch(`${API_URL}/products/mine`, {
+    cache: "no-store",
+    headers: { Authorization: `Bearer ${token}` },
+  });
   return handleRes<ApiProduct[]>(res);
 }
 
@@ -291,4 +336,50 @@ export async function createProduct(
     body: JSON.stringify(payload),
   });
   return handleRes<ApiProduct>(res);
+}
+
+/**
+ * GET /products/:id — one product by id.
+ */
+export async function getProductById(id: string): Promise<ApiProduct | null> {
+  try {
+    const res = await fetch(`${API_URL}/products/${encodeURIComponent(id)}`, { cache: "no-store" });
+    if (!res.ok) return null;
+    return await handleRes<ApiProduct>(res);
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * PUT /products/:id — update a product. Requires auth token.
+ */
+export async function updateProduct(
+  token: string,
+  id: string,
+  payload: Partial<CreateProductPayload>
+): Promise<ApiProduct> {
+  const res = await fetch(`${API_URL}/products/${encodeURIComponent(id)}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(payload),
+  });
+  return handleRes<ApiProduct>(res);
+}
+
+/**
+ * DELETE /products/:id — delete a product. Requires auth token.
+ */
+export async function deleteProduct(token: string, id: string): Promise<void> {
+  const res = await fetch(`${API_URL}/products/${encodeURIComponent(id)}`, {
+    method: "DELETE",
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!res.ok) {
+    const data = await res.json().catch(() => ({}));
+    throw new Error((data as { error?: string })?.error ?? res.statusText);
+  }
 }

@@ -26,6 +26,7 @@
   --nav-link: #52525b; /* zinc-600 */
   --nav-link-hover: #18181b; /* zinc-900 */
   --nav-link-active: #8a052d;
+  --wineo-red: #8a052d;
 }
 
 @theme inline {
@@ -65,6 +66,9 @@ body {
   color: var(--nav-link-active);
 }
 
+.wineo-red {
+  color: var(--wineo-red);
+}
 .medium-font {
   font-family: var(--font-medium);
 }

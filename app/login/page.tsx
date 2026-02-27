@@ -14,6 +14,8 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
+  const [businessName, setBusinessName] = useState("");
+  const [userType, setUserType] = useState<"physical" | "business">("physical");
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
@@ -25,17 +27,29 @@ export default function LoginPage() {
       if (tab === "login") {
         await login(email.trim(), password);
       } else {
-        if (!firstName.trim() || !lastName.trim()) {
-          setError("სახელი და გვარი სავალდებულოა");
-          setSubmitting(false);
-          return;
+        if (userType === "physical") {
+          if (!firstName.trim() || !lastName.trim()) {
+            setError("სახელი და გვარი სავალდებულოა");
+            setSubmitting(false);
+            return;
+          }
+        } else {
+          if (!businessName.trim()) {
+            setError("საბიზნესო სახელი სავალდებულოა");
+            setSubmitting(false);
+            return;
+          }
         }
         if (password.length < 6) {
           setError("პაროლი უნდა იყოს მინიმუმ 6 სიმბოლო");
           setSubmitting(false);
           return;
         }
-        await register(email.trim(), password, firstName.trim(), lastName.trim());
+        if (userType === "physical") {
+          await register(email.trim(), password, "physical", { firstName: firstName.trim(), lastName: lastName.trim() });
+        } else {
+          await register(email.trim(), password, "business", { businessName: businessName.trim() });
+        }
       }
       router.push("/");
       router.refresh();
@@ -96,33 +110,82 @@ export default function LoginPage() {
         {tab === "register" && (
           <>
             <div>
-              <label htmlFor="firstName" className="block text-sm font-medium text-zinc-700">
-                სახელი
-              </label>
-              <input
-                id="firstName"
-                type="text"
-                autoComplete="given-name"
-                required
-                value={firstName}
-                onChange={(e) => setFirstName(e.target.value)}
-                className="mt-1 block w-full rounded-lg border border-zinc-300 px-3 py-2 text-zinc-900 shadow-sm focus:border-[var(--nav-link-active)] focus:outline-none focus:ring-1 focus:ring-[var(--nav-link-active)]"
-              />
+              <span className="block text-sm font-medium text-zinc-700 mb-2">
+                მომხმარებლის ტიპი
+              </span>
+              <div className="flex rounded-lg border border-zinc-200 bg-zinc-50 p-1">
+                <button
+                  type="button"
+                  onClick={() => setUserType("physical")}
+                  className={`flex-1 rounded-md py-2.5 text-sm font-medium transition-colors ${
+                    userType === "physical"
+                      ? "bg-white text-zinc-900 shadow-sm"
+                      : "text-zinc-600 hover:text-zinc-900"
+                  }`}
+                >
+                  ფიზიკური პირი
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setUserType("business")}
+                  className={`flex-1 rounded-md py-2.5 text-sm font-medium transition-colors ${
+                    userType === "business"
+                      ? "bg-white text-zinc-900 shadow-sm"
+                      : "text-zinc-600 hover:text-zinc-900"
+                  }`}
+                >
+                  ბიზნესი
+                </button>
+              </div>
             </div>
-            <div>
-              <label htmlFor="lastName" className="block text-sm font-medium text-zinc-700">
-                გვარი
-              </label>
-              <input
-                id="lastName"
-                type="text"
-                autoComplete="family-name"
-                required
-                value={lastName}
-                onChange={(e) => setLastName(e.target.value)}
-                className="mt-1 block w-full rounded-lg border border-zinc-300 px-3 py-2 text-zinc-900 shadow-sm focus:border-[var(--nav-link-active)] focus:outline-none focus:ring-1 focus:ring-[var(--nav-link-active)]"
-              />
-            </div>
+            {userType === "physical" ? (
+              <>
+                <div>
+                  <label htmlFor="firstName" className="block text-sm font-medium text-zinc-700">
+                    სახელი
+                  </label>
+                  <input
+                    id="firstName"
+                    type="text"
+                    autoComplete="given-name"
+                    required={userType === "physical"}
+                    value={firstName}
+                    onChange={(e) => setFirstName(e.target.value)}
+                    className="mt-1 block w-full rounded-lg border border-zinc-300 px-3 py-2 text-zinc-900 shadow-sm focus:border-[var(--nav-link-active)] focus:outline-none focus:ring-1 focus:ring-[var(--nav-link-active)]"
+                  />
+                </div>
+                <div>
+                  <label htmlFor="lastName" className="block text-sm font-medium text-zinc-700">
+                    გვარი
+                  </label>
+                  <input
+                    id="lastName"
+                    type="text"
+                    autoComplete="family-name"
+                    required={userType === "physical"}
+                    value={lastName}
+                    onChange={(e) => setLastName(e.target.value)}
+                    className="mt-1 block w-full rounded-lg border border-zinc-300 px-3 py-2 text-zinc-900 shadow-sm focus:border-[var(--nav-link-active)] focus:outline-none focus:ring-1 focus:ring-[var(--nav-link-active)]"
+                  />
+                </div>
+              </>
+            ) : (
+              <div>
+                <label htmlFor="businessName" className="block text-sm font-medium text-zinc-700">
+                  საბიზნესო სახელი
+                </label>
+                <input
+                  id="businessName"
+                  type="text"
+                  autoComplete="organization"
+                  required={userType === "business"}
+                  value={businessName}
+                  onChange={(e) => setBusinessName(e.target.value)}
+                  className="mt-1 block w-full rounded-lg border border-zinc-300 px-3 py-2 text-zinc-900 shadow-sm focus:border-[var(--nav-link-active)] focus:outline-none focus:ring-1 focus:ring-[var(--nav-link-active)]"
+                  placeholder="მაგ. შპს ვაზის მეურნეობა"
+                />
+              </div>
+            )}
           </>
         )}
 

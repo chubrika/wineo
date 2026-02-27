@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 
 export default function AddProductPage() {
   return (
-    <div className="rounded-xl border border-zinc-200 bg-white p-6 sm:p-8">
+    <div className="p-3 sm:p-4">
       <h1 className="text-2xl font-bold tracking-tight text-zinc-900 medium-font">
         განცხადების დამატება
       </h1>

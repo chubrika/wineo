@@ -36,6 +36,8 @@ function mapApiProductToListing(api: ApiProduct): Listing {
     location: api.location
       ? `${api.location.city}, ${api.location.region}`
       : undefined,
+    ownerName: api.ownerName,
+    ownerType: api.ownerType,
     createdAt: api.createdAt,
     featured: api.isFeatured,
     specifications:

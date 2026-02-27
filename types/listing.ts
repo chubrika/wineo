@@ -44,6 +44,10 @@ export interface Listing {
   location?: string;
   /** For /location/[slug] routing; ISO region slug */
   regionSlug?: RegionSlug;
+  /** Display name of who added the listing (e.g. "First Last") */
+  ownerName?: string;
+  /** business = show ownerName; physical = show "ფიზიკური პირი" */
+  ownerType?: "physical" | "business";
   /** ISO date string */
   createdAt: string;
   /** Optional for future filtering */

@@ -39,15 +39,13 @@ export function ListingToolbar({ total, state, pageSize }: ListingToolbarProps) 
           "No results"
         ) : (
           <>
-            Showing <span className="font-medium text-zinc-900">{start}</span>–
-            <span className="font-medium text-zinc-900">{end}</span> of{" "}
-            <span className="font-medium text-zinc-900">{total}</span> results
+            <span className="font-medium text-lg text-zinc-900">{total} </span> განცხადება
           </>
         )}
       </p>
       <div className="flex items-center gap-2">
         <label htmlFor="listing-sort" className="text-sm font-medium text-zinc-700">
-          Sort
+          დალაგება
         </label>
         <select
           id="listing-sort"

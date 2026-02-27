@@ -59,14 +59,6 @@ export default async function RentPage({ searchParams }: PageProps) {
       regions={regionsRes}
     >
       <div className="space-y-6">
-        <header className="mb-2">
-          <h1 className="text-2xl font-bold tracking-tight text-zinc-900">
-            Rent
-          </h1>
-          <p className="mt-1 text-sm text-zinc-600">
-            {total} listing{total !== 1 ? "s" : ""} available
-          </p>
-        </header>
         <ListingToolbar
           total={total}
           state={state}

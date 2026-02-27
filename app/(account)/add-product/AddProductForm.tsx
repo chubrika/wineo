@@ -5,12 +5,16 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
 import {
   createProduct,
+  updateProduct,
   getCategories,
   getRegions,
   getCities,
+  getFiltersByCategoryId,
   type ApiCategory,
   type ApiRegion,
   type ApiCity,
+  type ApiFilter,
+  type ApiProduct,
   type CreateProductPayload,
 } from "@/lib/api";
 import { buildCategoryTree } from "@/lib/categories";
@@ -61,9 +65,133 @@ const CONDITIONS = [
   { value: "used" as const, label: "მეორადი" },
 ];
 
-export function AddProductForm() {
+/** Renders a single filter control for add-product form (controlled by local state). */
+function AddProductFilterControl({
+  filter,
+  valueSingle,
+  valueMulti,
+  onChange,
+}: {
+  filter: ApiFilter;
+  valueSingle: string | number | boolean;
+  valueMulti: string[];
+  onChange: (value: string | string[] | number | boolean) => void;
+}) {
+  const label = filter.unit ? `${filter.name} (${filter.unit})` : filter.name;
+  const id = `add-filter-${filter.id}`;
+
+  if (filter.type === "select" && Array.isArray(filter.options) && filter.options.length > 0) {
+    const selectedSet = new Set(valueMulti);
+    const toggle = (opt: string) => {
+      const next = selectedSet.has(opt)
+        ? valueMulti.filter((v) => v !== opt)
+        : [...valueMulti, opt];
+      onChange(next);
+    };
+    return (
+      <div className="space-y-2">
+        <span className="block text-sm font-medium text-zinc-900">{label}</span>
+        <div className="space-y-2">
+          {filter.options.map((opt) => {
+            const optId = `${id}-${opt.replace(/\s+/g, "-")}`;
+            const checked = selectedSet.has(opt);
+            return (
+              <div key={opt} className="flex items-center gap-2">
+                <input
+                  id={optId}
+                  type="checkbox"
+                  checked={checked}
+                  onChange={() => toggle(opt)}
+                  className="h-4 w-4 rounded border-zinc-300 text-zinc-900 focus:ring-zinc-400"
+                />
+                <label htmlFor={optId} className="cursor-pointer text-sm text-zinc-700 hover:text-zinc-900">
+                  {opt}
+                </label>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    );
+  }
+
+  if (filter.type === "number" || filter.type === "text") {
+    const raw = valueSingle === undefined || valueSingle === null ? "" : String(valueSingle);
+    return (
+      <div className="space-y-2">
+        <label htmlFor={id} className="block text-sm font-medium text-zinc-900">
+          {label}
+        </label>
+        <input
+          id={id}
+          type={filter.type === "number" ? "number" : "text"}
+          value={raw}
+          onChange={(e) =>
+            onChange(filter.type === "number" ? (e.target.value === "" ? "" : Number(e.target.value)) : e.target.value)
+          }
+          placeholder={filter.type === "number" ? "0" : ""}
+          className={inputClass}
+        />
+      </div>
+    );
+  }
+
+  if (filter.type === "checkbox") {
+    const checked = valueSingle === true || valueSingle === "true" || valueSingle === "1";
+    return (
+      <div className="flex gap-2 items-center">
+        <input
+          id={id}
+          type="checkbox"
+          checked={checked}
+          onChange={(e) => onChange(e.target.checked ? "1" : "")}
+          className="h-4 w-4 rounded border-zinc-300 text-zinc-900 focus:ring-zinc-400"
+        />
+        <label htmlFor={id} className="text-sm font-medium text-zinc-900">
+          {label}
+        </label>
+      </div>
+    );
+  }
+
+  if (filter.type === "range") {
+    const raw = valueSingle === undefined || valueSingle === null ? "" : String(valueSingle);
+    return (
+      <div className="space-y-2">
+        <label htmlFor={id} className="block text-sm font-medium text-zinc-900">
+          {label}
+        </label>
+        <input
+          id={id}
+          type="text"
+          value={raw}
+          onChange={(e) => onChange(e.target.value)}
+          placeholder="მაგ. 0-100"
+          className={inputClass}
+        />
+      </div>
+    );
+  }
+
+  return null;
+}
+
+const inputClass =
+  "mt-1 block w-full rounded-lg border border-[1px] border-zinc-300 px-3 py-2 text-zinc-900 focus:border-[var(--nav-link-active)] focus:outline-none focus:ring-1 focus:ring-[var(--nav-link-active)]";
+
+export function AddProductForm({
+  productId,
+  initialProduct,
+  initialRegionId,
+  initialCityId,
+}: {
+  productId?: string;
+  initialProduct?: ApiProduct | null;
+  initialRegionId?: string;
+  initialCityId?: string;
+} = {}) {
   const router = useRouter();
-  const { user, token, loading: authLoading } = useAuth();
+  const { user, token, loading: authLoading, updateProfile } = useAuth();
   const [categories, setCategories] = useState<ApiCategory[]>([]);
   const [regions, setRegions] = useState<ApiRegion[]>([]);
   const [cities, setCities] = useState<ApiCity[]>([]);
@@ -84,6 +212,13 @@ export function AddProductForm() {
   const [condition, setCondition] = useState<"new" | "used" | "">("");
   const [imagesText, setImagesText] = useState("");
   const [thumbnail, setThumbnail] = useState("");
+  const [phone, setPhone] = useState("");
+
+  const [categoryFilters, setCategoryFilters] = useState<ApiFilter[]>([]);
+  const [loadingCategoryFilters, setLoadingCategoryFilters] = useState(false);
+  const [dynamicFilterValues, setDynamicFilterValues] = useState<
+    Record<string, string | string[] | number | boolean>
+  >({});
 
   const categoryTree = useMemo(
     () => buildCategoryTree(categories),
@@ -138,6 +273,50 @@ export function AddProductForm() {
   const canCategoryGoBack = categoryLevelStack.length > 1;
 
   useEffect(() => {
+    if (!categoryId) {
+      setCategoryFilters([]);
+      setDynamicFilterValues({});
+      return;
+    }
+    let cancelled = false;
+    setLoadingCategoryFilters(true);
+    getFiltersByCategoryId(categoryId)
+      .then((list) => {
+        if (!cancelled) {
+          setCategoryFilters(list.filter((f) => f.isActive));
+          const attrs = productId && initialProduct?.attributes && Array.isArray(initialProduct.attributes) && initialProduct.attributes.length > 0
+            ? initialProduct.attributes
+            : null;
+          if (attrs) {
+            const fromProduct = Object.fromEntries(
+              attrs.map((a) => [String(a.filterId), a.value])
+            );
+            setDynamicFilterValues(fromProduct);
+          } else {
+            setDynamicFilterValues({});
+          }
+        }
+      })
+      .finally(() => {
+        if (!cancelled) setLoadingCategoryFilters(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [categoryId, productId, initialProduct?.attributes]);
+
+  const setDynamicFilter = useCallback((filterId: string, value: string | string[] | number | boolean) => {
+    setDynamicFilterValues((prev) => {
+      if (value === "" || (Array.isArray(value) && value.length === 0)) {
+        const next = { ...prev };
+        delete next[filterId];
+        return next;
+      }
+      return { ...prev, [filterId]: value };
+    });
+  }, []);
+
+  useEffect(() => {
     Promise.all([getCategories(), getRegions()]).then(([cats, regs]) => {
       setCategories(cats.filter((c) => c.active));
       setRegions(regs);
@@ -161,6 +340,41 @@ export function AddProductForm() {
   useEffect(() => {
     loadCities(regionId);
   }, [regionId, loadCities]);
+
+  useEffect(() => {
+    if (user?.phone != null && user.phone !== "") setPhone((prev) => prev || user.phone || "");
+  }, [user?.phone]);
+
+  const isEditMode = Boolean(productId && initialProduct);
+
+  useEffect(() => {
+    if (!isEditMode || !initialProduct) return;
+    setTitle(initialProduct.title ?? "");
+    setDescription(initialProduct.description ?? "");
+    setType(initialProduct.type === "rent" ? "rent" : "sell");
+    setCategoryId(initialProduct.categoryId ?? "");
+    setPrice(initialProduct.price != null ? String(initialProduct.price) : "");
+    setCurrency(initialProduct.currency === "USD" ? "USD" : "GEL");
+    setPriceType("fixed");
+    setRentPeriod((initialProduct.type === "rent" && initialProduct.rentPeriod) ? initialProduct.rentPeriod : "");
+    setRegionId(initialRegionId ?? "");
+    setCityId(initialCityId ?? "");
+    setCondition(
+      (initialProduct.specifications?.condition === "new" || initialProduct.specifications?.condition === "used")
+        ? (initialProduct.specifications.condition as "new" | "used")
+        : ""
+    );
+    setImagesText(Array.isArray(initialProduct.images) ? initialProduct.images.join("\n") : "");
+    setThumbnail(initialProduct.thumbnail ?? "");
+  }, [isEditMode, initialProduct, initialRegionId, initialCityId]);
+
+  useEffect(() => {
+    if (isEditMode && initialRegionId && !regionId) setRegionId(initialRegionId);
+  }, [isEditMode, initialRegionId, regionId]);
+
+  useEffect(() => {
+    if (isEditMode && initialCityId && !cityId) setCityId(initialCityId);
+  }, [isEditMode, initialCityId, cityId]);
 
   if (authLoading) {
     return <p className="text-zinc-500">იტვირთება...</p>;
@@ -193,6 +407,17 @@ export function AddProductForm() {
       setError("ქირის პერიოდი სავალდებულოა");
       return;
     }
+    const requiredFilter = categoryFilters.find(
+      (f) => f.isRequired && (dynamicFilterValues[f.id] === undefined || dynamicFilterValues[f.id] === "" || (Array.isArray(dynamicFilterValues[f.id]) && (dynamicFilterValues[f.id] as string[]).length === 0))
+    );
+    if (requiredFilter) {
+      setError(`სავალდებულო მახასიათებელი: ${requiredFilter.name}`);
+      return;
+    }
+    if (!phone.trim()) {
+      setError("საკონტაქტო ნომერი სავალდებულოა");
+      return;
+    }
     const priceNum = priceType === "negotiable" ? 0 : parseFloat(price);
     if (priceType === "fixed" && (Number.isNaN(priceNum) || priceNum < 0)) {
       setError("შეიყვანეთ სწორი ფასი");
@@ -203,6 +428,15 @@ export function AddProductForm() {
       .split(/\n/)
       .map((s) => s.trim())
       .filter(Boolean);
+    const attributes = categoryFilters
+      .map((f) => {
+        const v = dynamicFilterValues[f.id];
+        if (v === undefined || v === null) return null;
+        if (typeof v === "string" && v.trim() === "") return null;
+        if (Array.isArray(v) && v.length === 0) return null;
+        return { filterId: f.id, value: v as string | number | boolean | string[] };
+      })
+      .filter((a): a is { filterId: string; value: string | number | boolean | string[] } => a != null);
     const payload: CreateProductPayload = {
       title: title.trim(),
       slug: titleToSlug(title) || undefined,
@@ -218,11 +452,17 @@ export function AddProductForm() {
       ...(images.length > 0 ? { images } : {}),
       ...(thumbnail.trim() ? { thumbnail: thumbnail.trim() } : {}),
       ...(condition ? { specifications: { condition } } : {}),
+      ...(attributes.length > 0 ? { attributes } : {}),
     };
 
     setSubmitting(true);
     try {
-      await createProduct(token, payload);
+      await updateProfile({ phone: phone.trim() });
+      if (productId) {
+        await updateProduct(token, productId, payload);
+      } else {
+        await createProduct(token, payload);
+      }
       router.push("/products");
       router.refresh();
     } catch (err) {
@@ -232,12 +472,10 @@ export function AddProductForm() {
     }
   };
 
-  const inputClass =
-    "mt-1 block w-full rounded-lg border border-zinc-300 px-3 py-2 text-zinc-900 shadow-sm focus:border-[var(--nav-link-active)] focus:outline-none focus:ring-1 focus:ring-[var(--nav-link-active)]";
   const labelClass = "block text-sm font-medium text-zinc-700";
 
   return (
-    <form onSubmit={handleSubmit} className="mt-6 space-y-6">
+    <form onSubmit={handleSubmit} className="space-y-6">
       {error && (
         <div
           className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800"
@@ -247,7 +485,7 @@ export function AddProductForm() {
         </div>
       )}
 
-      <section>
+      <section className="rounded-xl border border-zinc-200 bg-white p-4">
         <h2 className="text-sm font-semibold text-zinc-900 normal-font">ძირითადი ინფორმაცია</h2>
         <div className="mt-4 space-y-4">
           <div>
@@ -277,6 +515,19 @@ export function AddProductForm() {
             />
           </div>
           <div>
+            <label htmlFor="phone" className={labelClass}>საკონტაქტო ნომერი</label>
+            <input
+              id="phone"
+              type="tel"
+              required
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              className={inputClass}
+              placeholder="მაგ. +995 555 123 456"
+            />
+            <p className="mt-1 text-xs text-zinc-500">შეინახება თქვენს ანგარიშზე და გამოჩნდება განცხადებაზე</p>
+          </div>
+          <div>
             <span className={labelClass}>ტიპი</span>
             <div className="mt-1 flex gap-2">
               {LISTING_TYPES.map((opt) => (
@@ -301,7 +552,7 @@ export function AddProductForm() {
         </div>
       </section>
 
-      <section>
+      <section className="rounded-xl border border-zinc-200 bg-white p-4">
         <h2 className="text-sm font-semibold text-zinc-900 normal-font">კატეგორია</h2>
         <div className="mt-4">
           <label htmlFor="categoryId" className={labelClass}>კატეგორია</label>
@@ -385,7 +636,46 @@ export function AddProductForm() {
         </div>
       </section>
 
-      <section>
+      {categoryId && (
+        <section className="rounded-xl border border-zinc-200 bg-white p-4">
+          <h2 className="text-sm font-semibold text-zinc-900 normal-font">დამატებითი მახასიათებლები</h2>
+          <div className="mt-4">
+            {loadingCategoryFilters && (
+              <p className="text-sm text-zinc-500">ფილტრები იტვირთება…</p>
+            )}
+            {!loadingCategoryFilters && categoryFilters.length > 0 && (
+              <div className="space-y-4">
+                {categoryFilters.map((filter) => (
+                  <AddProductFilterControl
+                    key={filter.id}
+                    filter={filter}
+                    valueSingle={
+                      Array.isArray(dynamicFilterValues[filter.id])
+                        ? (dynamicFilterValues[filter.id] as string[])[0] ?? ""
+                        : (dynamicFilterValues[filter.id] ?? "") as string | number | boolean
+                    }
+                    valueMulti={
+                      Array.isArray(dynamicFilterValues[filter.id])
+                        ? (dynamicFilterValues[filter.id] as string[])
+                        : dynamicFilterValues[filter.id] !== undefined &&
+                            dynamicFilterValues[filter.id] !== "" &&
+                            dynamicFilterValues[filter.id] !== null
+                          ? [String(dynamicFilterValues[filter.id])]
+                          : []
+                    }
+                    onChange={(value) => setDynamicFilter(filter.id, value)}
+                  />
+                ))}
+              </div>
+            )}
+            {!loadingCategoryFilters && categoryFilters.length === 0 && selectedCategory && (
+              <p className="text-sm text-zinc-500">ამ კატეგორიისთვის დამატებითი მახასიათებლები არ არის.</p>
+            )}
+          </div>
+        </section>
+      )}
+
+      <section className="rounded-xl border border-zinc-200 bg-white p-4">
         <h2 className="text-sm font-semibold text-zinc-900 normal-font">ღირებულება</h2>
         <div className="mt-4 space-y-4">
           <div>
@@ -463,7 +753,7 @@ export function AddProductForm() {
         </div>
       </section>
 
-      <section>
+      <section className="rounded-xl border border-zinc-200 bg-white p-4">
         <h2 className="text-sm font-semibold text-zinc-900 normal-font">მდებარეობა</h2>
         <div className="mt-4 grid gap-4 sm:grid-cols-2">
           <div>
@@ -501,7 +791,7 @@ export function AddProductForm() {
         </div>
       </section>
 
-      <section>
+      <section className="rounded-xl border border-zinc-200 bg-white p-4">
         <h2 className="text-sm font-semibold text-zinc-900 normal-font">მდგომარეობა</h2>
         <div className="mt-4 flex gap-2">
           {CONDITIONS.map((opt) => (
@@ -521,7 +811,7 @@ export function AddProductForm() {
         </div>
       </section>
 
-      <section>
+      <section className="rounded-xl border border-zinc-200 bg-white p-4">
           <h2 className="text-sm font-semibold text-zinc-900 normal-font">სურათები</h2>
         <div className="mt-4 space-y-4">
           <div>
@@ -562,7 +852,7 @@ export function AddProductForm() {
           disabled={submitting}
           className="rounded-lg bg-[var(--nav-link-active)] px-4 py-2.5 font-medium text-white hover:opacity-90 disabled:opacity-60"
         >
-          {submitting ? "შენახვა…" : "განცხადების დამატება"}
+          {submitting ? "შენახვა…" : productId ? "ცვლილებების შენახვა" : "განცხადების დამატება"}
         </button>
       </div>
     </form>
