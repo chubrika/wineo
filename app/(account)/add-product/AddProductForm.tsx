@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
 import {
@@ -13,6 +13,8 @@ import {
   type ApiCity,
   type CreateProductPayload,
 } from "@/lib/api";
+import { buildCategoryTree } from "@/lib/categories";
+import type { CategoryTreeNode } from "@/types/category";
 
 /** Georgian → Latin (ISO 9984–style) for URL-friendly slugs */
 function transliterateGeorgianToLatin(s: string): string {
@@ -82,6 +84,58 @@ export function AddProductForm() {
   const [condition, setCondition] = useState<"new" | "used" | "">("");
   const [imagesText, setImagesText] = useState("");
   const [thumbnail, setThumbnail] = useState("");
+
+  const categoryTree = useMemo(
+    () => buildCategoryTree(categories),
+    [categories]
+  );
+
+  const [categoryDropdownOpen, setCategoryDropdownOpen] = useState(false);
+  const [categoryLevelStack, setCategoryLevelStack] = useState<CategoryTreeNode[][]>([]);
+  const categoryDropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!categoryDropdownOpen || categoryTree.length === 0) return;
+    const current = categoryLevelStack.length > 0 ? categoryLevelStack[categoryLevelStack.length - 1] : [];
+    if (current.length === 0) setCategoryLevelStack([categoryTree]);
+  }, [categoryDropdownOpen, categoryTree, categoryLevelStack]);
+
+  useEffect(() => {
+    if (!categoryDropdownOpen) return;
+    function handleClickOutside(e: MouseEvent) {
+      if (categoryDropdownRef.current && !categoryDropdownRef.current.contains(e.target as Node)) {
+        setCategoryDropdownOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [categoryDropdownOpen]);
+
+  const openCategoryDropdown = () => {
+    setCategoryLevelStack([categoryTree]);
+    setCategoryDropdownOpen(true);
+  };
+
+  const closeCategoryDropdown = () => {
+    setCategoryDropdownOpen(false);
+    setCategoryLevelStack([]);
+  };
+
+  const handleCategoryOptionClick = (node: CategoryTreeNode) => {
+    if (node.children.length > 0) {
+      setCategoryLevelStack((prev) => [...prev, node.children]);
+    } else {
+      setCategoryId(node.id);
+      closeCategoryDropdown();
+    }
+  };
+
+  const handleCategoryBack = () => {
+    setCategoryLevelStack((prev) => (prev.length > 1 ? prev.slice(0, -1) : prev));
+  };
+
+  const currentCategoryOptions = categoryLevelStack.length > 0 ? categoryLevelStack[categoryLevelStack.length - 1] : [];
+  const canCategoryGoBack = categoryLevelStack.length > 1;
 
   useEffect(() => {
     Promise.all([getCategories(), getRegions()]).then(([cats, regs]) => {
@@ -251,20 +305,83 @@ export function AddProductForm() {
         <h2 className="text-sm font-semibold text-zinc-900 normal-font">კატეგორია</h2>
         <div className="mt-4">
           <label htmlFor="categoryId" className={labelClass}>კატეგორია</label>
-          <select
-            id="categoryId"
-            required
-            value={categoryId}
-            onChange={(e) => setCategoryId(e.target.value)}
-            className={inputClass}
-          >
-            <option value="">— აირჩიეთ კატეგორია —</option>
-            {categories.map((c) => (
-              <option key={c.id} value={c.id}>
-                {c.name}
-              </option>
-            ))}
-          </select>
+          <div ref={categoryDropdownRef} className="relative mt-1">
+            <button
+              type="button"
+              id="categoryId"
+              onClick={openCategoryDropdown}
+              aria-haspopup="listbox"
+              aria-expanded={categoryDropdownOpen}
+              aria-label="აირჩიეთ კატეგორია"
+              className={`${inputClass} flex w-full items-center justify-between text-left`}
+            >
+              <span className={selectedCategory ? "text-zinc-900" : "text-zinc-500"}>
+                {selectedCategory ? selectedCategory.name : "— აირჩიეთ კატეგორია —"}
+              </span>
+              <svg
+                className={`h-4 w-4 shrink-0 text-zinc-500 transition-transform ${categoryDropdownOpen ? "rotate-180" : ""}`}
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                aria-hidden
+              >
+                <path d="M6 9l6 6 6-6" />
+              </svg>
+            </button>
+            {categoryDropdownOpen && (
+              <div
+                role="listbox"
+                className="absolute z-10 mt-1 max-h-64 w-full overflow-auto rounded-lg border border-zinc-300 bg-white py-1 shadow-lg"
+              >
+                {canCategoryGoBack && (
+                  <button
+                    type="button"
+                    onClick={handleCategoryBack}
+                    className="flex cursor-pointer w-full items-center gap-2 px-3 py-2 text-left text-sm text-zinc-600 hover:bg-zinc-100"
+                  >
+                    <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
+                      <path d="M15 18l-6-6 6-6" />
+                    </svg>
+                    უკან
+                  </button>
+                )}
+                {currentCategoryOptions.length === 0 && !canCategoryGoBack && (
+                  <div className="px-3 py-4 text-center text-sm text-zinc-500">კატეგორია არ მოიძებნა</div>
+                )}
+                {currentCategoryOptions.map((node) => (
+                  <button
+                    key={node.id}
+                    type="button"
+                    role="option"
+                    aria-selected={node.id === categoryId}
+                    onClick={() => handleCategoryOptionClick(node)}
+                    className={`flex cursor-pointer w-full items-center justify-between px-3 py-2 text-left text-sm transition-colors ${
+                      node.children.length > 0
+                        ? "text-zinc-900 hover:bg-zinc-50 font-medium"
+                        : "text-zinc-700 hover:bg-zinc-100"
+                    }`}
+                  >
+                    <span>{node.name}</span>
+                    {node.children.length > 0 && (
+                      <svg className="h-4 w-4 text-zinc-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
+                        <path d="M9 6l6 6-6 6" />
+                      </svg>
+                    )}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+          {categoryId && (
+            <input
+              type="hidden"
+              name="categoryId"
+              value={categoryId}
+              readOnly
+              aria-hidden
+            />
+          )}
         </div>
       </section>
 
