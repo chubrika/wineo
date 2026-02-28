@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { searchListings } from "@/lib/listings";
 import { ListingCard } from "@/components/listing";
-import { REGIONS } from "@/constants/regions";
+import { getRegions } from "@/lib/api";
 import type { RegionSlug } from "@/types/listing";
 
 interface PageProps {
@@ -10,12 +10,14 @@ interface PageProps {
 }
 
 export async function generateStaticParams() {
-  return REGIONS.map((r) => ({ slug: r.slug }));
+  const regions = await getRegions();
+  return regions.map((r) => ({ slug: r.slug }));
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params;
-  const region = REGIONS.find((r) => r.slug === slug);
+  const regions = await getRegions();
+  const region = regions.find((r) => r.slug === slug);
   if (!region) return { title: "Region" };
   return {
     title: `Winemaking Equipment in ${region.label}`,
@@ -25,7 +27,8 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 export default async function LocationPage({ params }: PageProps) {
   const { slug } = await params;
-  const region = REGIONS.find((r) => r.slug === slug);
+  const regions = await getRegions();
+  const region = regions.find((r) => r.slug === slug);
   if (!region) notFound();
 
   const { items, total } = await searchListings({
