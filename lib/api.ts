@@ -5,6 +5,9 @@ export const API_URL =
   (typeof process !== "undefined" && process.env?.NEXT_PUBLIC_API_URL) ||
   "http://localhost:4000";
 
+/** Base URL for API routes (backend uses /api prefix, vivi-style). */
+export const API_BASE = `${API_URL}/api`;
+
 export type AuthUser = {
   id: string;
   email: string;
@@ -53,7 +56,7 @@ async function handleRes<T>(res: Response): Promise<T> {
 }
 
 export async function register(body: RegisterBody): Promise<AuthResponse> {
-  const res = await fetch(`${API_URL}/auth/register`, {
+  const res = await fetch(`${API_BASE}/auth/register`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body),
@@ -62,7 +65,7 @@ export async function register(body: RegisterBody): Promise<AuthResponse> {
 }
 
 export async function login(body: LoginBody): Promise<AuthResponse> {
-  const res = await fetch(`${API_URL}/auth/login`, {
+  const res = await fetch(`${API_BASE}/auth/login`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body),
@@ -71,7 +74,7 @@ export async function login(body: LoginBody): Promise<AuthResponse> {
 }
 
 export async function getMe(token: string): Promise<MeResponse> {
-  const res = await fetch(`${API_URL}/auth/me`, {
+  const res = await fetch(`${API_BASE}/auth/me`, {
     headers: { Authorization: `Bearer ${token}` },
   });
   return handleRes<MeResponse>(res);
@@ -89,7 +92,7 @@ export type UpdateMeBody = {
  * PATCH /auth/me — update current user profile. Returns updated user.
  */
 export async function updateMe(token: string, body: UpdateMeBody): Promise<MeResponse> {
-  const res = await fetch(`${API_URL}/auth/me`, {
+  const res = await fetch(`${API_BASE}/auth/me`, {
     method: "PATCH",
     headers: {
       "Content-Type": "application/json",
@@ -105,7 +108,7 @@ export async function updateMe(token: string, body: UpdateMeBody): Promise<MeRes
  */
 export async function getCategories(params?: { roots?: boolean }): Promise<ApiCategory[]> {
   const search = params?.roots ? "?roots=1" : "";
-  const res = await fetch(`${API_URL}/categories${search}`, { cache: "no-store" });
+  const res = await fetch(`${API_BASE}/categories${search}`, { cache: "no-store" });
   return handleRes<ApiCategory[]>(res);
 }
 
@@ -117,7 +120,7 @@ export async function getCategoryBySlug(slug: string): Promise<ApiCategory | nul
   try {
     const normalizedSlug = typeof slug === "string" ? slug.trim().toLowerCase() : "";
     if (!normalizedSlug) return null;
-    const res = await fetch(`${API_URL}/categories/slug/${encodeURIComponent(normalizedSlug)}`, { cache: "no-store" });
+    const res = await fetch(`${API_BASE}/categories/slug/${encodeURIComponent(normalizedSlug)}`, { cache: "no-store" });
     if (!res.ok) return null;
     return await handleRes<ApiCategory>(res);
   } catch {
@@ -139,7 +142,7 @@ export type ApiRegion = {
  */
 export async function getRegions(): Promise<ApiRegion[]> {
   try {
-    const res = await fetch(`${API_URL}/regions`, { cache: "no-store" });
+    const res = await fetch(`${API_BASE}/regions`, { cache: "no-store" });
     return handleRes<ApiRegion[]>(res);
   } catch {
     return [];
@@ -163,7 +166,7 @@ export type ApiCity = {
 export async function getCities(regionId?: string): Promise<ApiCity[]> {
   try {
     const qs = regionId ? `?regionId=${encodeURIComponent(regionId)}` : "";
-    const res = await fetch(`${API_URL}/cities${qs}`, { cache: "no-store" });
+    const res = await fetch(`${API_BASE}/cities${qs}`, { cache: "no-store" });
     return handleRes<ApiCity[]>(res);
   } catch {
     return [];
@@ -192,7 +195,7 @@ export type ApiFilter = {
  */
 export async function getFiltersByCategoryId(categoryId: string): Promise<ApiFilter[]> {
   try {
-    const res = await fetch(`${API_URL}/filters/by-category/${encodeURIComponent(categoryId)}`, {
+    const res = await fetch(`${API_BASE}/filters/by-category/${encodeURIComponent(categoryId)}`, {
       cache: "no-store",
     });
     if (!res.ok) return [];
@@ -269,7 +272,7 @@ export async function getProducts(params?: GetProductsParams): Promise<ApiProduc
   if (params?.priceMax != null) search.set("priceMax", String(params.priceMax));
   if (params?.regionSlug) search.set("regionSlug", params.regionSlug);
   const qs = search.toString();
-  const res = await fetch(`${API_URL}/products${qs ? `?${qs}` : ""}`, { cache: "no-store" });
+  const res = await fetch(`${API_BASE}/products${qs ? `?${qs}` : ""}`, { cache: "no-store" });
   return handleRes<ApiProduct[]>(res);
 }
 
@@ -277,7 +280,7 @@ export async function getProducts(params?: GetProductsParams): Promise<ApiProduc
  * GET /products/mine — list current user's products. Requires auth token.
  */
 export async function getMyProducts(token: string): Promise<ApiProduct[]> {
-  const res = await fetch(`${API_URL}/products/mine`, {
+  const res = await fetch(`${API_BASE}/products/mine`, {
     cache: "no-store",
     headers: { Authorization: `Bearer ${token}` },
   });
@@ -298,7 +301,7 @@ export async function getProductBySlug(
     if (!normalizedSlug) return null;
     const qs = type ? `?type=${type}` : "";
     const res = await fetch(
-      `${API_URL}/products/slug/${encodeURIComponent(normalizedSlug)}${qs}`,
+      `${API_BASE}/products/slug/${encodeURIComponent(normalizedSlug)}${qs}`,
       { cache: "no-store" }
     );
     if (!res.ok) return null;
@@ -343,7 +346,7 @@ export async function createProduct(
   token: string,
   payload: CreateProductPayload
 ): Promise<ApiProduct> {
-  const res = await fetch(`${API_URL}/products`, {
+  const res = await fetch(`${API_BASE}/products`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -359,7 +362,7 @@ export async function createProduct(
  */
 export async function getProductById(id: string): Promise<ApiProduct | null> {
   try {
-    const res = await fetch(`${API_URL}/products/${encodeURIComponent(id)}`, { cache: "no-store" });
+    const res = await fetch(`${API_BASE}/products/${encodeURIComponent(id)}`, { cache: "no-store" });
     if (!res.ok) return null;
     return await handleRes<ApiProduct>(res);
   } catch {
@@ -375,7 +378,7 @@ export async function updateProduct(
   id: string,
   payload: Partial<CreateProductPayload>
 ): Promise<ApiProduct> {
-  const res = await fetch(`${API_URL}/products/${encodeURIComponent(id)}`, {
+  const res = await fetch(`${API_BASE}/products/${encodeURIComponent(id)}`, {
     method: "PUT",
     headers: {
       "Content-Type": "application/json",
@@ -390,7 +393,7 @@ export async function updateProduct(
  * DELETE /products/:id — delete a product. Requires auth token.
  */
 export async function deleteProduct(token: string, id: string): Promise<void> {
-  const res = await fetch(`${API_URL}/products/${encodeURIComponent(id)}`, {
+  const res = await fetch(`${API_BASE}/products/${encodeURIComponent(id)}`, {
     method: "DELETE",
     headers: { Authorization: `Bearer ${token}` },
   });
@@ -413,7 +416,7 @@ export async function getPresignedUploadUrls(
   token: string,
   count: number
 ): Promise<PresignUploadResponse> {
-  const res = await fetch(`${API_URL}/products/upload/presign`, {
+  const res = await fetch(`${API_BASE}/products/upload/presign`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
