@@ -10,24 +10,33 @@ interface PageProps {
 }
 
 export async function generateStaticParams() {
-  const list = await getCategories({ roots: true });
-  return list.filter((c) => c.active).map((c) => ({ slug: c.slug }));
+  try {
+    const list = await getCategories({ roots: true });
+    return list.filter((c) => c.active).map((c) => ({ slug: c.slug }));
+  } catch {
+    return [];
+  }
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params;
-  const list = await getCategories({ roots: true });
-  const category = list.find((c) => c.active && c.slug === slug);
-  if (!category) return { title: "Category" };
-  return {
-    title: `${category.name} — Winemaking Equipment`,
-    description: `Browse ${category.name.toLowerCase()} listings. Buy or rent winemaking equipment in Georgia.`,
-  };
+  try {
+    const list = await getCategories({ roots: true });
+    const category = list.find((c) => c.active && c.slug === slug);
+    if (!category) return { title: "Category" };
+    return {
+      title: `${category.name} — Winemaking Equipment`,
+      description: `Browse ${category.name.toLowerCase()} listings. Buy or rent winemaking equipment in Georgia.`,
+    };
+  } catch {
+    return { title: "Category" };
+  }
 }
 
 export default async function CategoryPage({ params }: PageProps) {
   const { slug } = await params;
-  const list = await getCategories({ roots: true });
+  const list = await getCategories({ roots: true }).catch(() => null);
+  if (!list) notFound();
   const category = list.find((c) => c.active && c.slug === slug);
   if (!category) notFound();
 
