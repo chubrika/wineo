@@ -12,11 +12,10 @@ interface ListingToolbarProps {
   pageSize: number;
 }
 
-export function ListingToolbar({ total, state, pageSize }: ListingToolbarProps) {
+export function ListingToolbar({ total, state }: ListingToolbarProps) {
   const router = useRouter();
   const pathname = usePathname();
-  const start = total === 0 ? 0 : (Number(state.page) || 1) * pageSize - pageSize + 1;
-  const end = Math.min((Number(state.page) || 1) * pageSize, total);
+
   const currentSort = state.sort ?? "newest";
 
   const handleSortChange = (e: React.ChangeEvent<HTMLSelectElement>) => {

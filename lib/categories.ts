@@ -7,7 +7,6 @@ import type { CategoryTreeNode } from "@/types/category";
  */
 export function buildCategoryTree(categories: ApiCategory[]): CategoryTreeNode[] {
   const active = categories.filter((c) => c.active);
-  const byId = new Map<string, ApiCategory>(active.map((c) => [c.id, c]));
 
   function toNode(cat: ApiCategory): CategoryTreeNode {
     const children = active

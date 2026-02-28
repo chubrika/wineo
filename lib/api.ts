@@ -322,8 +322,11 @@ export type CreateProductPayload = {
   rentPeriod?: "hour" | "day" | "week" | "month";
   location: { region: string; city: string };
   attributes?: { filterId: string; value: string | number | boolean | string[] }[];
+  /** Public image URLs (when not using temp uploads) */
   images?: string[];
   thumbnail?: string;
+  /** R2 temp object keys from presigned upload; first = thumbnail. Processed on create. */
+  tempImageKeys?: string[];
   specifications?: { condition?: "new" | "used"; [key: string]: unknown };
   status?: string;
   seoTitle?: string;
@@ -395,4 +398,28 @@ export async function deleteProduct(token: string, id: string): Promise<void> {
     const data = await res.json().catch(() => ({}));
     throw new Error((data as { error?: string })?.error ?? res.statusText);
   }
+}
+
+/** Response from POST /products/upload/presign */
+export type PresignUploadResponse = {
+  uploads: { key: string; uploadUrl: string }[];
+};
+
+/**
+ * POST /products/upload/presign — get presigned PUT URLs for product image uploads to R2.
+ * count: 1–20. Returns uploads array (key + uploadUrl). First image = thumbnail.
+ */
+export async function getPresignedUploadUrls(
+  token: string,
+  count: number
+): Promise<PresignUploadResponse> {
+  const res = await fetch(`${API_URL}/products/upload/presign`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({ count: Math.min(20, Math.max(1, count)) }),
+  });
+  return handleRes<PresignUploadResponse>(res);
 }

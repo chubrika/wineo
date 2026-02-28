@@ -5,9 +5,11 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
+import { useFiltersModal } from "@/contexts/FiltersModalContext";
+import { HeaderSearchBar } from "./HeaderSearchBar";
+import { SlidersHorizontalIcon } from "lucide-react";
 
 const navLinks = [
-  { href: "/", label: "მთავარი" },
   { href: "/buy", label: "იყიდე" },
   { href: "/rent", label: "იქირავე" },
   { href: "/news", label: "სიახლეები" },
@@ -69,6 +71,9 @@ function MobileBottomNavIcon({ icon, active }: { icon: string; active: boolean }
       </svg>
     );
   }
+  if (icon === "filters") {
+    return <SlidersHorizontalIcon className={className} aria-hidden />;
+  }
   if (icon === "account") {
     return (
       <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} aria-hidden>
@@ -85,6 +90,7 @@ export function Header() {
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const userMenuRef = useRef<HTMLDivElement>(null);
   const { user, loading, logout } = useAuth();
+  const { openFiltersModal } = useFiltersModal();
 
   useEffect(() => {
     if (menuOpen) document.body.style.overflow = "hidden";
@@ -108,19 +114,47 @@ export function Header() {
 
   return (
     <>
-    <header className="relative z-50 border-b border-zinc-200 bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/80">
-      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
+    <header className="sticky top-0 z-50 border-b border-zinc-200 bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/80">
+      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-3 px-4 sm:px-6 lg:px-8">
         <Link
           href="/"
-          className="text-xl font-semibold tracking-tight text-zinc-900"
+          className="shrink-0 text-xl font-semibold tracking-tight text-zinc-900"
           onClick={() => setMenuOpen(false)}
         >
           <Image src="/logo.svg" alt="wineo.ge" width={100} height={100} priority />
         </Link>
 
+        {/* Mobile: filters button after logo (home only) */}
+        {pathname === "/" && (
+          <button
+            type="button"
+            onClick={openFiltersModal}
+            className="flex shrink-0 items-center gap-1.5 rounded-full bg-[#8a052d] px-3 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-[#6d0423] lg:hidden"
+            aria-label="დეტალური ფილტრები"
+          >
+            <SlidersHorizontalIcon className="h-5 w-5 shrink-0" />
+          </button>
+        )}
+
+        {/* Search — before nav */}
+        <div className="hidden flex-1 min-w-0 items-center justify-center gap-3 lg:flex">
+          {pathname === "/" && (
+            <button
+              type="button"
+              onClick={openFiltersModal}
+              className="flex shrink-0 items-center gap-2 rounded-full bg-[#8a052d] px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-[#6d0423]"
+              aria-label="დეტალური ფილტრები"
+            >
+              <SlidersHorizontalIcon className="h-5 w-5 shrink-0" />
+              ფილტრები
+            </button>
+          )}
+          <HeaderSearchBar />
+        </div>
+
         {/* Desktop nav */}
         <nav
-          className="nav-font-medium hidden items-center gap-6 lg:flex"
+          className="nav-font-medium hidden shrink-0 items-center gap-6 lg:flex"
           aria-label="Main navigation"
         >
           {navLinks.map(({ href, label }) => (
@@ -212,9 +246,13 @@ export function Header() {
       {/* Mobile nav panel */}
       <div
         id="mobile-nav"
-        className={`nav-font-medium overflow-hidden transition-[height,opacity] duration-300 ease-out lg:hidden ${menuOpen ? "max-h-[320px] opacity-100" : "max-h-0 opacity-0"}`}
+        className={`nav-font-medium overflow-hidden transition-[height,opacity] duration-300 ease-out lg:hidden ${menuOpen ? "max-h-[480px] opacity-100" : "max-h-0 opacity-0"}`}
         aria-hidden={!menuOpen}
       >
+        {/* Search — before nav on mobile */}
+        <div className="border-t border-zinc-200 bg-zinc-50/80 px-4 py-3 sm:px-6">
+          <HeaderSearchBar />
+        </div>
         <nav
           className="border-t border-zinc-200 bg-white px-4 py-4 sm:px-6"
           aria-label="Main navigation"
@@ -271,6 +309,7 @@ export function Header() {
       className="fixed bottom-0 left-0 right-0 z-50 flex items-center justify-around border-t border-zinc-200 bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/95 pb-[env(safe-area-inset-bottom)] lg:hidden"
       aria-label="Mobile bottom navigation"
     >
+        {pathname !== "/" && (
       <Link
         href="/"
         onClick={() => setMenuOpen(false)}
@@ -280,6 +319,18 @@ export function Header() {
         <MobileBottomNavIcon icon="home" active={pathname === "/"} />
         <span className="text-xs font-medium truncate w-full text-center">მთავარი</span>
       </Link>
+      )}
+      {pathname === "/" && (
+        <button
+          type="button"
+          onClick={openFiltersModal}
+          className="flex flex-col items-center gap-0.5 py-3 px-4 min-w-0 flex-1 text-zinc-600"
+          aria-label="ფილტრები"
+        >
+          <MobileBottomNavIcon icon="filters" active={false} />
+          <span className="text-xs font-medium truncate w-full text-center">ფილტრები</span>
+        </button>
+      )}
       <Link
         href="/buy"
         onClick={() => setMenuOpen(false)}

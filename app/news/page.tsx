@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { SITE_NAME } from "@/constants/site";
 
 export const metadata: Metadata = {
   title: "სიახლეები",

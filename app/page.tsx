@@ -24,8 +24,8 @@ export default function HomePage() {
   return (
     <>
       <HeroSection />
-      <CategoryGrid />
       <BuyRentSection />
+      <CategoryGrid />
       <FeaturedListings />
       <RegionSection />
       <HowItWorks />

@@ -13,7 +13,7 @@ interface PageProps {
 }
 
 export default async function ListingsPage({ searchParams }: PageProps) {
-  const { page: pageParam, sort } = await searchParams;
+  const { page: pageParam } = await searchParams;
   const page = Math.max(1, parseInt(String(pageParam ?? "1"), 10) || 1);
   const offset = (page - 1) * PAGE_SIZE;
 

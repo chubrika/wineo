@@ -40,29 +40,24 @@ const AuthContext = createContext<AuthContextValue | null>(null);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(null);
-  const [token, setToken] = useState<string | null>(null);
+  const [token, setToken] = useState<string | null>(() => getStoredToken());
   const [loading, setLoading] = useState(true);
 
-  const loadUser = useCallback(async (t: string) => {
-    try {
-      const { user: u } = await getMe(t);
-      setUser(u);
-    } catch {
-      clearStoredToken();
-      setToken(null);
-      setUser(null);
-    }
-  }, []);
-
   useEffect(() => {
-    const t = getStoredToken();
+    const t = token;
     if (!t) {
-      setLoading(false);
+      Promise.resolve().then(() => setLoading(false));
       return;
     }
-    setToken(t);
-    loadUser(t).finally(() => setLoading(false));
-  }, [loadUser]);
+    getMe(t)
+      .then(({ user: u }) => setUser(u))
+      .catch(() => {
+        clearStoredToken();
+        setToken(null);
+        setUser(null);
+      })
+      .finally(() => setLoading(false));
+  }, [token]);
 
   const login = useCallback(
     async (email: string, password: string) => {

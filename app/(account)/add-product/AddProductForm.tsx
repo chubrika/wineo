@@ -20,6 +20,12 @@ import {
 } from "@/lib/api";
 import { buildCategoryTree } from "@/lib/categories";
 import type { CategoryTreeNode } from "@/types/category";
+import {
+  ProductImageUpload,
+  getTempImageKeys,
+  getExistingImageUrls,
+  type UploadedImage,
+} from "@/components/product/ProductImageUpload";
 
 /** Georgian → Latin (ISO 9984–style) for URL-friendly slugs */
 function transliterateGeorgianToLatin(s: string): string {
@@ -232,8 +238,8 @@ export function AddProductForm({
   const [regionId, setRegionId] = useState("");
   const [cityId, setCityId] = useState("");
   const [condition, setCondition] = useState<"new" | "used" | "">("");
-  const [imagesText, setImagesText] = useState("");
   const [thumbnail, setThumbnail] = useState("");
+  const [uploadedImages, setUploadedImages] = useState<UploadedImage[]>([]);
   const [phone, setPhone] = useState("");
   const [promotionType, setPromotionType] = useState<PromotionType>("none");
   const [promotionExpiresAtLocal, setPromotionExpiresAtLocal] = useState<string>("");
@@ -388,8 +394,14 @@ export function AddProductForm({
         ? (initialProduct.specifications.condition as "new" | "used")
         : ""
     );
-    setImagesText(Array.isArray(initialProduct.images) ? initialProduct.images.join("\n") : "");
     setThumbnail(initialProduct.thumbnail ?? "");
+    setUploadedImages(
+      (initialProduct.images || []).map((url) => ({
+        key: "",
+        preview: url,
+        uploading: false,
+      }))
+    );
     const pt = (initialProduct.promotionType ?? "none") as PromotionType;
     const expiresAtIso = initialProduct.promotionExpiresAt ?? null;
     const expiresAt = expiresAtIso ? new Date(expiresAtIso) : null;
@@ -453,16 +465,19 @@ export function AddProductForm({
       setError("საკონტაქტო ნომერი სავალდებულოა");
       return;
     }
+    const tempImageKeys = getTempImageKeys(uploadedImages);
+    const existingUrls = getExistingImageUrls(uploadedImages);
+    if (!isEditMode && tempImageKeys.length === 0 && existingUrls.length === 0) {
+      setError("დაამატეთ მინიმუმ ერთი სურათი");
+      return;
+    }
     const priceNum = priceType === "negotiable" ? 0 : parseFloat(price);
     if (priceType === "fixed" && (Number.isNaN(priceNum) || priceNum < 0)) {
       setError("შეიყვანეთ სწორი ფასი");
       return;
     }
 
-    const images = imagesText
-      .split(/\n/)
-      .map((s) => s.trim())
-      .filter(Boolean);
+  
     const attributes = categoryFilters
       .map((f) => {
         const v = dynamicFilterValues[f.id];
@@ -484,8 +499,15 @@ export function AddProductForm({
       priceType,
       ...(type === "rent" && rentPeriod ? { rentPeriod } : {}),
       location: { region: selectedRegion.label, city: selectedCity.label },
-      ...(images.length > 0 ? { images } : {}),
-      ...(thumbnail.trim() ? { thumbnail: thumbnail.trim() } : {}),
+      ...(isEditMode
+        ? {
+            ...(existingUrls.length > 0 ? { images: existingUrls, thumbnail: existingUrls[0] } : {}),
+            ...(tempImageKeys.length > 0 ? { tempImageKeys } : {}),
+          }
+        : tempImageKeys.length > 0
+          ? { tempImageKeys }
+          : {}),
+      ...(existingUrls.length === 0 && tempImageKeys.length === 0 && thumbnail.trim() ? { thumbnail: thumbnail.trim() } : {}),
       ...(condition ? { specifications: { condition } } : {}),
       ...(attributes.length > 0 ? { attributes } : {}),
       promotionType,
@@ -514,8 +536,36 @@ export function AddProductForm({
 
   const labelClass = "block text-sm font-medium text-zinc-700";
 
+  /** Preview data for the listing card: thumbnail from first image, then form fields */
+  const previewThumbnail =
+    uploadedImages[0]?.preview ?? thumbnail?.trim() ?? "";
+  const previewPriceLabel = (() => {
+    const sym = currency === "GEL" ? "₾" : "$";
+    if (priceType === "negotiable") return "შეთანხმებით";
+    const value = price.trim() ? Number(price) : 0;
+    if (Number.isNaN(value)) return "—";
+    const formatted = value.toLocaleString("en-US", { maximumFractionDigits: 0 });
+    if (type === "rent" && rentPeriod) {
+      const unitLabel =
+        rentPeriod === "hour"
+          ? "საათი"
+          : rentPeriod === "day"
+            ? "დღე"
+            : rentPeriod === "week"
+              ? "კვირა"
+              : rentPeriod === "month"
+                ? "თვე"
+                : rentPeriod;
+      return `${formatted} ${sym} - ${unitLabel}`;
+    }
+    return `${formatted} ${sym}`;
+  })();
+  const previewLocation =
+    [selectedRegion?.label, selectedCity?.label].filter(Boolean).join(", ") || null;
+
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+  <div className="flex gap-4">
+      <form onSubmit={handleSubmit} className="space-y-6 w-full">
       {error && (
         <div
           className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800"
@@ -854,28 +904,16 @@ export function AddProductForm({
       <section className="rounded-xl border border-zinc-200 bg-white p-4">
           <h2 className="text-sm font-semibold text-zinc-900 normal-font">სურათები</h2>
         <div className="mt-4 space-y-4">
-          <div>
-            <label htmlFor="images" className={labelClass}>სურათების URL-ები (თითო ხაზზე ერთი)</label>
-            <textarea
-              id="images"
-              rows={3}
-              value={imagesText}
-              onChange={(e) => setImagesText(e.target.value)}
-              className={inputClass}
-              placeholder="https://..."
-            />
-          </div>
-          <div>
-            <label htmlFor="thumbnail" className={labelClass}>პირველადი სურათის URL (არასავალდებულო)</label>
-            <input
-              id="thumbnail"
-              type="text"
-              value={thumbnail}
-              onChange={(e) => setThumbnail(e.target.value)}
-              className={inputClass}
-              placeholder="ცარიელი = პირველი სურათი"
-            />
-          </div>
+          <label className={labelClass}>სურათების ატვირთვა</label>
+          <ProductImageUpload
+            token={token!}
+            value={uploadedImages}
+            onChange={setUploadedImages}
+            disabled={submitting}
+          />
+          {!isEditMode && getTempImageKeys(uploadedImages).length === 0 && getExistingImageUrls(uploadedImages).length === 0 && (
+            <p className="text-xs text-zinc-500">პირველი სურათი გამოჩნდება როგორც მთავარი. დაამატეთ მინიმუმ ერთი სურათი.</p>
+          )}
         </div>
       </section>
 
@@ -918,7 +956,7 @@ export function AddProductForm({
         </div>
       </section>
 
-      <div className="flex gap-3 border-t border-zinc-200 pt-6">
+      <div className="flex gap-3 rounded-xl border border-zinc-200 bg-white p-4">
         <button
           type="button"
           onClick={() => router.back()}
@@ -934,6 +972,67 @@ export function AddProductForm({
           {submitting ? "შენახვა…" : productId ? "ცვლილებების შენახვა" : "განცხადების დამატება"}
         </button>
       </div>
-    </form>
+      </form>
+
+    {/* Dynamic listing preview — updates as you fill the form and choose photos */}
+    <div className="w-[300px] shrink-0 sticky top-4 self-start hidden md:block">
+      <article
+        className={`overflow-hidden rounded-xl border bg-white ${
+          promotionType === "highlighted"
+            ? "border-yellow-400/60 bg-yellow-50/80"
+            : "border-zinc-200"
+        }`}
+      >
+        <div className="relative aspect-[16/10] w-full overflow-hidden bg-zinc-100">
+          {previewThumbnail ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={previewThumbnail}
+              alt={title.trim() || "პრევიუ"}
+              className="h-full w-full object-cover"
+            />
+          ) : (
+            <div className="flex h-full w-full items-center justify-center text-zinc-400">
+              <span className="text-sm">სურათი</span>
+            </div>
+          )}
+          <span className="absolute left-3 bottom-3 rounded-full bg-white/90 px-2.5 py-0.5 text-xs font-medium capitalize text-zinc-800">
+            {type === "sell" ? "იყიდე" : "იქირავე"}
+          </span>
+          {(promotionType === "featured" || promotionType === "homepageTop") && (
+            <span className="absolute left-3 top-3 z-10 inline-flex items-center gap-1 rounded-full bg-amber-500 px-2.5 py-0.5 text-xs font-semibold uppercase tracking-wide text-white">
+              <svg className="h-3 w-3 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} aria-hidden>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z" />
+              </svg>
+            </span>
+          )}
+          {condition && (
+            <span
+              className={`absolute right-3 bottom-3 rounded-full px-2.5 py-0.5 text-xs font-medium capitalize ${
+                condition === "new" ? "bg-green-500 text-white" : "bg-blue-500 text-white"
+              }`}
+            >
+              {condition === "new" ? "ახალი" : "მეორადი"}
+            </span>
+          )}
+        </div>
+        <div className="p-4">
+          {selectedCategory && (
+            <p className="text-xs text-zinc-500 mb-1">{selectedCategory.name}</p>
+          )}
+          <h2 className="font-medium text-zinc-900 line-clamp-2 text-sm">
+            {title.trim() || "— სათაური —"}
+          </h2>
+          {previewLocation && (
+            <p className="mt-1 text-xs text-zinc-500">{previewLocation}</p>
+          )}
+          <div className="border-t border-zinc-200 mt-4" />
+          <div className="mt-3 flex justify-between items-center">
+            <p className="text-md font-medium text-zinc-900">{previewPriceLabel}</p>
+          </div>
+        </div>
+      </article>
+    </div>
+  </div>
   );
 }

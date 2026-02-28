@@ -10,7 +10,7 @@ interface FilterDrawerProps {
   title?: string;
 }
 
-export function FilterDrawer({ open, onClose, children, title = "Filters" }: FilterDrawerProps) {
+export function FilterDrawer({ open, onClose, children, title = "ფილტრები" }: FilterDrawerProps) {
   useEffect(() => {
     if (open) {
       document.body.style.overflow = "hidden";
