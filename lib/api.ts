@@ -143,7 +143,7 @@ export type ApiRegion = {
 export async function getRegions(): Promise<ApiRegion[]> {
   try {
     const res = await fetch(`${API_BASE}/regions`, { cache: "no-store" });
-    return handleRes<ApiRegion[]>(res);
+    return await handleRes<ApiRegion[]>(res);
   } catch {
     return [];
   }

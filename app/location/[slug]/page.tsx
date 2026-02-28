@@ -10,8 +10,12 @@ interface PageProps {
 }
 
 export async function generateStaticParams() {
-  const regions = await getRegions();
-  return regions.map((r) => ({ slug: r.slug }));
+  try {
+    const regions = await getRegions();
+    return regions.map((r) => ({ slug: r.slug }));
+  } catch {
+    return [];
+  }
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
