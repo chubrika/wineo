@@ -124,31 +124,8 @@ export function Header() {
           <Image src="/logo.svg" alt="wineo.ge" width={100} height={100} priority />
         </Link>
 
-        {/* Mobile: filters button after logo (home only) */}
-        {pathname === "/" && (
-          <button
-            type="button"
-            onClick={openFiltersModal}
-            className="flex shrink-0 items-center gap-1.5 rounded-full bg-[#8a052d] px-3 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-[#6d0423] lg:hidden"
-            aria-label="დეტალური ფილტრები"
-          >
-            <SlidersHorizontalIcon className="h-5 w-5 shrink-0" />
-          </button>
-        )}
-
         {/* Search — before nav */}
         <div className="hidden flex-1 min-w-0 items-center justify-center gap-3 lg:flex">
-          {pathname === "/" && (
-            <button
-              type="button"
-              onClick={openFiltersModal}
-              className="flex shrink-0 items-center gap-2 rounded-full bg-[#8a052d] px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-[#6d0423]"
-              aria-label="დეტალური ფილტრები"
-            >
-              <SlidersHorizontalIcon className="h-5 w-5 shrink-0" />
-              ფილტრები
-            </button>
-          )}
           <HeaderSearchBar />
         </div>
 
