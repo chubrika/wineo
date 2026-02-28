@@ -16,6 +16,7 @@ import {
   type ApiFilter,
   type ApiProduct,
   type CreateProductPayload,
+  type PromotionType,
 } from "@/lib/api";
 import { buildCategoryTree } from "@/lib/categories";
 import type { CategoryTreeNode } from "@/types/category";
@@ -42,6 +43,27 @@ function titleToSlug(title: string): string {
     .replace(/^-|-$/g, "");
 }
 
+function toLocalDateTimeInputValue(d: Date): string {
+  const pad = (n: number) => String(n).padStart(2, "0");
+  const yyyy = d.getFullYear();
+  const mm = pad(d.getMonth() + 1);
+  const dd = pad(d.getDate());
+  const hh = pad(d.getHours());
+  const mi = pad(d.getMinutes());
+  return `${yyyy}-${mm}-${dd}T${hh}:${mi}`;
+}
+
+function defaultPromotionExpiryLocal(): string {
+  const d = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+  return toLocalDateTimeInputValue(d);
+}
+
+/** Promotion options with price and duration for display */
+const PROMOTION_OPTIONS = [
+  { type: "highlighted" as const, label: "გამოკვეთილი", labelClass: "text-yellow-400", desc: "შენი განცხადება უფრო თვალსაჩინო გახდება", price: "9₾", duration: "7 დღე" },
+  { type: "featured" as const, label: "რეკომენდირებული", labelClass: "text-amber-600", desc: "გამოჩნდება რეკომენდირებულ განცხადებებში", price: "19₾", duration: "7 დღე" },
+  { type: "homepageTop" as const, label: "TOP", labelClass: "text-purple-600", desc: "ჩანს მთავარ გვერდის ზედა ბლოკში", price: "39₾", duration: "7 დღე" },
+];
 const LISTING_TYPES = [
   { value: "sell" as const, label: "იყიდება" },
   { value: "rent" as const, label: "ქირავდება" },
@@ -213,6 +235,8 @@ export function AddProductForm({
   const [imagesText, setImagesText] = useState("");
   const [thumbnail, setThumbnail] = useState("");
   const [phone, setPhone] = useState("");
+  const [promotionType, setPromotionType] = useState<PromotionType>("none");
+  const [promotionExpiresAtLocal, setPromotionExpiresAtLocal] = useState<string>("");
 
   const [categoryFilters, setCategoryFilters] = useState<ApiFilter[]>([]);
   const [loadingCategoryFilters, setLoadingCategoryFilters] = useState(false);
@@ -366,6 +390,17 @@ export function AddProductForm({
     );
     setImagesText(Array.isArray(initialProduct.images) ? initialProduct.images.join("\n") : "");
     setThumbnail(initialProduct.thumbnail ?? "");
+    const pt = (initialProduct.promotionType ?? "none") as PromotionType;
+    const expiresAtIso = initialProduct.promotionExpiresAt ?? null;
+    const expiresAt = expiresAtIso ? new Date(expiresAtIso) : null;
+    const isActive =
+      pt !== "none" &&
+      expiresAt != null &&
+      !Number.isNaN(expiresAt.getTime()) &&
+      expiresAt.getTime() > Date.now();
+
+    setPromotionType(isActive ? pt : "none");
+    setPromotionExpiresAtLocal(isActive && expiresAt ? toLocalDateTimeInputValue(expiresAt) : "");
   }, [isEditMode, initialProduct, initialRegionId, initialCityId]);
 
   useEffect(() => {
@@ -453,6 +488,11 @@ export function AddProductForm({
       ...(thumbnail.trim() ? { thumbnail: thumbnail.trim() } : {}),
       ...(condition ? { specifications: { condition } } : {}),
       ...(attributes.length > 0 ? { attributes } : {}),
+      promotionType,
+      promotionExpiresAt:
+        promotionType !== "none"
+          ? new Date(promotionExpiresAtLocal || defaultPromotionExpiryLocal()).toISOString()
+          : null,
     };
 
     setSubmitting(true);
@@ -836,6 +876,45 @@ export function AddProductForm({
               placeholder="ცარიელი = პირველი სურათი"
             />
           </div>
+        </div>
+      </section>
+
+      <section className="rounded-xl border border-zinc-200 bg-white p-4">
+        <h2 className="text-sm font-semibold text-zinc-900 normal-font mb-4">პრომოუშენი (არასავალდებულო)</h2>
+        <div className="grid gap-4 sm:grid-cols-3" role="radiogroup" aria-label="პრიორიტეტი">
+          {PROMOTION_OPTIONS.map((opt) => (
+            <label
+              key={opt.type}
+              className={`flex cursor-pointer flex-col rounded-lg border-2 p-4 transition-colors ${
+                promotionType === opt.type
+                  ? "border-[var(--nav-link-active)] bg-[var(--nav-link-active)]/10"
+                  : "border-zinc-200 bg-zinc-50 hover:border-zinc-300"
+              }`}
+              onClick={(e) => {
+                e.preventDefault();
+                setPromotionType((prev) => {
+                  const next = prev === opt.type ? "none" : opt.type;
+                  if (next !== "none" && !promotionExpiresAtLocal) setPromotionExpiresAtLocal(defaultPromotionExpiryLocal());
+                  if (next === "none") setPromotionExpiresAtLocal("");
+                  return next;
+                });
+              }}
+            >
+              <span className={`text-sm font-bold ${opt.labelClass}`}>{opt.label}</span>
+              <span className="mt-1 text-xs text-zinc-600">{opt.desc}</span>
+             <div className="flex justify-between border-t border-zinc-200 mt-2">
+             <span className="mt-2 text-sm font-semibold text-zinc-900">{opt.price} / {opt.duration}</span>
+              <input
+                type="radio"
+                name="priority"
+                value={opt.type}
+                checked={promotionType === opt.type}
+                onChange={() => {}}
+                className="mt-3 h-4 w-4 border-zinc-300 text-[var(--nav-link-active)] focus:ring-[var(--nav-link-active)]"
+              />
+             </div>
+            </label>
+          ))}
         </div>
       </section>
 

@@ -65,10 +65,13 @@ body {
 .nav-link.nav-link-active:hover {
   color: var(--nav-link-active);
 }
-
+.wineo-red-bg {
+  background-color: var(--wineo-red);
+}
 .wineo-red {
   color: var(--wineo-red);
 }
+
 .medium-font {
   font-family: var(--font-medium);
 }

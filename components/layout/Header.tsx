@@ -46,6 +46,39 @@ function getUserDisplayName(firstName: string, lastName: string, email: string) 
   return email || "";
 }
 
+function MobileBottomNavIcon({ icon, active }: { icon: string; active: boolean }) {
+  const className = `w-6 h-6 shrink-0 ${active ? "text-[var(--nav-link-active)]" : "text-zinc-500"}`;
+  if (icon === "home") {
+    return (
+      <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} aria-hidden>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+      </svg>
+    );
+  }
+  if (icon === "buy") {
+    return (
+      <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} aria-hidden>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+      </svg>
+    );
+  }
+  if (icon === "rent") {
+    return (
+      <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} aria-hidden>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+      </svg>
+    );
+  }
+  if (icon === "account") {
+    return (
+      <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} aria-hidden>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+      </svg>
+    );
+  }
+  return null;
+}
+
 export function Header() {
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
@@ -74,6 +107,7 @@ export function Header() {
   }, [userMenuOpen]);
 
   return (
+    <>
     <header className="relative z-50 border-b border-zinc-200 bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/80">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
         <Link
@@ -191,7 +225,7 @@ export function Header() {
                 <Link
                   href={href}
                   onClick={() => setMenuOpen(false)}
-                  className={`block rounded-lg px-3 py-3 text-[18px] font-medium transition-colors ${isActive(pathname, href) ? "nav-link-active bg-zinc-100" : "nav-link hover:bg-zinc-50"}`}
+                  className={`block rounded-lg px-3 py-1 text-[18px] font-medium transition-colors ${isActive(pathname, href) ? "nav-link-active bg-zinc-100" : "nav-link hover:bg-zinc-50"}`}
                   aria-current={isActive(pathname, href) ? "page" : undefined}
                 >
                   {label}
@@ -201,10 +235,10 @@ export function Header() {
             {!loading &&
               (user ? (
                 <li className="border-t border-zinc-200 pt-2 mt-2">
-                  <span className="block px-3 py-2 text-sm font-medium text-zinc-900">
+                  {/* <span className="block px-3 py-2 text-sm font-medium text-zinc-900">
                     {getUserDisplayName(user.firstName, user.lastName, user.email)}
                   </span>
-                  <span className="block px-3 pb-2 text-xs text-zinc-500">{user.email}</span>
+                  <span className="block px-3 pb-2 text-xs text-zinc-500">{user.email}</span> */}
                   <button
                     type="button"
                     onClick={() => {
@@ -231,5 +265,61 @@ export function Header() {
         </nav>
       </div>
     </header>
+
+    {/* Mobile bottom navigation */}
+    <nav
+      className="fixed bottom-0 left-0 right-0 z-50 flex items-center justify-around border-t border-zinc-200 bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/95 pb-[env(safe-area-inset-bottom)] lg:hidden"
+      aria-label="Mobile bottom navigation"
+    >
+      <Link
+        href="/"
+        onClick={() => setMenuOpen(false)}
+        className={`flex flex-col items-center gap-0.5 py-3 px-4 min-w-0 flex-1 ${isActive(pathname, "/") ? "nav-link-active" : "text-zinc-600"}`}
+        aria-current={pathname === "/" ? "page" : undefined}
+      >
+        <MobileBottomNavIcon icon="home" active={pathname === "/"} />
+        <span className="text-xs font-medium truncate w-full text-center">მთავარი</span>
+      </Link>
+      <Link
+        href="/buy"
+        onClick={() => setMenuOpen(false)}
+        className={`flex flex-col items-center gap-0.5 py-3 px-4 min-w-0 flex-1 ${isActive(pathname, "/buy") ? "nav-link-active" : "text-zinc-600"}`}
+        aria-current={isActive(pathname, "/buy") ? "page" : undefined}
+      >
+        <MobileBottomNavIcon icon="buy" active={isActive(pathname, "/buy")} />
+        <span className="text-xs font-medium truncate w-full text-center">იყიდე</span>
+      </Link>
+      <Link
+        href="/rent"
+        onClick={() => setMenuOpen(false)}
+        className={`flex flex-col items-center gap-0.5 py-3 px-4 min-w-0 flex-1 ${isActive(pathname, "/rent") ? "nav-link-active" : "text-zinc-600"}`}
+        aria-current={isActive(pathname, "/rent") ? "page" : undefined}
+      >
+        <MobileBottomNavIcon icon="rent" active={isActive(pathname, "/rent")} />
+        <span className="text-xs font-medium truncate w-full text-center">იქირავე</span>
+      </Link>
+      {!loading && user ? (
+          <Link
+            href="/profile"
+            onClick={() => setMenuOpen(false)}
+            className={`flex flex-col items-center gap-0.5 py-3 px-4 min-w-0 flex-1 ${isActive(pathname, "/profile") ? "nav-link-active" : "text-zinc-600"}`}
+            aria-current={isActive(pathname, "/profile") ? "page" : undefined}
+          >
+            <MobileBottomNavIcon icon="account" active={isActive(pathname, "/profile")} />
+            <span className="text-xs font-medium truncate w-full text-center">ანგარიში</span>
+          </Link>
+        ) : (
+          <Link
+            href="/login"
+            onClick={() => setMenuOpen(false)}
+            className={`flex flex-col items-center gap-0.5 py-3 px-4 min-w-0 flex-1 ${isActive(pathname, "/login") ? "nav-link-active" : "text-zinc-600"}`}
+            aria-current={isActive(pathname, "/login") ? "page" : undefined}
+          >
+            <MobileBottomNavIcon icon="account" active={isActive(pathname, "/login")} />
+            <span className="text-xs font-medium truncate w-full text-center">ანგარიში</span>
+          </Link>
+        )}
+    </nav>
+    </>
   );
 }

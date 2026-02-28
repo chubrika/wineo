@@ -3,6 +3,8 @@
  */
 export type ListingType = "buy" | "rent";
 
+export type PromotionType = "none" | "highlighted" | "featured" | "homepageTop";
+
 /**
  * Category for winemaking equipment (extensible for future filters)
  */
@@ -48,14 +50,24 @@ export interface Listing {
   ownerName?: string;
   /** business = show ownerName; physical = show "ფიზიკური პირი" */
   ownerType?: "physical" | "business";
+  /** Owner contact phone (detail page only) */
+  ownerPhone?: string;
+  /** Number of active listings by this owner (detail page only) */
+  ownerProductCount?: number;
   /** ISO date string */
   createdAt: string;
-  /** Optional for future filtering */
+  /** View count (detail page) */
+  views?: number;
+  /** Optional for future filtering; full key-value from API on detail */
   specifications?: {
     condition?: "new" | "used";
+    [key: string]: unknown;
   };
-  /** Highlighted on homepage; prepared for monetization */
-  featured?: boolean;
+  promotionType: PromotionType;
+  /** ISO string or null */
+  promotionExpiresAt: string | null;
+  /** All image URLs for gallery (detail); first is imageUrl */
+  images?: string[];
 }
 
 export interface ListingCardProps {

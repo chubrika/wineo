@@ -20,7 +20,7 @@ export function ListingGrid({ listings, emptyMessage }: ListingGridProps) {
 
   return (
     <ul
-      className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
+      className="grid grid-cols-2 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
       role="list"
       aria-label="Listing results"
     >

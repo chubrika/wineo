@@ -6,6 +6,7 @@ import type {
   EquipmentCategory,
 } from "@/types/listing";
 import { getProducts, getProductBySlug, type ApiProduct } from "@/lib/api";
+import { compareByPromotionThenCreatedAtDesc, getPromotionRank, normalizeApiProductPromotion } from "@/lib/promotion";
 
 /** Map backend product to frontend Listing for display. */
 function mapApiProductToListing(api: ApiProduct): Listing {
@@ -38,12 +39,26 @@ function mapApiProductToListing(api: ApiProduct): Listing {
       : undefined,
     ownerName: api.ownerName,
     ownerType: api.ownerType,
+    ownerPhone: api.ownerPhone,
+    ownerProductCount: api.ownerProductCount,
     createdAt: api.createdAt,
-    featured: api.isFeatured,
+    views: api.views,
+    ...normalizeApiProductPromotion(api),
     specifications:
-      api.specifications?.condition === "new" || api.specifications?.condition === "used"
-        ? { condition: api.specifications.condition as "new" | "used" }
+      api.specifications && typeof api.specifications === "object"
+        ? ({
+            ...api.specifications,
+            ...(api.specifications.condition === "new" || api.specifications.condition === "used"
+              ? { condition: api.specifications.condition as "new" | "used" }
+              : {}),
+          } as Listing["specifications"])
         : undefined,
+    images:
+      Array.isArray(api.images) && api.images.length > 0
+        ? api.images
+        : api.thumbnail
+          ? [api.thumbnail]
+          : undefined,
   };
 }
 
@@ -125,9 +140,7 @@ export async function getLatestListings(
       skip: 0,
     });
     const mapped = list.map(mapApiProductToListing);
-    const sorted = [...mapped].sort(
-      (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-    );
+    const sorted = [...mapped].sort(compareByPromotionThenCreatedAtDesc);
     const total = sorted.length;
     const items = sorted.slice(offset, offset + limit);
     return { items, total };
@@ -141,7 +154,8 @@ export async function getFeaturedListings(limit: number = 6): Promise<Listing[]>
   try {
     const list = await getProducts({ status: "active", limit: 100 });
     const mapped = list.map(mapApiProductToListing);
-    return mapped.filter((l) => l.featured).slice(0, limit);
+    const featured = mapped.filter((l) => l.promotionType === "featured" || l.promotionType === "homepageTop");
+    return featured.sort(compareByPromotionThenCreatedAtDesc).slice(0, limit);
   } catch {
     return [];
   }
@@ -216,16 +230,21 @@ export async function searchListings(
 }
 
 function sortListings(sort: ListingSortOption): (a: Listing, b: Listing) => number {
-  switch (sort) {
-    case "price_asc":
-      return (a, b) => a.price - b.price;
-    case "price_desc":
-      return (a, b) => b.price - a.price;
-    case "featured":
-      return (a, b) => (b.featured ? 1 : 0) - (a.featured ? 1 : 0);
-    case "newest":
-    default:
-      return (a, b) =>
-        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
-  }
+  return (a, b) => {
+    // Requirement: active promotions first (homepageTop > featured > highlighted > none), then createdAt DESC.
+    const ra = getPromotionRank(a);
+    const rb = getPromotionRank(b);
+    if (ra !== rb) return ra - rb;
+
+    // Within same promotion rank, honor selected sort where possible.
+    if (sort === "price_asc") {
+      if (a.price !== b.price) return a.price - b.price;
+    } else if (sort === "price_desc") {
+      if (a.price !== b.price) return b.price - a.price;
+    } else if (sort === "featured") {
+      // "featured" behaves as "promoted": keep promotion ordering, then newest.
+    }
+
+    return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+  };
 }

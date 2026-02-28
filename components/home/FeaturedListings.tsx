@@ -12,10 +12,10 @@ export async function FeaturedListings() {
       aria-labelledby="featured-heading"
     >
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <h2 id="featured-heading" className="text-2xl font-bold tracking-tight text-zinc-900 sm:text-3xl">
+        <h2 id="featured-heading" className="text-2xl font-bold tracking-tight wineo-red sm:text-3xl">
           რეკომენდირებული პროდუქტები
         </h2>
-        <ul className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-5">
+        <ul className="mt-10 grid gap-6 grid-cols-2 lg:grid-cols-5">
           {listings.map((listing) => (
             <li key={listing.id}>
               <FeaturedListingCard listing={listing} />

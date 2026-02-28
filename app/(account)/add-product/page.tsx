@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 export default function AddProductPage() {
   return (
     <div className="p-3 sm:p-4">
-      <h1 className="text-2xl font-bold tracking-tight text-zinc-900 medium-font">
+      <h1 className="text-2xl font-bold wineo-red tracking-tight text-zinc-900 medium-font">
         განცხადების დამატება
       </h1>
       <AddProductForm />

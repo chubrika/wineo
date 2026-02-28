@@ -14,9 +14,9 @@ function formatPrice(listing: Listing): string {
           : listing.priceUnit === "month"
             ? "თვე"
             : listing.priceUnit;
-    return `${currencySymbol}${value}/${unitLabel}`;
+    return `${value} ${currencySymbol} - ${unitLabel}`;
   }
-  return `${currencySymbol}${value}`;
+  return `${value} ${currencySymbol}`;
 }
 
 interface FeaturedListingCardProps {
@@ -28,10 +28,12 @@ export function FeaturedListingCard({ listing }: FeaturedListingCardProps) {
   const priceLabel = formatPrice(listing);
 
   return (
-    <article className="group relative overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-md transition-shadow hover:shadow-lg">
-      <div className="absolute left-4 top-4 z-10">
-        <span className="rounded-full bg-amber-500 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-white">
-          Featured
+    <article className="group relative overflow-hidden rounded-xl border border-zinc-200 bg-white hover:border-zinc-300">
+      <div className="absolute right-3 top-3 z-10">
+        <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-500 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-white">
+          <svg className="h-3.5 w-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} aria-hidden>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z" />
+          </svg>
         </span>
       </div>
       <Link href={href} className="block">
@@ -47,19 +49,17 @@ export function FeaturedListingCard({ listing }: FeaturedListingCardProps) {
             {listing.type}
           </span>
         </div>
-        <div className="p-5">
-          <h2 className="text-lg font-semibold text-zinc-900 line-clamp-2">
+        <div className="p-4">
+          <h2 className="text-sm font-semibold text-zinc-900 line-clamp-2">
             {listing.title}
           </h2>
-          <p className="mt-2 text-sm text-zinc-600 line-clamp-2">
-            {listing.excerpt}
-          </p>
-          <p className="mt-4 text-xl font-semibold text-zinc-900">
-            {priceLabel}
-          </p>
           {listing.location && (
             <p className="mt-1 text-xs text-zinc-500">{listing.location}</p>
           )}
+          <div className="border-t border-zinc-200 mt-4"></div>
+          <p className="mt-4 text-md font-semibold text-zinc-900">
+            {priceLabel}
+          </p>
         </div>
       </Link>
     </article>

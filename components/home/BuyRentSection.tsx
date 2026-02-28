@@ -17,7 +17,7 @@ export async function BuyRentSection() {
       aria-labelledby="buy-rent-heading"
     >
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <h2 id="buy-rent-heading" className="text-2xl font-bold tracking-tight text-zinc-900 sm:text-3xl">
+        <h2 id="buy-rent-heading" className="text-2xl font-bold tracking-tight wineo-red sm:text-3xl">
           იყიდე vs იქირავე
         </h2>
         <p className="mt-2 text-zinc-600">
@@ -28,9 +28,12 @@ export async function BuyRentSection() {
           {/* Buy */}
           <div>
             <div className="mb-4 flex items-center justify-between">
-              <h3 className="text-xl font-semibold text-zinc-900">
-                ბოლოს დამატებული — იყიდე
-              </h3>
+              <h4 className="text-lg font-semibold text-zinc-900 flex items-center gap-2">
+                <svg className="h-5 w-5 text-zinc-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} aria-hidden>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                </svg>
+                იყიდე
+              </h4>
               <Link
                 href="/buy"
                 className="text-sm font-medium text-zinc-600 hover:text-zinc-900"
@@ -56,9 +59,11 @@ export async function BuyRentSection() {
           {/* Rent */}
           <div>
             <div className="mb-4 flex items-center justify-between">
-              <h3 className="text-xl font-semibold text-zinc-900">
-                ბოლოს დამატებული — იქირავე
-              </h3>
+              <h4 className="text-lg font-semibold text-zinc-900 flex items-center gap-2">
+                <svg className="h-5 w-5 text-zinc-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} aria-hidden>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg> იქირავე
+              </h4>
               <Link
                 href="/rent"
                 className="text-sm font-medium text-zinc-600 hover:text-zinc-900"

@@ -10,7 +10,7 @@ export async function RegionSection() {
       aria-labelledby="regions-heading"
     >
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <h2 id="regions-heading" className="text-2xl font-bold tracking-tight text-zinc-900 sm:text-3xl">
+        <h2 id="regions-heading" className="text-2xl font-bold tracking-tight wineo-red sm:text-3xl">
           რეგიონებით ძებნა
         </h2>
         <p className="mt-2 text-zinc-600">

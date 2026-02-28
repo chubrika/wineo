@@ -170,6 +170,8 @@ export async function getCities(regionId?: string): Promise<ApiCity[]> {
   }
 }
 
+export type PromotionType = "none" | "highlighted" | "featured" | "homepageTop";
+
 /** Filter from backend GET /filters/by-category/:categoryId */
 export type ApiFilter = {
   id: string;
@@ -221,12 +223,20 @@ export type ApiProduct = {
   ownerName?: string;
   /** business = show ownerName; physical = show "ფიზიკური პირი" */
   ownerType?: "physical" | "business";
+  /** Owner contact phone (when API populates ownerId with phone) */
+  ownerPhone?: string;
+  /** Number of active listings by this owner (single-product endpoints only) */
+  ownerProductCount?: number;
   status?: string;
-  isFeatured?: boolean;
+  promotionType?: PromotionType;
+  /** ISO string or null */
+  promotionExpiresAt?: string | null;
   /** From DB: flexible key-value (e.g. { condition: "new" | "used", brand, model, ... }) */
   specifications?: { condition?: string; [key: string]: unknown };
   createdAt: string;
   updatedAt?: string;
+  views?: number;
+  saves?: number;
 };
 
 export type GetProductsParams = {
@@ -318,6 +328,9 @@ export type CreateProductPayload = {
   status?: string;
   seoTitle?: string;
   seoDescription?: string;
+  promotionType?: PromotionType;
+  /** ISO string or null */
+  promotionExpiresAt?: string | null;
 };
 
 /**
