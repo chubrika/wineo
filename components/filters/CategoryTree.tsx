@@ -44,6 +44,13 @@ function CategoryLink({
   );
 }
 
+/** True if node or any descendant has the given slug (used to expand path to selection). */
+function hasSlugInSubtree(node: CategoryTreeNode, slug: string | null | undefined): boolean {
+  if (!slug) return false;
+  if (node.slug === slug) return true;
+  return node.children.some((c) => hasSlugInSubtree(c, slug));
+}
+
 function TreeNode({
   type,
   node,
@@ -60,7 +67,8 @@ function TreeNode({
   const href = node.slug ? `${base}/${node.slug}` : base;
   const isActive = currentSlug === node.slug || pathname === href;
   const hasChildren = node.children.length > 0;
-  const [open, setOpen] = useState(level < 1 || isActive || node.children.some((c) => c.slug === currentSlug));
+  const isOnPathToSelection = hasSlugInSubtree(node, currentSlug);
+  const [open, setOpen] = useState(isOnPathToSelection);
 
   return (
     <div className="border-b border-zinc-100 last:border-b-0">

@@ -141,7 +141,7 @@ export function CategoryGrid() {
       {/* Category children modal — cascading */}
       {modalOpen && (
         <div
-          className="fixed inset-0 z-50 flex items-end justify-center bg-black/50 p-4 sm:items-center sm:p-0"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
           aria-modal="true"
           role="dialog"
           aria-labelledby="category-modal-title"
@@ -149,7 +149,7 @@ export function CategoryGrid() {
         >
           <div
             ref={categoryDropdownRefModal}
-            className="w-full max-w-md rounded-t-2xl bg-white shadow-xl sm:rounded-2xl sm:max-h-[80vh] sm:overflow-auto"
+            className="w-full max-w-md max-h-[85vh] overflow-auto rounded-2xl bg-white shadow-xl"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="sticky top-0 z-10 flex items-center justify-between border-b border-zinc-200 bg-white px-4 py-3">
