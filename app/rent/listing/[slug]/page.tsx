@@ -67,7 +67,8 @@ export default async function RentListingPage({ params }: Props) {
   const { slug } = await params;
   const listing = await getListingBySlug("rent", slug);
   if (!listing) notFound();
-  if (listing.type === "buy") redirect(`/buy/listing/${listing.slug}`);
+  if (listing.type === "buy" && listing.slug) redirect(`/buy/listing/${listing.slug}`);
+  if (listing.type === "buy") notFound();
 
   const isGEL = (listing.currency || "USD").toUpperCase() === "GEL";
   const priceNum = listing.price.toLocaleString("en-US", { maximumFractionDigits: 0 });

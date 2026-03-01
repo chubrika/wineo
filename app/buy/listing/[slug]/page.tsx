@@ -58,12 +58,15 @@ export default async function BuyListingPage({ params }: Props) {
   const { slug } = await params;
   const listing = await getListingBySlug("buy", slug);
   if (!listing) notFound();
-  if (listing.type === "rent") redirect(`/rent/listing/${listing.slug}`);
+  if (listing.type === "rent" && listing.slug) redirect(`/rent/listing/${listing.slug}`);
+  if (listing.type === "rent") notFound();
 
+  const priceNum = Number(listing.price);
+  const safePrice = Number.isFinite(priceNum) ? priceNum : 0;
   const isGEL = (listing.currency || "USD").toUpperCase() === "GEL";
   const price = isGEL
-    ? `${listing.price.toLocaleString("en-US", { maximumFractionDigits: 0 })} ₾`
-    : `$${listing.price.toLocaleString("en-US", { maximumFractionDigits: 0 })}`;
+    ? `${safePrice.toLocaleString("en-US", { maximumFractionDigits: 0 })} ₾`
+    : `$${safePrice.toLocaleString("en-US", { maximumFractionDigits: 0 })}`;
 
   const images =
     listing.images && listing.images.length > 0

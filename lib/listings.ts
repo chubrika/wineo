@@ -10,28 +10,32 @@ import { compareByPromotionThenCreatedAtDesc, getPromotionRank, normalizeApiProd
 
 /** Map backend product to frontend Listing for display. */
 function mapApiProductToListing(api: ApiProduct): Listing {
+  const description = typeof api.description === "string" ? api.description : "";
   const excerpt =
-    api.description.length > 150
-      ? api.description.slice(0, 150).trim() + "…"
-      : api.description;
+    description.length > 150
+      ? description.slice(0, 150).trim() + "…"
+      : description;
   const priceUnit =
     api.type === "rent" && api.rentPeriod
       ? (["day", "week", "month"].includes(api.rentPeriod)
           ? (api.rentPeriod as "day" | "week" | "month")
           : "day")
       : undefined;
+  const title = typeof api.title === "string" ? api.title : "";
+  const price = typeof api.price === "number" && Number.isFinite(api.price) ? api.price : 0;
+  const createdAt = typeof api.createdAt === "string" ? api.createdAt : new Date().toISOString();
   return {
-    id: api.id,
-    slug: api.slug,
+    id: api.id ?? "",
+    slug: api.slug ?? "",
     type: api.type === "sell" ? "buy" : "rent",
-    title: api.title,
-    description: api.description,
+    title,
+    description,
     excerpt,
-    price: api.price,
+    price,
     currency: api.currency || "GEL",
     priceUnit,
     imageUrl: api.thumbnail || api.images?.[0] || "/next.svg",
-    imageAlt: api.title,
+    imageAlt: title,
     category: api.category as unknown as EquipmentCategory,
     categorySlug: api.category?.slug,
     location: api.location
@@ -41,7 +45,7 @@ function mapApiProductToListing(api: ApiProduct): Listing {
     ownerType: api.ownerType,
     ownerPhone: api.ownerPhone,
     ownerProductCount: api.ownerProductCount,
-    createdAt: api.createdAt,
+    createdAt,
     views: api.views,
     ...normalizeApiProductPromotion(api),
     specifications:
