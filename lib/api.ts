@@ -437,3 +437,72 @@ export async function getPresignedUploadUrls(
   });
   return handleRes<PresignUploadResponse>(res);
 }
+
+/** News item from GET /news */
+export type ApiNewsItem = {
+  id: string;
+  _id?: string;
+  slug?: string;
+  title: string;
+  shortDescription: string;
+  fullDescription: string;
+  imageUrl: string | null;
+  date: string;
+  createdAt?: string;
+  updatedAt?: string;
+};
+
+/** Response from GET /news */
+export type ApiNewsListResponse = {
+  items: ApiNewsItem[];
+  total: number;
+};
+
+/**
+ * GET /news — list news (newest first). Optional limit, skip for pagination.
+ */
+export async function getNewsList(params?: {
+  limit?: number;
+  skip?: number;
+}): Promise<ApiNewsListResponse> {
+  const qs = new URLSearchParams();
+  if (params?.limit != null) qs.set("limit", String(params.limit));
+  if (params?.skip != null) qs.set("skip", String(params.skip));
+  const search = qs.toString() ? `?${qs.toString()}` : "";
+  const res = await fetch(`${API_BASE}/news${search}`, { cache: "no-store" });
+  return handleRes<ApiNewsListResponse>(res);
+}
+
+/**
+ * GET /news/slug/:slug — one news item by URL slug.
+ */
+export async function getNewsBySlug(slug: string): Promise<ApiNewsItem | null> {
+  try {
+    const normalizedSlug =
+      typeof slug === "string" ? slug.trim().toLowerCase() : "";
+    if (!normalizedSlug) return null;
+    const res = await fetch(
+      `${API_BASE}/news/slug/${encodeURIComponent(normalizedSlug)}`,
+      { cache: "no-store" }
+    );
+    if (!res.ok) return null;
+    return await handleRes<ApiNewsItem>(res);
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * GET /news/:id — one news item by id.
+ */
+export async function getNewsById(id: string): Promise<ApiNewsItem | null> {
+  try {
+    const res = await fetch(`${API_BASE}/news/${encodeURIComponent(id)}`, {
+      cache: "no-store",
+    });
+    if (!res.ok) return null;
+    return await handleRes<ApiNewsItem>(res);
+  } catch {
+    return null;
+  }
+}
