@@ -7,18 +7,17 @@ import {
   RegionSection,
   HowItWorks,
 } from "@/components/home";
-import { SITE_NAME, SITE_DESCRIPTION, SITE_URL } from "@/constants/site";
+import { SITE_NAME, SITE_DESCRIPTION } from "@/constants/site";
+import { buildMetadata, DEFAULT_KEYWORDS } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Buy or Rent Winemaking Equipment in Georgia",
+export const metadata: Metadata = buildMetadata({
+  title: `იყიდე ან იქირავე ღვინის დასაყენებელი მოწყობილობები საქართველოში | ${SITE_NAME}`,
   description: SITE_DESCRIPTION,
-  openGraph: {
-    title: `Buy or Rent Winemaking Equipment in Georgia | ${SITE_NAME}`,
-    description: SITE_DESCRIPTION,
-    url: SITE_URL,
-    type: "website",
-  },
-};
+  path: "/",
+  image: "/og-default.png",
+  keywords: DEFAULT_KEYWORDS,
+  openGraphType: "website",
+});
 
 export default function HomePage() {
   return (

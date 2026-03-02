@@ -6,6 +6,7 @@ import { searchListings } from "@/lib/listings";
 import {
   parseListingSearchParams,
   DEFAULT_PAGE_SIZE,
+  listingBasePath,
 } from "@/lib/listing-search";
 import {
   ListingPageLayout,
@@ -13,6 +14,13 @@ import {
   ListingGrid,
   Pagination,
 } from "@/components/listing";
+import { SITE_NAME, SITE_URL } from "@/constants/site";
+import {
+  buildMetadata,
+  buildCanonicalUrl,
+  buildProductListJsonLd,
+} from "@/lib/seo";
+import { JsonLd } from "@/components/seo/JsonLd";
 
 interface PageProps {
   params: Promise<{ categorySlug: string }>;
@@ -29,7 +37,6 @@ export async function generateStaticParams() {
   try {
     const list = await getCategories();
     const slugs = list.filter((c) => c.active).map((c) => ({ categorySlug: c.slug }));
-    // Return at least one param so build-time validation passes when API is empty or fails.
     return slugs.length > 0 ? slugs : [{ categorySlug: "_" }];
   } catch {
     return [{ categorySlug: "_" }];
@@ -38,18 +45,48 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({
   params,
+  searchParams,
 }: PageProps): Promise<Metadata> {
   const { categorySlug } = await params;
+  const resolved = await searchParams;
+  const state = parseListingSearchParams("buy", resolved, categorySlug);
   const category = await getCategoryBySlug(categorySlug);
   if (!category) return { title: "Category" };
-  return {
-    title: `${category.name} — Buy | wineo.ge`,
-    description: `Buy ${category.name.toLowerCase()}. Winemaking equipment in Georgia.`,
-    openGraph: {
-      title: `${category.name} — Buy`,
-      description: `Buy ${category.name.toLowerCase()}. Winemaking equipment.`,
-    },
-  };
+
+  const page = state.page ? Number(state.page) : 1;
+  const { items, total } = await searchListings({
+    type: "buy",
+    categorySlug,
+    page,
+    limit: DEFAULT_PAGE_SIZE,
+    priceMin: state.priceMin ? Number(state.priceMin) : undefined,
+    priceMax: state.priceMax ? Number(state.priceMax) : undefined,
+    regionSlug: state.region,
+    sort: state.sort,
+    keyword: state.keyword,
+    attributeFilters: state.attributeFilters,
+  });
+
+  const totalPages = Math.ceil(total / DEFAULT_PAGE_SIZE) || 1;
+  const basePath = listingBasePath("buy", categorySlug);
+  const description =
+    category.description?.trim() ||
+    (items.length > 0
+      ? `Buy ${category.name.toLowerCase()}. ${items[0].title} and more winemaking equipment in Georgia.`
+      : `Buy ${category.name.toLowerCase()}. Winemaking equipment in Georgia.`);
+
+  return buildMetadata({
+    title: `${category.name} | ${SITE_NAME}`,
+    description,
+    path: page <= 1 ? basePath : `${basePath}?page=${String(page)}`,
+    keywords: [
+      "buy",
+      category.name,
+      "winemaking equipment",
+      "Georgia",
+      "wine equipment",
+    ],
+  });
 }
 
 export default async function BuyCategoryPage({
@@ -85,6 +122,20 @@ export default async function BuyCategoryPage({
   );
   if (!category) notFound();
 
+  const listUrl =
+    state.page && Number(state.page) > 1
+      ? `${SITE_URL}${listingBasePath("buy", categorySlug)}?page=${state.page}`
+      : buildCanonicalUrl(listingBasePath("buy", categorySlug));
+
+  const productListJsonLd = buildProductListJsonLd({
+    listings: items,
+    listName: `${category.name} — Buy`,
+    listUrl,
+    baseUrl: SITE_URL,
+    page: state.page ? Number(state.page) : 1,
+    totalItems: total,
+  });
+
   return (
     <ListingPageLayout
       type={type}
@@ -94,6 +145,7 @@ export default async function BuyCategoryPage({
       categoryTree={categoryTree}
       regions={regionsRes}
     >
+      <JsonLd data={productListJsonLd} />
       <div className="space-y-6">
         <header className="mb-2">
           <h1 className="text-2xl font-bold tracking-tight text-zinc-900">

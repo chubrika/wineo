@@ -1,11 +1,16 @@
 import type { Metadata } from "next";
 import { getNewsList } from "@/lib/api";
 import { NewsCard } from "@/components/news/NewsCard";
+import { SITE_NAME } from "@/constants/site";
+import { buildMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "სიახლეები",
-  description: "უახლესი სიახლეები და განახლებები ღვინის მოწყობილობების მარკეტპლეისიდან.",
-};
+export const metadata: Metadata = buildMetadata({
+  title: `სიახლეები | ${SITE_NAME}`,
+  description:
+    "უახლესი სიახლეები და განახლებები ღვინის მოწყობილობების მარკეტპლეისიდან.",
+  path: "/news",
+  keywords: ["სიახლეები", "wineo", "winemaking", "Georgia", "wine equipment"],
+});
 
 export default async function NewsPage() {
   const { items, total } = await getNewsList({ limit: 50 });

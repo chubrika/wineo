@@ -6,6 +6,14 @@ import { getNewsBySlug, getNewsList } from "@/lib/api";
 import { formatNewsDate } from "@/lib/formatNewsDate";
 import { RichTextContent } from "@/components/listing/RichTextContent";
 import { NewsListRow } from "@/components/news/NewsListRow";
+import { SITE_NAME } from "@/constants/site";
+import {
+  buildMetadata,
+  truncateForMeta,
+  newsToArticleJsonLd,
+  buildCanonicalUrl,
+} from "@/lib/seo";
+import { JsonLd } from "@/components/seo/JsonLd";
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -13,10 +21,27 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const item = await getNewsBySlug(slug);
   if (!item) return { title: "სიახლეები" };
-  return {
-    title: `${item.title} | სიახლეები`,
-    description: item.shortDescription || undefined,
-  };
+  const description =
+    truncateForMeta(
+      item.fullDescription || item.shortDescription || "",
+      150
+    ) ||
+    item.shortDescription ||
+    item.title ||
+    "News article.";
+  const path = `/news/${(item.slug && item.slug.trim()) ? item.slug : slug}`;
+  return buildMetadata({
+    title: `${item.title} | ${SITE_NAME}`,
+    description,
+    path,
+    image: item.imageUrl || undefined,
+    openGraphType: "article",
+    article: {
+      publishedTime: item.date,
+      modifiedTime: item.updatedAt || item.date,
+      authors: [SITE_NAME],
+    },
+  });
 }
 
 export default async function NewsDetailPage({ params }: Props) {
@@ -30,6 +55,9 @@ export default async function NewsDetailPage({ params }: Props) {
 
   const currentSlug = (item.slug && item.slug.trim()) ? item.slug : slug;
   const currentId = item.id ?? item._id;
+  const canonicalUrl = buildCanonicalUrl(`/news/${currentSlug}`);
+  const articleJsonLd = newsToArticleJsonLd(item, canonicalUrl);
+
   const sidebarItems = listRes.items
     .filter((n) => {
       const nSlug = (n.slug && n.slug.trim()) ? n.slug : "";
@@ -40,6 +68,7 @@ export default async function NewsDetailPage({ params }: Props) {
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6 lg:px-8">
+      <JsonLd data={articleJsonLd} />
       <div className="grid gap-8 lg:grid-cols-[1fr_360px]">
         {/* Left: full article */}
         <article className="min-w-0">

@@ -6,6 +6,7 @@ import { searchListings } from "@/lib/listings";
 import {
   parseListingSearchParams,
   DEFAULT_PAGE_SIZE,
+  listingBasePath,
 } from "@/lib/listing-search";
 import {
   ListingPageLayout,
@@ -13,6 +14,13 @@ import {
   ListingGrid,
   Pagination,
 } from "@/components/listing";
+import { SITE_NAME, SITE_URL } from "@/constants/site";
+import {
+  buildMetadata,
+  buildCanonicalUrl,
+  buildProductListJsonLd,
+} from "@/lib/seo";
+import { JsonLd } from "@/components/seo/JsonLd";
 
 interface PageProps {
   params: Promise<{ categorySlug: string }>;
@@ -38,18 +46,52 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({
   params,
+  searchParams,
 }: PageProps): Promise<Metadata> {
   const { categorySlug } = await params;
+  const resolved = await searchParams;
+  const state = parseListingSearchParams("rent", resolved, categorySlug);
   const category = await getCategoryBySlug(categorySlug);
   if (!category) return { title: "Category" };
-  return {
-    title: `${category.name} — Rent | wineo.ge`,
-    description: `Rent ${category.name.toLowerCase()}. Winemaking equipment in Georgia.`,
-    openGraph: {
-      title: `${category.name} — Rent`,
-      description: `Rent ${category.name.toLowerCase()}. Winemaking equipment.`,
-    },
-  };
+
+  const page = state.page ? Number(state.page) : 1;
+  const { items, total } = await searchListings({
+    type: "rent",
+    categorySlug,
+    page,
+    limit: DEFAULT_PAGE_SIZE,
+    priceMin: state.priceMin ? Number(state.priceMin) : undefined,
+    priceMax: state.priceMax ? Number(state.priceMax) : undefined,
+    regionSlug: state.region,
+    sort: state.sort,
+    keyword: state.keyword,
+    attributeFilters: state.attributeFilters,
+  });
+
+  const basePath = listingBasePath("rent", categorySlug);
+  const canonical =
+    page <= 1
+      ? buildCanonicalUrl(basePath)
+      : `${SITE_URL}${basePath}?page=${page}`;
+
+  const description =
+    category.description?.trim() ||
+    (items.length > 0
+      ? `Rent ${category.name.toLowerCase()}. ${items[0].title} and more winemaking equipment in Georgia.`
+      : `Rent ${category.name.toLowerCase()}. Winemaking equipment in Georgia.`);
+
+  return buildMetadata({
+    title: `${category.name} | ${SITE_NAME}`,
+    description,
+    path: page <= 1 ? basePath : `${basePath}?page=${String(page)}`,
+    keywords: [
+      "rent",
+      category.name,
+      "winemaking equipment",
+      "Georgia",
+      "wine equipment",
+    ],
+  });
 }
 
 export default async function RentCategoryPage({
@@ -85,6 +127,20 @@ export default async function RentCategoryPage({
   );
   if (!category) notFound();
 
+  const listUrl =
+    state.page && Number(state.page) > 1
+      ? `${SITE_URL}${listingBasePath("rent", categorySlug)}?page=${state.page}`
+      : buildCanonicalUrl(listingBasePath("rent", categorySlug));
+
+  const productListJsonLd = buildProductListJsonLd({
+    listings: items,
+    listName: `${category.name} — Rent`,
+    listUrl,
+    baseUrl: SITE_URL,
+    page: state.page ? Number(state.page) : 1,
+    totalItems: total,
+  });
+
   return (
     <ListingPageLayout
       type={type}
@@ -94,6 +150,7 @@ export default async function RentCategoryPage({
       categoryTree={categoryTree}
       regions={regionsRes}
     >
+      <JsonLd data={productListJsonLd} />
       <div className="space-y-6">
         <header className="mb-2">
           <h1 className="text-2xl font-bold tracking-tight text-zinc-900">

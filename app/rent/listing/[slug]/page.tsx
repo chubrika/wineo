@@ -3,6 +3,8 @@ import { notFound, redirect } from "next/navigation";
 import Link from "next/link";
 import { getListingBySlug, getListings } from "@/lib/listings";
 import { SITE_NAME, SITE_URL } from "@/constants/site";
+import { listingToProductJsonLd, buildMetadata } from "@/lib/seo";
+import { JsonLd } from "@/components/seo/JsonLd";
 import { ListingImageGallery } from "@/components/listing/ListingImageGallery";
 import { RichTextContent } from "@/components/listing/RichTextContent";
 import { Phone } from "lucide-react";
@@ -19,23 +21,15 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
   const title = listing.title;
   const description = listing.excerpt;
-  const url = `${SITE_URL}/rent/listing/${listing.slug}`;
-  return {
-    title,
+  const path = `/rent/listing/${listing.slug}`;
+  const image =
+    listing.images?.[0] || listing.imageUrl;
+  return buildMetadata({
+    title: `${title} | ${SITE_NAME}`,
     description,
-    openGraph: {
-      title: `${title} | ${SITE_NAME}`,
-      description,
-      url,
-      type: "website",
-    },
-    twitter: {
-      card: "summary_large_image",
-      title,
-      description,
-    },
-    alternates: { canonical: url },
-  };
+    path,
+    image: image || undefined,
+  });
 }
 
 export async function generateStaticParams() {
@@ -83,6 +77,8 @@ export default async function RentListingPage({ params }: Props) {
         ? `${priceNum} ₾`
         : `$${priceNum}`;
 
+  const productJsonLd = listingToProductJsonLd(listing, SITE_URL);
+
   const images =
     listing.images && listing.images.length > 0
       ? listing.images
@@ -102,6 +98,7 @@ export default async function RentListingPage({ params }: Props) {
 
   return (
     <div className="mx-auto max-w-6xl bg-white px-4 py-8 sm:px-6 lg:px-8">
+      <JsonLd data={productJsonLd} />
       <nav className="mb-6 text-sm text-zinc-500" aria-label="Breadcrumb">
         <Link href="/rent" className="hover:text-zinc-700">
           Rent
