@@ -4,6 +4,7 @@ import { Header, Footer } from "@/components/layout";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { FiltersModalProvider } from "@/contexts/FiltersModalContext";
 import { LoginModalProvider } from "@/contexts/LoginModalContext";
+import { WishlistProvider } from "@/contexts/WishlistContext";
 import { LoginModal } from "@/components/auth/LoginModal";
 import { SITE_NAME, SITE_DESCRIPTION, SITE_URL } from "@/constants/site";
 import "./globals.css";
@@ -44,10 +45,12 @@ export default function RootLayout({
         <AuthProvider>
           <FiltersModalProvider>
             <LoginModalProvider>
-              <Header />
-              <main className="flex-1 bg-[color:#f1f3f6] pb-20 lg:pb-0">{children}</main>
-              <Footer />
-              <LoginModal />
+              <WishlistProvider>
+                <Header />
+                <main className="flex-1 bg-[color:#f1f3f6] pb-20 lg:pb-0">{children}</main>
+                <Footer />
+                <LoginModal />
+              </WishlistProvider>
             </LoginModalProvider>
           </FiltersModalProvider>
         </AuthProvider>

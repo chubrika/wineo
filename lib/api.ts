@@ -414,6 +414,40 @@ export async function deleteProduct(token: string, id: string): Promise<void> {
   }
 }
 
+/** Wishlist API (auth required). */
+
+export async function getWishlist(token: string): Promise<ApiProduct[]> {
+  const res = await fetch(`${API_BASE}/wishlist`, {
+    cache: "no-store",
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  return handleRes<ApiProduct[]>(res);
+}
+
+/** Add product to wishlist. Returns { count }. */
+export async function addToWishlist(
+  token: string,
+  productId: string
+): Promise<{ count: number }> {
+  const res = await fetch(`${API_BASE}/wishlist/${encodeURIComponent(productId)}`, {
+    method: "POST",
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  return handleRes<{ count: number }>(res);
+}
+
+/** Remove product from wishlist. Returns { count }. */
+export async function removeFromWishlist(
+  token: string,
+  productId: string
+): Promise<{ count: number }> {
+  const res = await fetch(`${API_BASE}/wishlist/${encodeURIComponent(productId)}`, {
+    method: "DELETE",
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  return handleRes<{ count: number }>(res);
+}
+
 /** Response from POST /products/upload/presign */
 export type PresignUploadResponse = {
   uploads: { key: string; uploadUrl: string }[];

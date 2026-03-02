@@ -7,6 +7,7 @@ import { listingToProductJsonLd, buildMetadata } from "@/lib/seo";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { ListingImageGallery } from "@/components/listing/ListingImageGallery";
 import { RichTextContent } from "@/components/listing/RichTextContent";
+import { AddToWishlistButton } from "@/components/listing/AddToWishlistButton";
 import { Phone } from "lucide-react";
 
 type Props = {
@@ -158,12 +159,7 @@ export default async function BuyListingPage({ params }: Props) {
                 </p>
               </>
             )}
-            <button
-              type="button"
-              className="mt-4 w-full cursor-pointer rounded-lg border border-zinc-300 bg-white px-4 py-2.5 text-sm font-medium text-zinc-700 shadow-sm transition hover:bg-zinc-50"
-            >
-              დაამატე ფავორიტებში
-            </button>
+            <AddToWishlistButton productId={listing.id} />
           </div>
         </div>
       </div>

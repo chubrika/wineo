@@ -9,7 +9,7 @@ import { getProducts, getProductBySlug, type ApiProduct } from "@/lib/api";
 import { compareByPromotionThenCreatedAtDesc, getPromotionRank, normalizeApiProductPromotion } from "@/lib/promotion";
 
 /** Map backend product to frontend Listing for display. */
-function mapApiProductToListing(api: ApiProduct): Listing {
+export function mapApiProductToListing(api: ApiProduct): Listing {
   const description = typeof api.description === "string" ? api.description : "";
   const excerpt =
     description.length > 150

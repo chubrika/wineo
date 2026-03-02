@@ -7,6 +7,7 @@ import { useAuth } from "@/contexts/AuthContext";
 const accountNavLinks = [
   { href: "/add-product", label: "განცხადების დამატება" },
   { href: "/products", label: "ჩემი განცხადებები" },
+  { href: "/wishlist", label: "სურვილების სია" },
   { href: "/profile", label: "პროფილი" },
 ] as const;
 
@@ -14,6 +15,7 @@ function isActive(pathname: string, href: string) {
   if (href === "/profile") return pathname === "/profile";
   if (href === "/products") return pathname === "/products" || pathname.startsWith("/products/");
   if (href === "/add-product") return pathname === "/add-product";
+  if (href === "/wishlist") return pathname === "/wishlist";
   return pathname === href || pathname.startsWith(href + "/");
 }
 

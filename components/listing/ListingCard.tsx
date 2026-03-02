@@ -4,6 +4,8 @@ import Image from "next/image";
 import Link from "next/link";
 import type { Listing } from "@/types/listing";
 import { PromotionIcon } from "@/components/listing/PromotionIcon";
+import { useWishlist } from "@/contexts/WishlistContext";
+import { Heart } from "lucide-react";
 
 function formatPrice(listing: Listing): string {
   const currencySymbol = listing.currency === "GEL" ? "₾" : "$";
@@ -31,6 +33,14 @@ interface ListingCardProps {
 export function ListingCard({ listing }: ListingCardProps) {
   const href = `/${listing.type}/listing/${listing.slug}`;
   const priceLabel = formatPrice(listing);
+  const { isInWishlist, toggleWishlist } = useWishlist();
+  const inWishlist = isInWishlist(listing.id);
+
+  const handleWishlistClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    toggleWishlist(listing.id);
+  };
 
   return (
     <article
@@ -104,28 +114,15 @@ export function ListingCard({ listing }: ListingCardProps) {
           </p>
             <button
               type="button"
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                // TODO: toggle favorite (e.g. save to backend or local state)
-              }}
-              className="rounded-full cursor-pointer p-1.5 text-zinc-400 transition-colors hover:bg-zinc-100 hover:text-red-500 focus:outline-none focus:ring-2 focus:ring-red-400 focus:ring-offset-2"
-              aria-label="დამატება ფავორიტებში"
+              onClick={handleWishlistClick}
+              className={`rounded-full cursor-pointer p-1.5 transition-colors hover:bg-zinc-100 focus:outline-none focus:ring-2 focus:ring-red-400 focus:ring-offset-2 ${inWishlist ? "text-red-500 hover:text-red-600" : "text-zinc-400 hover:text-red-500"}`}
+              aria-label={inWishlist ? "სურვილების სიიდან ამოშლა" : "დამატება სურვილების სიაში"}
             >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                className="transition-colors"
-              >
-                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
-              </svg>
+              <Heart
+                className="h-5 w-5"
+                strokeWidth={2}
+                fill={inWishlist ? "currentColor" : "none"}
+              />
             </button>
           </div>
         </div>

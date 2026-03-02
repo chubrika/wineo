@@ -3,12 +3,13 @@
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
 import { useFiltersModal } from "@/contexts/FiltersModalContext";
 import { useLoginModal } from "@/contexts/LoginModalContext";
+import { useWishlist } from "@/contexts/WishlistContext";
 import { HeaderSearchBar } from "./HeaderSearchBar";
-import { SlidersHorizontalIcon } from "lucide-react";
+import { SlidersHorizontalIcon, Heart } from "lucide-react";
 
 const navLinks = [
   { href: "/buy", label: "იყიდე" },
@@ -87,12 +88,23 @@ function MobileBottomNavIcon({ icon, active }: { icon: string; active: boolean }
 
 export function Header() {
   const pathname = usePathname();
+  const router = useRouter();
   const [menuOpen, setMenuOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const userMenuRef = useRef<HTMLDivElement>(null);
   const { user, loading, logout } = useAuth();
   const { openFiltersModal } = useFiltersModal();
   const { openLoginModal } = useLoginModal();
+  const { count: favoritesCount } = useWishlist();
+
+  const handleFavoritesClick = () => {
+    if (user) {
+      router.push("/wishlist");
+      setMenuOpen(false);
+    } else {
+      openLoginModal();
+    }
+  };
 
   useEffect(() => {
     if (menuOpen) document.body.style.overflow = "hidden";
@@ -146,6 +158,17 @@ export function Header() {
               {label}
             </Link>
           ))}
+          <button
+            type="button"
+            onClick={handleFavoritesClick}
+            className="relative cursor-pointer flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-zinc-700 transition-colors hover:text-[var(--wineo-red)] focus:outline-none"
+            aria-label={user ? "სურვილების სია" : "სურვილების სია (შედით ანგარიშში)"}
+          >
+            <Heart className="h-6 w-6" strokeWidth={2} />
+            <span className="absolute -right-0.5 -top-0.5 flex h-5 min-w-5 items-center justify-center rounded-full wineo-red-bg text-xs font-medium text-white tabular-nums">
+              {favoritesCount}
+            </span>
+          </button>
           {!loading &&
             (user ? (
               <div className="relative" ref={userMenuRef}>
@@ -249,6 +272,21 @@ export function Header() {
                 </Link>
               </li>
             ))}
+            <li>
+              <button
+                type="button"
+                onClick={() => {
+                  handleFavoritesClick();
+                }}
+                className="flex w-full items-center gap-2 rounded-lg px-3 py-3 text-left text-[18px] font-medium nav-link hover:bg-zinc-50"
+              >
+                <Heart className="h-5 w-5 shrink-0" strokeWidth={2} />
+                <span>სურვილების სია</span>
+                <span className="ml-auto flex h-6 min-w-6 items-center justify-center rounded-full bg-zinc-200 px-1.5 text-xs font-medium text-zinc-700 tabular-nums">
+                  {favoritesCount}
+                </span>
+              </button>
+            </li>
             {!loading &&
               (user ? (
                 <li className="border-t border-zinc-200 pt-2 mt-2">
