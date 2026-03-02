@@ -164,7 +164,7 @@ export default async function RentCategoryPage({
         />
         <ListingGrid
           listings={items}
-          emptyMessage="No listings in this category yet."
+          emptyMessage="არ არის მონაცემები ამ კატეგორიაში."
         />
         <Pagination
           total={total}

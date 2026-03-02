@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
+import { useLoginModal } from "@/contexts/LoginModalContext";
 import {
   createProduct,
   updateProduct,
@@ -221,6 +222,7 @@ export function AddProductForm({
 } = {}) {
   const router = useRouter();
   const { user, token, loading: authLoading, updateProfile } = useAuth();
+  const { openLoginModal } = useLoginModal();
   const [categories, setCategories] = useState<ApiCategory[]>([]);
   const [regions, setRegions] = useState<ApiRegion[]>([]);
   const [cities, setCities] = useState<ApiCity[]>([]);
@@ -431,7 +433,7 @@ export function AddProductForm({
     return (
       <p className="text-zinc-600">
         განცხადების დასამატებლად გაიარეთ{" "}
-        <a href="/login" className="text-[var(--nav-link-active)] underline">შესვლა</a>.
+        <button type="button" onClick={openLoginModal} className="text-[var(--nav-link-active)] underline">შესვლა</button>.
       </p>
     );
   }

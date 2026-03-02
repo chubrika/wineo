@@ -59,7 +59,7 @@ export default async function CategoryPage({ params }: PageProps) {
       <section aria-label={`${category.name} listings`} className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
         {items.length === 0 ? (
           <p className="col-span-full text-zinc-500">
-            No listings in this category yet.
+            არ არის მონაცემები ამ კატეგორიაში.
           </p>
         ) : (
           items.map((listing) => (

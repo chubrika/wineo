@@ -35,7 +35,7 @@ export function ListingToolbar({ total, state }: ListingToolbarProps) {
     <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
       <p className="text-sm text-zinc-600" aria-live="polite">
         {total === 0 ? (
-          "No results"
+          "არ არის მონაცემები"
         ) : (
           <>
             <span className="font-medium text-lg text-zinc-900">{total} </span> განცხადება

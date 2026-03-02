@@ -6,6 +6,7 @@ import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
 import { useFiltersModal } from "@/contexts/FiltersModalContext";
+import { useLoginModal } from "@/contexts/LoginModalContext";
 import { HeaderSearchBar } from "./HeaderSearchBar";
 import { SlidersHorizontalIcon } from "lucide-react";
 
@@ -91,6 +92,7 @@ export function Header() {
   const userMenuRef = useRef<HTMLDivElement>(null);
   const { user, loading, logout } = useAuth();
   const { openFiltersModal } = useFiltersModal();
+  const { openLoginModal } = useLoginModal();
 
   useEffect(() => {
     if (menuOpen) document.body.style.overflow = "hidden";
@@ -197,13 +199,13 @@ export function Header() {
                 )}
               </div>
             ) : (
-              <Link
-                href="/login"
-                className={`nav-link text-[20px] font-medium ${isActive(pathname, "/login") ? "nav-link-active" : ""}`}
-                aria-current={isActive(pathname, "/login") ? "page" : undefined}
+              <button
+                type="button"
+                onClick={openLoginModal}
+                className="nav-link text-[20px] font-medium"
               >
                 შესვლა
-              </Link>
+              </button>
             ))}
         </nav>
 
@@ -267,13 +269,16 @@ export function Header() {
                 </li>
               ) : (
                 <li>
-                  <Link
-                    href="/login"
-                    onClick={() => setMenuOpen(false)}
-                    className={`block rounded-lg px-3 py-3 text-[18px] font-medium transition-colors ${isActive(pathname, "/login") ? "nav-link-active bg-zinc-100" : "nav-link hover:bg-zinc-50"}`}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      openLoginModal();
+                      setMenuOpen(false);
+                    }}
+                    className="block w-full rounded-lg px-3 py-3 text-left text-[18px] font-medium nav-link hover:bg-zinc-50"
                   >
                     შესვლა
-                  </Link>
+                  </button>
                 </li>
               ))}
           </ul>
@@ -337,15 +342,18 @@ export function Header() {
             <span className="text-xs font-medium truncate w-full text-center">ანგარიში</span>
           </Link>
         ) : (
-          <Link
-            href="/login"
-            onClick={() => setMenuOpen(false)}
+          <button
+            type="button"
+            onClick={() => {
+              openLoginModal();
+              setMenuOpen(false);
+            }}
             className={`flex flex-col items-center gap-0.5 py-3 px-4 min-w-0 flex-1 ${isActive(pathname, "/login") ? "nav-link-active" : "text-zinc-600"}`}
-            aria-current={isActive(pathname, "/login") ? "page" : undefined}
+            aria-label="შესვლა"
           >
             <MobileBottomNavIcon icon="account" active={isActive(pathname, "/login")} />
             <span className="text-xs font-medium truncate w-full text-center">ანგარიში</span>
-          </Link>
+          </button>
         )}
     </nav>
     </>

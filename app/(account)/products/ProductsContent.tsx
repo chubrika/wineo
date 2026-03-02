@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useAuth } from "@/contexts/AuthContext";
+import { useLoginModal } from "@/contexts/LoginModalContext";
 import { getMyProducts, deleteProduct, type ApiProduct } from "@/lib/api";
 
 function listingHref(p: ApiProduct): string {
@@ -123,6 +124,7 @@ function PromotionIcon({ type }: { type?: string }) {
 
 export function ProductsContent() {
   const { user, token, loading: authLoading } = useAuth();
+  const { openLoginModal } = useLoginModal();
   const [products, setProducts] = useState<ApiProduct[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -186,9 +188,9 @@ export function ProductsContent() {
         </h1>
         <p className="mt-4 text-zinc-600">
           განცხადებების სანახავად გაიარეთ{" "}
-          <a href="/login" className="text-[var(--nav-link-active)] underline">
+          <button type="button" onClick={openLoginModal} className="text-[var(--nav-link-active)] underline">
             შესვლა
-          </a>
+          </button>
           .
         </p>
       </div>
