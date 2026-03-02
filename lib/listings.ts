@@ -182,6 +182,7 @@ export async function searchListings(
     sort = "newest",
     page = 1,
     limit = 12,
+    attributeFilters,
   } = params;
 
   try {
@@ -191,6 +192,7 @@ export async function searchListings(
       skip: 0,
       ...(type && { type: type === "buy" ? "sell" : "rent" }),
       ...(categorySlug && { categorySlug }),
+      ...(attributeFilters && Object.keys(attributeFilters).length > 0 && { attributeFilters }),
     });
     let result = list.map(mapApiProductToListing);
 

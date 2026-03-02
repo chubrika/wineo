@@ -14,6 +14,8 @@ export interface ListingSearchState {
   sort?: ListingSortOption;
   page?: string;
   keyword?: string;
+  /** Attribute filters from URL (bare keys: country=italy, brand=brand-2). Sent to API for filtering. */
+  attributeFilters?: Record<string, string[]>;
 }
 
 export const DEFAULT_PAGE_SIZE = 12;
@@ -30,12 +32,30 @@ export function parseListingSearchParams(
     const v = searchParams[key];
     return Array.isArray(v) ? v[0] : v;
   };
+  const getAll = (key: string): string[] => {
+    const v = searchParams[key];
+    if (v == null) return [];
+    return Array.isArray(v) ? v : [v];
+  };
   state.priceMin = get("priceMin") ?? undefined;
   state.priceMax = get("priceMax") ?? undefined;
   state.region = (get("region") as RegionSlug | undefined) ?? undefined;
   state.sort = (get("sort") as ListingSortOption | undefined) ?? undefined;
   state.page = get("page") ?? undefined;
   state.keyword = get("q") ?? undefined;
+  // Attribute filters: bare keys (country=italy, brand=brand-2, color=italy,georgia)
+  const RESERVED_SEARCH_KEYS = new Set(["priceMin", "priceMax", "region", "sort", "page", "q"]);
+  const slugPattern = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
+  const attrFilters: Record<string, string[]> = {};
+  for (const key of Object.keys(searchParams)) {
+    const k = key.toLowerCase();
+    if (RESERVED_SEARCH_KEYS.has(k)) continue;
+    if (!slugPattern.test(k)) continue;
+    const raw = getAll(key).map((s) => String(s).trim()).filter(Boolean);
+    const values = raw.length ? raw : (get(key) ?? "").split(",").map((s) => s.trim()).filter(Boolean);
+    if (values.length) attrFilters[k] = values;
+  }
+  if (Object.keys(attrFilters).length) state.attributeFilters = attrFilters;
   return state;
 }
 

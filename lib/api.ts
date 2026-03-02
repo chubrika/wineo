@@ -252,27 +252,38 @@ export type GetProductsParams = {
   priceMin?: number;
   priceMax?: number;
   regionSlug?: string;
+  /** Dynamic attribute filters (slug -> value or values). Sent as query params for backend filtering. */
+  attributeFilters?: Record<string, string | string[]>;
 };
 
 /**
- * GET /products. List listings with optional filters.
- * categorySlug is normalized to lowercase to match backend/DB.
+ * GET /products or GET /products/by-category/:categorySlug.
+ * List listings with optional filters. When categorySlug is set, uses by-category endpoint.
+ * attributeFilters are sent as query params (e.g. country=italy,georgia) for backend dynamic filtering.
  */
 export async function getProducts(params?: GetProductsParams): Promise<ApiProduct[]> {
   const search = new URLSearchParams();
   if (params?.status) search.set("status", params.status);
   if (params?.type) search.set("type", params.type);
-  if (params?.categorySlug) {
-    const slug = params.categorySlug.trim().toLowerCase();
-    if (slug) search.set("categorySlug", slug);
-  }
   if (params?.limit != null) search.set("limit", String(params.limit));
   if (params?.skip != null) search.set("skip", String(params.skip));
   if (params?.priceMin != null) search.set("priceMin", String(params.priceMin));
   if (params?.priceMax != null) search.set("priceMax", String(params.priceMax));
   if (params?.regionSlug) search.set("regionSlug", params.regionSlug);
+  if (params?.attributeFilters && typeof params.attributeFilters === "object") {
+    for (const [key, value] of Object.entries(params.attributeFilters)) {
+      if (!key || value === undefined) continue;
+      const v = Array.isArray(value) ? value.filter(Boolean).join(",") : value;
+      if (v !== "") search.set(key, v);
+    }
+  }
   const qs = search.toString();
-  const res = await fetch(`${API_BASE}/products${qs ? `?${qs}` : ""}`, { cache: "no-store" });
+  const categorySlug = params?.categorySlug?.trim().toLowerCase();
+  const baseUrl =
+    categorySlug
+      ? `${API_BASE}/products/by-category/${encodeURIComponent(categorySlug)}`
+      : `${API_BASE}/products`;
+  const res = await fetch(`${baseUrl}${qs ? `?${qs}` : ""}`, { cache: "no-store" });
   return handleRes<ApiProduct[]>(res);
 }
 

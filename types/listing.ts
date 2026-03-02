@@ -91,4 +91,6 @@ export interface ListingSearchParams {
   sort?: ListingSortOption;
   page?: number;
   limit?: number;
+  /** Dynamic attribute filters (slug -> values). Passed to API for backend filtering. */
+  attributeFilters?: Record<string, string | string[]>;
 }

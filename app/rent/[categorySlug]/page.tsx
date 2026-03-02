@@ -75,6 +75,7 @@ export default async function RentCategoryPage({
       page: state.page ? Number(state.page) : 1,
       limit: DEFAULT_PAGE_SIZE,
       keyword: state.keyword,
+      attributeFilters: state.attributeFilters,
     }),
   ]);
 

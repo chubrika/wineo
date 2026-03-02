@@ -18,19 +18,31 @@ interface DynamicFiltersProps {
   facets?: Record<string, { value: string; count: number }[]>;
 }
 
-/** URL param prefix for attribute filters: attr_<filterSlug>=<value> (repeated for multiple). */
-const ATTR_PREFIX = "attr_";
+/** Reserved query keys (not attribute filters). Must match listing-search RESERVED_SEARCH_KEYS. */
+const RESERVED_KEYS = new Set(["priceMin", "priceMax", "region", "sort", "page", "q"]);
 
-function getAttrParams(searchParams: URLSearchParams): Record<string, string[]> {
+/** URL structure: /:categorySlug?country=italy&brand=brand-2&color=yellow (bare slugs, no prefix). */
+
+/** URL value = option label (filterSlug=optionLabel). Checkbox value and URL param use the label as-is. */
+function getOptionSlug(optionLabel: string, filterSlug: string, index: number): string {
+  const label = typeof optionLabel === "string" ? optionLabel.trim() : "";
+  return label || `${filterSlug}-${index}`;
+}
+
+/** Read attribute filter params from URL using bare slugs (e.g. country=italy or country=italy&country=georgia).
+ * Uses lowercase for URL keys so ?brendi=2 and ?Brendi=2 both work. Returns an entry for every filterSlug so merging never drops a filter. */
+function getAttrParams(
+  searchParams: URLSearchParams,
+  filterSlugs: string[]
+): Record<string, string[]> {
   const out: Record<string, string[]> = {};
-  searchParams.forEach((_, key) => {
-    if (key.startsWith(ATTR_PREFIX)) {
-      const slug = key.slice(ATTR_PREFIX.length);
-      if (slug && !(slug in out)) {
-        out[slug] = searchParams.getAll(key);
-      }
-    }
-  });
+  for (const slug of filterSlugs) {
+    if (RESERVED_KEYS.has(slug.toLowerCase())) continue;
+    const urlKey = slug.toLowerCase();
+    const all = searchParams.getAll(urlKey);
+    const values = all.length ? all : (searchParams.get(urlKey) ?? "").split(",").map((s) => s.trim()).filter(Boolean);
+    out[slug] = values.length ? values : [];
+  }
   return out;
 }
 
@@ -47,7 +59,13 @@ function buildUrlWithAttrs(
   if (state.page && Number(state.page) > 1) q.set("page", state.page);
   if (state.keyword) q.set("q", state.keyword);
   Object.entries(attrFilters).forEach(([slug, values]) => {
-    values.filter(Boolean).forEach((value) => q.append(`${ATTR_PREFIX}${slug}`, value));
+    const v = values.filter(Boolean);
+    const key = slug.toLowerCase();
+    if (v.length === 1) {
+      q.set(key, v[0]!);
+    } else if (v.length > 1) {
+      v.forEach((val) => q.append(key, val));
+    }
   });
   const s = q.toString();
   return s ? `${pathname}?${s}` : pathname;
@@ -66,7 +84,7 @@ export function DynamicFilters({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const attrParams = getAttrParams(searchParams);
+  const attrParams = getAttrParams(searchParams, filters.map((f) => f.slug));
 
   useEffect(() => {
     if (!categoryId) {
@@ -207,27 +225,30 @@ function DynamicFilterControl({
   const id = `filter-${filter.slug}`;
 
   if (filter.type === "select" && Array.isArray(filter.options) && filter.options.length > 0) {
+    // URL slug = checkbox value (slug from option label, e.g. "1" for "ბრენდი-1")
     const selectedSet = new Set(value);
-    const toggle = (opt: string) => {
-      const next = selectedSet.has(opt)
-        ? value.filter((v) => v !== opt)
-        : [...value, opt];
+    const toggle = (optSlug: string) => {
+      const next = selectedSet.has(optSlug)
+        ? value.filter((v) => v !== optSlug)
+        : [...value, optSlug];
       onChangeMulti(next);
     };
     return (
       <div className="space-y-2">
         <span className="block text-sm font-medium text-zinc-900">{label}</span>
         <div className="space-y-2">
-          {filter.options.map((opt) => {
-            const optId = `${id}-${opt.replace(/\s+/g, "-")}`;
-            const checked = selectedSet.has(opt);
+          {filter.options.map((opt, index) => {
+            const optSlug = getOptionSlug(opt, filter.slug, index);
+            const optId = `${id}-${optSlug}`;
+            const checked = selectedSet.has(optSlug);
             return (
-              <div key={opt} className="flex items-center gap-2">
+              <div key={`${id}-${index}`} className="flex items-center gap-2">
                 <input
                   id={optId}
                   type="checkbox"
+                  value={optSlug}
                   checked={checked}
-                  onChange={() => toggle(opt)}
+                  onChange={() => toggle(optSlug)}
                   className="h-4 w-4 rounded border-zinc-300 text-zinc-900 focus:ring-zinc-400"
                 />
                 <label
