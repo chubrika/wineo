@@ -232,17 +232,30 @@ export function Header() {
             ))}
         </nav>
 
-        {/* Mobile menu button */}
-        <button
-          type="button"
-          className="flex h-10 w-10 items-center justify-center rounded-lg text-zinc-700 hover:bg-zinc-100 lg:hidden"
-          onClick={() => setMenuOpen((o) => !o)}
-          aria-expanded={menuOpen}
-          aria-controls="mobile-nav"
-          aria-label={menuOpen ? "Close menu" : "Open menu"}
-        >
-          <MenuIcon open={menuOpen} />
-        </button>
+        {/* Mobile: wishlist + menu icons (grouped on the right) */}
+        <div className="flex items-center gap-1 lg:hidden">
+          <button
+            type="button"
+            onClick={handleFavoritesClick}
+            className="relative flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-zinc-700 transition-colors hover:bg-zinc-100 hover:text-[var(--wineo-red)] focus:outline-none"
+            aria-label={user ? "ფავორიტები" : "ფავორიტები (შედით ანგარიშში)"}
+          >
+            <Heart className="h-6 w-6" strokeWidth={2} />
+            <span className="absolute -right-0.5 -top-0.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-[var(--wineo-red)] text-xs font-medium text-white tabular-nums">
+              {favoritesCount}
+            </span>
+          </button>
+          <button
+            type="button"
+            className="flex h-10 w-10 items-center justify-center rounded-lg text-zinc-700 hover:bg-zinc-100"
+            onClick={() => setMenuOpen((o) => !o)}
+            aria-expanded={menuOpen}
+            aria-controls="mobile-nav"
+            aria-label={menuOpen ? "Close menu" : "Open menu"}
+          >
+            <MenuIcon open={menuOpen} />
+          </button>
+        </div>
       </div>
 
       {/* Mobile nav panel */}
@@ -272,21 +285,6 @@ export function Header() {
                 </Link>
               </li>
             ))}
-            <li>
-              <button
-                type="button"
-                onClick={() => {
-                  handleFavoritesClick();
-                }}
-                className="flex w-full items-center gap-2 rounded-lg px-3 py-3 text-left text-[18px] font-medium nav-link hover:bg-zinc-50"
-              >
-                <Heart className="h-5 w-5 shrink-0" strokeWidth={2} />
-                <span>სურვილების სია</span>
-                <span className="ml-auto flex h-6 min-w-6 items-center justify-center rounded-full bg-zinc-200 px-1.5 text-xs font-medium text-zinc-700 tabular-nums">
-                  {favoritesCount}
-                </span>
-              </button>
-            </li>
             {!loading &&
               (user ? (
                 <li className="border-t border-zinc-200 pt-2 mt-2">
