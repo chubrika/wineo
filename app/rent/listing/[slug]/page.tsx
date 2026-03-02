@@ -4,6 +4,7 @@ import Link from "next/link";
 import { getListingBySlug, getListings } from "@/lib/listings";
 import { SITE_NAME, SITE_URL } from "@/constants/site";
 import { ListingImageGallery } from "@/components/listing/ListingImageGallery";
+import { RichTextContent } from "@/components/listing/RichTextContent";
 import { Phone } from "lucide-react";
 
 type Props = {
@@ -152,11 +153,7 @@ export default async function RentListingPage({ params }: Props) {
             </div>
 
             <div className="border-t border-zinc-200 pt-4" />
-            <div className="prose prose-zinc max-w-none">
-              <p className="whitespace-pre-wrap text-zinc-600">
-                {listing.description}
-              </p>
-            </div>
+            <RichTextContent content={listing.description ?? ""} />
           </div>
         </div>
 

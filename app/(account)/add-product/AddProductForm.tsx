@@ -26,6 +26,7 @@ import {
   getExistingImageUrls,
   type UploadedImage,
 } from "@/components/product/ProductImageUpload";
+import { SimpleEditor } from "@/components/editor/SimpleEditor";
 
 /** Georgian → Latin (ISO 9984–style) for URL-friendly slugs */
 function transliterateGeorgianToLatin(s: string): string {
@@ -461,6 +462,10 @@ export function AddProductForm({
       setError(`სავალდებულო მახასიათებელი: ${requiredFilter.name}`);
       return;
     }
+    if (!description.trim()) {
+      setError("აღწერა სავალდებულოა");
+      return;
+    }
     if (!phone.trim()) {
       setError("საკონტაქტო ნომერი სავალდებულოა");
       return;
@@ -594,14 +599,13 @@ export function AddProductForm({
           </div>
           <div>
             <label htmlFor="description" className={labelClass}>აღწერა</label>
-            <textarea
+            <SimpleEditor
               id="description"
-              required
-              rows={4}
               value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              className={inputClass}
+              onChange={setDescription}
               placeholder="აღწერა სავალდებულოა"
+              className="mt-1 block w-full"
+              minHeight="8rem"
             />
           </div>
           <div>
