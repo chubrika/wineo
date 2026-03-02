@@ -72,7 +72,7 @@ export function SimpleEditor({
     const next = value || "";
     const norm = (h: string) => (isEditorContentEmpty(h) ? "" : h);
     if (norm(current) !== norm(next)) {
-      editor.commands.setContent(next || "<p></p>", false);
+      editor.commands.setContent(next || "<p></p>", { emitUpdate: false });
     }
   }, [editor, value]);
 
