@@ -208,6 +208,7 @@ export async function getFiltersByCategoryId(categoryId: string): Promise<ApiFil
 /** Product/listing from backend GET /products */
 export type ApiProduct = {
   id: string;
+  itemId?: number;
   title: string;
   slug: string;
   description: string;

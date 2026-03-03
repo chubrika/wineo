@@ -26,6 +26,7 @@ export function mapApiProductToListing(api: ApiProduct): Listing {
   const createdAt = typeof api.createdAt === "string" ? api.createdAt : new Date().toISOString();
   return {
     id: api.id ?? "",
+    itemId: api.itemId ?? 0,
     slug: api.slug ?? "",
     type: api.type === "sell" ? "buy" : "rent",
     title,

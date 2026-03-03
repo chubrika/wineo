@@ -40,9 +40,9 @@ export async function generateStaticParams() {
 
 function formatDate(iso: string) {
   try {
-    return new Date(iso).toLocaleDateString("en-GB", {
+    return new Date(iso).toLocaleDateString("ka-GE", {
       day: "numeric",
-      month: "short",
+      month: "long",
       year: "numeric",
     });
   } catch {
@@ -125,8 +125,8 @@ export default async function RentListingPage({ params }: Props) {
         <div className="lg:col-span-5">
           <div className="space-y-4">
             <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-zinc-500">
-              <span>ID: {listing.id}</span>
-              {listing.views != null && <span>{listing.views} views</span>}
+              <span>ID: {listing.itemId}</span>
+              {listing.views != null && <span>{listing.views} ნახვა</span>}
               <span>{formatDate(listing.createdAt)}</span>
             </div>
             <h1 className="text-sm font-bold tracking-tight text-zinc-900 sm:text-xl">

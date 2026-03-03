@@ -28,6 +28,7 @@ export type RegionSlug =
 
 export interface Listing {
   id: string;
+  itemId: number;
   slug: string;
   type: ListingType;
   title: string;
