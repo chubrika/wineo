@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLoginModal } from "@/contexts/LoginModalContext";
+import { resendVerification } from "@/lib/api";
 import { XIcon } from "lucide-react";
 
 type Tab = "login" | "register";
@@ -25,6 +26,9 @@ export function LoginModal() {
   const [userType, setUserType] = useState<"physical" | "business">("physical");
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [registerSuccess, setRegisterSuccess] = useState("");
+  const [resendLoading, setResendLoading] = useState(false);
+  const [resendMessage, setResendMessage] = useState("");
 
   useEffect(() => {
     if (isOpen) {
@@ -58,10 +62,15 @@ export function LoginModal() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+    setRegisterSuccess("");
+    setResendMessage("");
     setSubmitting(true);
     try {
       if (tab === "login") {
         await login(email.trim(), password);
+        closeLoginModal();
+        router.push("/");
+        router.refresh();
       } else {
         if (userType === "physical") {
           if (!firstName.trim() || !lastName.trim()) {
@@ -87,24 +96,47 @@ export function LoginModal() {
           return;
         }
         if (userType === "physical") {
-          await register(email.trim(), password, "physical", { firstName: firstName.trim(), lastName: lastName.trim() });
+          const result = await register(email.trim(), password, "physical", { firstName: firstName.trim(), lastName: lastName.trim() });
+          setRegisterSuccess(result.message);
+          setTab("login");
         } else {
-          await register(email.trim(), password, "business", { businessName: businessName.trim() });
+          const result = await register(email.trim(), password, "business", { businessName: businessName.trim() });
+          setRegisterSuccess(result.message);
+          setTab("login");
         }
       }
-      closeLoginModal();
-      router.push("/");
-      router.refresh();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "შეცდომა");
+      const msg = err instanceof Error ? err.message : "შეცდომა";
+      if (msg.includes("verify your email")) {
+        setError(msg);
+      } else {
+        setError(msg);
+      }
     } finally {
       setSubmitting(false);
+    }
+  };
+
+  const handleResendVerification = async () => {
+    if (!email?.trim()) return;
+    setResendMessage("");
+    setResendLoading(true);
+    try {
+      const result = await resendVerification(email.trim());
+      setResendMessage(result.message);
+      setError("");
+    } catch (err) {
+      setResendMessage(err instanceof Error ? err.message : "Failed to resend");
+    } finally {
+      setResendLoading(false);
     }
   };
 
   const switchTab = (t: Tab) => {
     setTab(t);
     setError("");
+    setRegisterSuccess("");
+    setResendMessage("");
     if (t === "login") setRepeatPassword("");
   };
 
@@ -178,9 +210,29 @@ export function LoginModal() {
             </div>
 
             <form onSubmit={handleSubmit} className="mt-6 space-y-5">
+              {registerSuccess && (
+                <div className="rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-800" role="alert">
+                  {registerSuccess}
+                </div>
+              )}
               {error && (
                 <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800" role="alert">
                   {error}
+                  {error.includes("verify your email") && (
+                    <button
+                      type="button"
+                      onClick={handleResendVerification}
+                      disabled={resendLoading || !email?.trim()}
+                      className="mt-2 block w-full rounded-lg border border-red-300 bg-white px-3 py-2 text-sm font-medium text-red-700 hover:bg-red-50 disabled:opacity-60"
+                    >
+                      {resendLoading ? "იგზავნება..." : "ხელახლა გაგზავნა"}
+                    </button>
+                  )}
+                </div>
+              )}
+              {resendMessage && !error && (
+                <div className="rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-800" role="alert">
+                  {resendMessage}
                 </div>
               )}
 

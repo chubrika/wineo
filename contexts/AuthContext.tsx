@@ -8,9 +8,11 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import { getMe, login as apiLogin, register as apiRegister, updateMe } from "@/lib/api";
+import { getMe, login as apiLogin, register as apiRegister, updateMe, logout as apiLogout } from "@/lib/api";
 import type { AuthUser, RegisterBody } from "@/lib/api";
 import { clearStoredToken, getStoredToken, setStoredToken } from "@/lib/auth-storage";
+
+export type RegisterResult = { message: string; emailSent?: boolean };
 
 type AuthState = {
   user: AuthUser | null;
@@ -25,9 +27,9 @@ type AuthContextValue = AuthState & {
     password: string,
     userType: "physical" | "business",
     data: { firstName: string; lastName: string } | { businessName: string }
-  ) => Promise<void>;
+  ) => Promise<RegisterResult>;
   logout: () => void;
-  /** Update profile (e.g. phone, name). Updates context user with response. */
+  setSession: (user: AuthUser, token: string) => void;
   updateProfile: (data: {
     phone?: string;
     firstName?: string;
@@ -45,11 +47,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     const t = token;
-    if (!t) {
-      Promise.resolve().then(() => setLoading(false));
-      return;
-    }
-    getMe(t)
+    getMe(t ?? undefined)
       .then(({ user: u }) => setUser(u))
       .catch(() => {
         clearStoredToken();
@@ -62,8 +60,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const login = useCallback(
     async (email: string, password: string) => {
       const { user: u, token: t } = await apiLogin({ email, password });
-      setStoredToken(t);
-      setToken(t);
+      if (t) setStoredToken(t);
+      setToken(t ?? null);
       setUser(u);
     },
     []
@@ -75,20 +73,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       password: string,
       userType: "physical" | "business",
       data: { firstName: string; lastName: string } | { businessName: string }
-    ) => {
+    ): Promise<RegisterResult> => {
       const body: RegisterBody =
         userType === "physical" && "firstName" in data
           ? { email, password, userType, firstName: data.firstName, lastName: data.lastName }
           : { email, password, userType, businessName: (data as { businessName: string }).businessName };
-      const { user: u, token: t } = await apiRegister(body);
-      setStoredToken(t);
-      setToken(t);
-      setUser(u);
+      const result = await apiRegister(body);
+      return { message: result.message, emailSent: result.emailSent };
     },
     []
   );
 
+  const setSession = useCallback((u: AuthUser, t: string) => {
+    setStoredToken(t);
+    setToken(t);
+    setUser(u);
+  }, []);
+
   const logout = useCallback(() => {
+    apiLogout().catch(() => {});
     clearStoredToken();
     setToken(null);
     setUser(null);
@@ -101,12 +104,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       lastName?: string;
       businessName?: string;
     }) => {
-      const t = token ?? getStoredToken();
-      if (!t) throw new Error("Not authenticated");
-      const { user: u } = await updateMe(t, data);
+      const { user: u } = await updateMe(data);
       setUser(u);
     },
-    [token]
+    []
   );
 
   const value: AuthContextValue = {
@@ -116,6 +117,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     login,
     register,
     logout,
+    setSession,
     updateProfile,
   };
 

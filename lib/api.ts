@@ -29,8 +29,10 @@ export type RegisterBody = {
 };
 export type LoginBody = { email: string; password: string };
 
-export type AuthResponse = { user: AuthUser; token: string };
+export type AuthResponse = { user: AuthUser; token?: string };
 export type MeResponse = { user: AuthUser };
+export type RegisterResponse = { message: string; emailSent?: boolean };
+export type VerifyEmailResponse = { message: string; user: AuthUser; token?: string };
 
 /** Category from backend GET /categories */
 export type ApiCategory = {
@@ -46,6 +48,11 @@ export type ApiCategory = {
   updatedAt: string;
 };
 
+const AUTH_OPTS: RequestInit = {
+  credentials: "include",
+  headers: { "Content-Type": "application/json" },
+};
+
 async function handleRes<T>(res: Response): Promise<T> {
   const data = await res.json().catch(() => ({}));
   if (!res.ok) {
@@ -55,29 +62,56 @@ async function handleRes<T>(res: Response): Promise<T> {
   return data as T;
 }
 
-export async function register(body: RegisterBody): Promise<AuthResponse> {
+export async function register(body: RegisterBody): Promise<RegisterResponse> {
   const res = await fetch(`${API_BASE}/auth/register`, {
+    ...AUTH_OPTS,
     method: "POST",
-    headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body),
   });
-  return handleRes<AuthResponse>(res);
+  return handleRes<RegisterResponse>(res);
 }
 
 export async function login(body: LoginBody): Promise<AuthResponse> {
   const res = await fetch(`${API_BASE}/auth/login`, {
+    ...AUTH_OPTS,
     method: "POST",
-    headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body),
   });
   return handleRes<AuthResponse>(res);
 }
 
-export async function getMe(token: string): Promise<MeResponse> {
+export async function getMe(token?: string): Promise<MeResponse> {
   const res = await fetch(`${API_BASE}/auth/me`, {
-    headers: { Authorization: `Bearer ${token}` },
+    credentials: "include",
+    ...(token ? { headers: { Authorization: `Bearer ${token}` } } : {}),
   });
   return handleRes<MeResponse>(res);
+}
+
+export async function verifyEmail(token: string): Promise<VerifyEmailResponse> {
+  const res = await fetch(
+    `${API_BASE}/auth/verify-email?token=${encodeURIComponent(token)}`,
+    { credentials: "include" }
+  );
+  return handleRes<VerifyEmailResponse>(res);
+}
+
+export async function resendVerification(email: string): Promise<{ message: string }> {
+  const res = await fetch(`${API_BASE}/auth/resend-verification`, {
+    ...AUTH_OPTS,
+    method: "POST",
+    body: JSON.stringify({ email }),
+  });
+  return handleRes<{ message: string }>(res);
+}
+
+export async function logout(): Promise<void> {
+  const res = await fetch(`${API_BASE}/auth/logout`, {
+    credentials: "include",
+    method: "POST",
+  });
+  if (!res.ok) return;
+  await res.json().catch(() => ({}));
 }
 
 /** Body for PATCH /auth/me */
@@ -89,15 +123,12 @@ export type UpdateMeBody = {
 };
 
 /**
- * PATCH /auth/me — update current user profile. Returns updated user.
+ * PATCH /auth/me — update current user profile. Uses cookie auth.
  */
-export async function updateMe(token: string, body: UpdateMeBody): Promise<MeResponse> {
+export async function updateMe(body: UpdateMeBody): Promise<MeResponse> {
   const res = await fetch(`${API_BASE}/auth/me`, {
+    ...AUTH_OPTS,
     method: "PATCH",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
-    },
     body: JSON.stringify(body),
   });
   return handleRes<MeResponse>(res);
