@@ -18,6 +18,7 @@ export function LoginModal() {
   const [tab, setTab] = useState<Tab>("login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [repeatPassword, setRepeatPassword] = useState("");
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [businessName, setBusinessName] = useState("");
@@ -80,6 +81,11 @@ export function LoginModal() {
           setSubmitting(false);
           return;
         }
+        if (password !== repeatPassword) {
+          setError("პაროლები არ ემთხვევა");
+          setSubmitting(false);
+          return;
+        }
         if (userType === "physical") {
           await register(email.trim(), password, "physical", { firstName: firstName.trim(), lastName: lastName.trim() });
         } else {
@@ -99,6 +105,7 @@ export function LoginModal() {
   const switchTab = (t: Tab) => {
     setTab(t);
     setError("");
+    if (t === "login") setRepeatPassword("");
   };
 
   if (!isOpen && !isClosing) return null;
@@ -288,6 +295,24 @@ export function LoginModal() {
                 />
                 {tab === "register" && <p className="mt-1 text-xs text-zinc-500">მინიმუმ 6 სიმბოლო</p>}
               </div>
+
+              {tab === "register" && (
+                <div>
+                  <label htmlFor="modal-repeatPassword" className="block text-sm font-medium text-zinc-700">
+                    გაიმეორეთ პაროლი
+                  </label>
+                  <input
+                    id="modal-repeatPassword"
+                    type="password"
+                    autoComplete="new-password"
+                    required
+                    minLength={6}
+                    value={repeatPassword}
+                    onChange={(e) => setRepeatPassword(e.target.value)}
+                    className="mt-1 block w-full rounded-lg border border-zinc-300 px-3 py-2 text-zinc-900 shadow-sm focus:border-[var(--nav-link-active)] focus:outline-none focus:ring-1 focus:ring-[var(--nav-link-active)]"
+                  />
+                </div>
+              )}
 
               <button
                 type="submit"

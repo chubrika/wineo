@@ -9,6 +9,7 @@ import { useFiltersModal } from "@/contexts/FiltersModalContext";
 import { useLoginModal } from "@/contexts/LoginModalContext";
 import { useWishlist } from "@/contexts/WishlistContext";
 import { HeaderSearchBar } from "./HeaderSearchBar";
+import { AccountNavContent } from "@/components/account/AccountNavContent";
 import { SlidersHorizontalIcon, Heart } from "lucide-react";
 
 const navLinks = [
@@ -22,6 +23,10 @@ const navLinks = [
 function isActive(pathname: string, href: string) {
   if (href === "/") return pathname === "/";
   return pathname === href || pathname.startsWith(href + "/");
+}
+
+function isAccountPath(pathname: string) {
+  return pathname === "/profile" || pathname === "/products" || pathname.startsWith("/products/") || pathname === "/wishlist" || pathname === "/add-product";
 }
 
 function MenuIcon({ open }: { open: boolean }) {
@@ -90,6 +95,7 @@ export function Header() {
   const pathname = usePathname();
   const router = useRouter();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [accountDrawerOpen, setAccountDrawerOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const userMenuRef = useRef<HTMLDivElement>(null);
   const { user, loading, logout } = useAuth();
@@ -113,6 +119,14 @@ export function Header() {
       document.body.style.overflow = "";
     };
   }, [menuOpen]);
+
+  useEffect(() => {
+    if (accountDrawerOpen) document.body.style.overflow = "hidden";
+    else if (!menuOpen) document.body.style.overflow = "";
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [accountDrawerOpen, menuOpen]);
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -368,15 +382,16 @@ export function Header() {
         <span className="text-xs font-medium truncate w-full text-center">იქირავე</span>
       </Link>
       {!loading && user ? (
-          <Link
-            href="/profile"
-            onClick={() => setMenuOpen(false)}
-            className={`flex flex-col items-center gap-0.5 py-3 px-4 min-w-0 flex-1 ${isActive(pathname, "/profile") ? "nav-link-active" : "text-zinc-600"}`}
-            aria-current={isActive(pathname, "/profile") ? "page" : undefined}
+          <button
+            type="button"
+            onClick={() => setAccountDrawerOpen(true)}
+            className={`flex flex-col items-center gap-0.5 py-3 px-4 min-w-0 flex-1 ${isAccountPath(pathname) ? "nav-link-active" : "text-zinc-600"}`}
+            aria-label="ანგარიში"
+            aria-expanded={accountDrawerOpen}
           >
-            <MobileBottomNavIcon icon="account" active={isActive(pathname, "/profile")} />
+            <MobileBottomNavIcon icon="account" active={isAccountPath(pathname)} />
             <span className="text-xs font-medium truncate w-full text-center">ანგარიში</span>
-          </Link>
+          </button>
         ) : (
           <button
             type="button"
@@ -392,6 +407,41 @@ export function Header() {
           </button>
         )}
     </nav>
+
+    {/* Mobile account drawer */}
+    {accountDrawerOpen && (
+      <>
+        <button
+          type="button"
+          className="fixed inset-0 z-[55] bg-black/40 lg:hidden"
+          aria-label="Close account menu"
+          onClick={() => setAccountDrawerOpen(false)}
+        />
+        <div
+          className="fixed inset-x-0 bottom-0 z-[60] max-h-[85vh] overflow-y-auto rounded-t-2xl bg-white shadow-xl lg:hidden pb-[env(safe-area-inset-bottom)]"
+          role="dialog"
+          aria-modal="true"
+          aria-label="ანგარიში"
+        >
+          <div className="sticky top-0 z-10 flex items-center justify-between border-b border-zinc-200 bg-white px-4 py-3">
+            <span className="text-lg font-semibold text-zinc-900">ანგარიში</span>
+            <button
+              type="button"
+              onClick={() => setAccountDrawerOpen(false)}
+              className="flex h-10 w-10 items-center justify-center rounded-full text-zinc-500 hover:bg-zinc-100 hover:text-zinc-700"
+              aria-label="დახურვა"
+            >
+              <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+          <div className="p-4">
+            <AccountNavContent onNavigate={() => setAccountDrawerOpen(false)} />
+          </div>
+        </div>
+      </>
+    )}
     </>
   );
 }
