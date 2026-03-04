@@ -1,12 +1,12 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, Suspense } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { verifyEmail } from "@/lib/api";
 import { useAuth } from "@/contexts/AuthContext";
 
-export default function VerifyEmailPage() {
+function VerifyEmailContent() {
   const searchParams = useSearchParams();
   const { setSession } = useAuth();
   const [status, setStatus] = useState<"loading" | "success" | "error">("loading");
@@ -105,5 +105,24 @@ export default function VerifyEmailPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+function VerifyEmailFallback() {
+  return (
+    <div className="min-h-[60vh] flex flex-col items-center justify-center px-4">
+      <div className="animate-pulse flex flex-col items-center gap-4 max-w-md w-full">
+        <div className="h-10 w-10 rounded-full bg-zinc-200" />
+        <p className="text-zinc-600">ელ-ფოსტის ვერიფიკაცია...</p>
+      </div>
+    </div>
+  );
+}
+
+export default function VerifyEmailPage() {
+  return (
+    <Suspense fallback={<VerifyEmailFallback />}>
+      <VerifyEmailContent />
+    </Suspense>
   );
 }
