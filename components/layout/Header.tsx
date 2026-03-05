@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useLayoutEffect, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
@@ -10,7 +10,12 @@ import { useLoginModal } from "@/contexts/LoginModalContext";
 import { useWishlist } from "@/contexts/WishlistContext";
 import { HeaderSearchBar } from "./HeaderSearchBar";
 import { AccountNavContent } from "@/components/account/AccountNavContent";
-import { SlidersHorizontalIcon, Heart } from "lucide-react";
+import { CategoriesModal } from "./CategoriesModal";
+import { SlidersHorizontalIcon, Heart, Plus, LayoutGrid, ChevronDownIcon } from "lucide-react";
+
+const SCROLL_THRESHOLD = 80; // min pixels scrolled before we change show/hide
+const SCROLL_TOP_SHOW = 10;
+const SUBHEADER_COOLDOWN_MS = 350; // min ms between hide/show to prevent flicker
 
 const navLinks = [
   { href: "/buy", label: "იყიდე" },
@@ -96,8 +101,14 @@ export function Header() {
   const router = useRouter();
   const [menuOpen, setMenuOpen] = useState(false);
   const [accountDrawerOpen, setAccountDrawerOpen] = useState(false);
+  const [categoriesModalOpen, setCategoriesModalOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const userMenuRef = useRef<HTMLDivElement>(null);
+  const lastScrollY = useRef(0);
+  const scrollReady = useRef(false);
+  const rafId = useRef<number | null>(null);
+  const lastToggleTime = useRef(0);
+  const [subheaderVisible, setSubheaderVisible] = useState(true);
   const { user, loading, logout } = useAuth();
   const { openFiltersModal } = useFiltersModal();
   const { openLoginModal } = useLoginModal();
@@ -106,6 +117,15 @@ export function Header() {
   const handleFavoritesClick = () => {
     if (user) {
       router.push("/wishlist");
+      setMenuOpen(false);
+    } else {
+      openLoginModal();
+    }
+  };
+
+  const handleAddProductClick = () => {
+    if (user) {
+      router.push("/add-product");
       setMenuOpen(false);
     } else {
       openLoginModal();
@@ -140,6 +160,48 @@ export function Header() {
     }
   }, [userMenuOpen]);
 
+  useLayoutEffect(() => {
+    lastScrollY.current = window.scrollY;
+    const id = requestAnimationFrame(() => {
+      scrollReady.current = true;
+    });
+    return () => cancelAnimationFrame(id);
+  }, []);
+
+  useEffect(() => {
+    function update() {
+      rafId.current = null;
+      if (!scrollReady.current) return;
+      const currentScrollY = window.scrollY;
+      if (currentScrollY <= SCROLL_TOP_SHOW) {
+        setSubheaderVisible(true);
+        lastScrollY.current = currentScrollY;
+        lastToggleTime.current = 0; // allow hide soon after leaving top
+        return;
+      }
+      const now = Date.now();
+      const diff = currentScrollY - lastScrollY.current;
+      if (diff >= SCROLL_THRESHOLD && now - lastToggleTime.current >= SUBHEADER_COOLDOWN_MS) {
+        setSubheaderVisible(false);
+        lastScrollY.current = currentScrollY;
+        lastToggleTime.current = now;
+      } else if (diff <= -SCROLL_THRESHOLD && now - lastToggleTime.current >= SUBHEADER_COOLDOWN_MS) {
+        setSubheaderVisible(true);
+        lastScrollY.current = currentScrollY;
+        lastToggleTime.current = now;
+      }
+    }
+    function onScroll() {
+      if (rafId.current !== null) return;
+      rafId.current = requestAnimationFrame(update);
+    }
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      if (rafId.current !== null) cancelAnimationFrame(rafId.current);
+    };
+  }, []);
+
   return (
     <>
     <header className="sticky top-0 z-50 border-b border-zinc-200 bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/80">
@@ -153,25 +215,31 @@ export function Header() {
         </Link>
 
         {/* Search — before nav */}
-        <div className="hidden flex-1 min-w-0 items-center justify-center gap-3 lg:flex">
+        <div className="hidden flex-1 min-w-0 items-center gap-3 lg:flex">
+          <button
+            type="button"
+            onClick={() => setCategoriesModalOpen(true)}
+            className="flex items-center cursor-pointer gap-2 rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm font-medium text-zinc-700 transition-colors hover:bg-zinc-50 hover:text-[var(--wineo-red)] focus:outline-none"
+            aria-label="კატეგორიები"
+          >
+            <LayoutGrid className="h-5 w-5 shrink-0" />
+            <span className="hidden xl:inline">კატეგორიები</span>
+            <ChevronDownIcon className="h-5 w-5 shrink-0" />
+          </button>
           <HeaderSearchBar />
         </div>
 
-        {/* Desktop nav */}
-        <nav
-          className="nav-font-medium hidden shrink-0 items-center gap-6 lg:flex"
-          aria-label="Main navigation"
-        >
-          {navLinks.map(({ href, label }) => (
-            <Link
-              key={href}
-              href={href}
-              className={`nav-link text-[20px] font-medium ${isActive(pathname, href) ? "nav-link-active" : ""}`}
-              aria-current={isActive(pathname, href) ? "page" : undefined}
-            >
-              {label}
-            </Link>
-          ))}
+        {/* Desktop actions (nav links are in subheader) */}
+        <div className="hidden shrink-0 items-center gap-4 lg:flex">
+          <button
+            type="button"
+            onClick={handleAddProductClick}
+            className="flex items-center cursor-pointer gap-2 rounded-lg border border-zinc-300 bg-[#8a052d2e] px-3 py-2 text-sm font-medium transition-colors hover:bg-[#8a052d5c] text-[var(--wineo-red)] focus:outline-none"
+            aria-label="განცხადების დამატება"
+          >
+            <Plus className="h-5 w-5 shrink-0" />
+            <span className="hidden xl:inline">განცხადების დამატება</span>
+          </button>
           <button
             type="button"
             onClick={handleFavoritesClick}
@@ -239,12 +307,12 @@ export function Header() {
               <button
                 type="button"
                 onClick={openLoginModal}
-                className="nav-link text-[20px] font-medium"
+                className="nav-link cursor-pointer text-[16px] font-medium"
               >
                 შესვლა
               </button>
             ))}
-        </nav>
+        </div>
 
         {/* Mobile: wishlist + menu icons (grouped on the right) */}
         <div className="flex items-center gap-1 lg:hidden">
@@ -270,6 +338,30 @@ export function Header() {
             <MenuIcon open={menuOpen} />
           </button>
         </div>
+      </div>
+
+      {/* Subheader: desktop only — hides on scroll down, shows on scroll up */}
+      <div
+        className={`hidden overflow-hidden transition-[max-height,opacity] duration-300 ease-out border-t border-zinc-200 bg-zinc-50 lg:block ${
+          subheaderVisible ? "max-h-24 opacity-100" : "max-h-0 opacity-0"
+        }`}
+        aria-hidden={!subheaderVisible}
+      >
+        <nav
+          className="nav-font-medium mx-auto flex h-12 max-w-7xl items-center gap-6 px-4 sm:px-6 lg:px-8"
+          aria-label="Main navigation"
+        >
+          {navLinks.map(({ href, label }) => (
+            <Link
+              key={href}
+              href={href}
+              className={`nav-link text-[20px] font-medium ${isActive(pathname, href) ? "nav-link-active" : ""}`}
+              aria-current={isActive(pathname, href) ? "page" : undefined}
+            >
+              {label}
+            </Link>
+          ))}
+        </nav>
       </div>
 
       {/* Mobile nav panel */}
@@ -442,6 +534,8 @@ export function Header() {
         </div>
       </>
     )}
+
+    <CategoriesModal open={categoriesModalOpen} onClose={() => setCategoriesModalOpen(false)} />
     </>
   );
 }

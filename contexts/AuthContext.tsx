@@ -104,10 +104,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       lastName?: string;
       businessName?: string;
     }) => {
-      const { user: u } = await updateMe(data);
+      const { user: u } = await updateMe(data, token ?? undefined);
       setUser(u);
     },
-    []
+    [token]
   );
 
   const value: AuthContextValue = {

@@ -131,7 +131,7 @@ export function ProductsContent() {
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!token || !user) {
+    if (!user) {
       setProducts([]);
       setLoading(false);
       return;
@@ -155,7 +155,6 @@ export function ProductsContent() {
   }, [token, user]);
 
   const handleDelete = async (p: ApiProduct) => {
-    if (!token) return;
     const ok = typeof window !== "undefined" && window.confirm(`გნებავთ წაშალოთ „${p.title}"?`);
     if (!ok) return;
     setDeletingId(p.id);
@@ -180,7 +179,7 @@ export function ProductsContent() {
     );
   }
 
-  if (!user || !token) {
+  if (!user) {
     return (
       <div className="rounded-xl border border-zinc-200 bg-white p-6 sm:p-8">
         <h1 className="text-2xl font-bold tracking-tight wineo-red medium-font">

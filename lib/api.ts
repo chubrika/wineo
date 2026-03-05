@@ -53,6 +53,23 @@ const AUTH_OPTS: RequestInit = {
   headers: { "Content-Type": "application/json" },
 };
 
+/**
+ * Example: PATCH/DELETE with cookie-based JWT (no CORS preflight issues).
+ * Backend reads token from httpOnly cookie when credentials: "include" is used.
+ *
+ * await fetch(`${API_BASE}/auth/me`, {
+ *   method: "PATCH",
+ *   credentials: "include",
+ *   headers: { "Content-Type": "application/json" },
+ *   body: JSON.stringify({ firstName: "New" }),
+ * });
+ *
+ * await fetch(`${API_BASE}/products/${id}`, {
+ *   method: "DELETE",
+ *   credentials: "include",
+ * });
+ */
+
 async function handleRes<T>(res: Response): Promise<T> {
   const data = await res.json().catch(() => ({}));
   if (!res.ok) {
@@ -123,12 +140,21 @@ export type UpdateMeBody = {
 };
 
 /**
- * PATCH /auth/me — update current user profile. Uses cookie auth.
+ * PATCH /auth/me — update current user profile.
+ * Uses cookie (credentials: 'include') or optional Bearer token.
+ * Backend accepts token from httpOnly cookie or Authorization header.
  */
-export async function updateMe(body: UpdateMeBody): Promise<MeResponse> {
+export async function updateMe(
+  body: UpdateMeBody,
+  token?: string | null
+): Promise<MeResponse> {
+  const headers: Record<string, string> = { "Content-Type": "application/json" };
+  if (token) headers["Authorization"] = `Bearer ${token}`;
+
   const res = await fetch(`${API_BASE}/auth/me`, {
-    ...AUTH_OPTS,
     method: "PATCH",
+    credentials: "include",
+    headers,
     body: JSON.stringify(body),
   });
   return handleRes<MeResponse>(res);
@@ -320,12 +346,13 @@ export async function getProducts(params?: GetProductsParams): Promise<ApiProduc
 }
 
 /**
- * GET /products/mine — list current user's products. Requires auth token.
+ * GET /products/mine — list current user's products. Uses Bearer token if provided, otherwise cookie (credentials).
  */
-export async function getMyProducts(token: string): Promise<ApiProduct[]> {
+export async function getMyProducts(token?: string | null): Promise<ApiProduct[]> {
   const res = await fetch(`${API_BASE}/products/mine`, {
     cache: "no-store",
-    headers: { Authorization: `Bearer ${token}` },
+    credentials: "include",
+    ...(token ? { headers: { Authorization: `Bearer ${token}` } } : {}),
   });
   return handleRes<ApiProduct[]>(res);
 }
@@ -433,12 +460,13 @@ export async function updateProduct(
 }
 
 /**
- * DELETE /products/:id — delete a product. Requires auth token.
+ * DELETE /products/:id — delete a product. Uses Bearer token if provided, otherwise cookie (credentials).
  */
-export async function deleteProduct(token: string, id: string): Promise<void> {
+export async function deleteProduct(token: string | null | undefined, id: string): Promise<void> {
   const res = await fetch(`${API_BASE}/products/${encodeURIComponent(id)}`, {
     method: "DELETE",
-    headers: { Authorization: `Bearer ${token}` },
+    credentials: "include",
+    ...(token ? { headers: { Authorization: `Bearer ${token}` } } : {}),
   });
   if (!res.ok) {
     const data = await res.json().catch(() => ({}));
