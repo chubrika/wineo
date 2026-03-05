@@ -11,7 +11,7 @@ import { useWishlist } from "@/contexts/WishlistContext";
 import { HeaderSearchBar } from "./HeaderSearchBar";
 import { AccountNavContent } from "@/components/account/AccountNavContent";
 import { CategoriesModal } from "./CategoriesModal";
-import { SlidersHorizontalIcon, Heart, Plus, LayoutGrid, ChevronDownIcon } from "lucide-react";
+import { SlidersHorizontalIcon, Heart, Plus, LayoutGrid, ChevronDownIcon, Home, ShoppingBag, Clock, User, CirclePlus, Search } from "lucide-react";
 
 const SCROLL_THRESHOLD = 80; // min pixels scrolled before we change show/hide
 const SCROLL_TOP_SHOW = 10;
@@ -36,12 +36,15 @@ function isAccountPath(pathname: string) {
 
 function MenuIcon({ open }: { open: boolean }) {
   return (
-    <span className="relative flex h-6 w-5 flex-col justify-center" aria-hidden>
+    <span className="relative flex h-6 w-5 flex-col justify-center gap-1" aria-hidden>
       <span
-        className={`block h-0.5 w-5 bg-zinc-700 transition-all duration-200 ${open ? "translate-y-[5px] rotate-45" : ""}`}
+        className={`block h-0.5 w-5 shrink-0 bg-zinc-700 transition-all duration-200 origin-center ${open ? "translate-y-[6px] rotate-45" : ""}`}
       />
       <span
-        className={`mt-1 block h-0.5 w-5 bg-zinc-700 transition-all duration-200 ${open ? "-translate-y-[6px] -rotate-45" : ""}`}
+        className={`block h-0.5 w-5 shrink-0 bg-zinc-700 transition-all duration-200 ${open ? "opacity-0 scale-x-0" : ""}`}
+      />
+      <span
+        className={`block h-0.5 w-5 shrink-0 bg-zinc-700 transition-all duration-200 origin-center ${open ? "-translate-y-[6px] -rotate-45" : ""}`}
       />
     </span>
   );
@@ -61,38 +64,17 @@ function getUserDisplayName(firstName: string, lastName: string, email: string) 
 }
 
 function MobileBottomNavIcon({ icon, active }: { icon: string; active: boolean }) {
-  const className = `w-6 h-6 shrink-0 ${active ? "text-[var(--nav-link-active)]" : "text-zinc-500"}`;
-  if (icon === "home") {
-    return (
-      <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} aria-hidden>
-        <path strokeLinecap="round" strokeLinejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-      </svg>
-    );
-  }
-  if (icon === "buy") {
-    return (
-      <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} aria-hidden>
-        <path strokeLinecap="round" strokeLinejoin="round" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
-      </svg>
-    );
-  }
-  if (icon === "rent") {
-    return (
-      <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} aria-hidden>
-        <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-      </svg>
-    );
-  }
-  if (icon === "filters") {
-    return <SlidersHorizontalIcon className={className} aria-hidden />;
-  }
-  if (icon === "account") {
-    return (
-      <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} aria-hidden>
-        <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-      </svg>
-    );
-  }
+  const baseClass = "w-6 h-6 shrink-0";
+  const className =
+    icon === "add"
+      ? `${baseClass} text-[var(--wineo-red)]`
+      : `${baseClass} ${active ? "text-[var(--nav-link-active)]" : "text-zinc-500"}`;
+  if (icon === "home") return <Home className={className} aria-hidden />;
+  if (icon === "buy") return <ShoppingBag className={className} aria-hidden />;
+  if (icon === "rent") return <Clock className={className} aria-hidden />;
+  if (icon === "filters") return <SlidersHorizontalIcon className={className} aria-hidden />;
+  if (icon === "account") return <User className={className} aria-hidden />;
+  if (icon === "add") return <CirclePlus className={className} aria-hidden />;
   return null;
 }
 
@@ -102,6 +84,7 @@ export function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [accountDrawerOpen, setAccountDrawerOpen] = useState(false);
   const [categoriesModalOpen, setCategoriesModalOpen] = useState(false);
+  const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const userMenuRef = useRef<HTMLDivElement>(null);
   const lastScrollY = useRef(0);
@@ -237,7 +220,7 @@ export function Header() {
             className="flex items-center cursor-pointer gap-2 rounded-lg border border-zinc-300 bg-[#8a052d2e] px-3 py-2 text-sm font-medium transition-colors hover:bg-[#8a052d5c] text-[var(--wineo-red)] focus:outline-none"
             aria-label="განცხადების დამატება"
           >
-            <Plus className="h-5 w-5 shrink-0" />
+            <CirclePlus className="h-5 w-5 shrink-0" />
             <span className="hidden xl:inline">განცხადების დამატება</span>
           </button>
           <button
@@ -288,6 +271,12 @@ export function Header() {
                       >
                         განცხადებები
                       </Link>
+                      <Link
+                        href="/wishlist"
+                        className="nav-link border-b border-zinc-100 cursor-pointer w-full px-4 py-2 text-left text-sm normal-font font-medium hover:bg-zinc-50"
+                      >
+                        სურვილების სია
+                      </Link>
                   </div>
                     <button
                       type="button"
@@ -318,6 +307,15 @@ export function Header() {
         <div className="flex items-center gap-1 lg:hidden">
           <button
             type="button"
+            onClick={() => setMobileSearchOpen((o) => !o)}
+            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-zinc-700 transition-colors hover:bg-zinc-100 hover:text-[var(--wineo-red)] focus:outline-none"
+            aria-expanded={mobileSearchOpen}
+            aria-label={mobileSearchOpen ? "ძებნის დახურვა" : "ძებნა"}
+          >
+            <Search className="h-6 w-6" strokeWidth={2} />
+          </button>
+          <button
+            type="button"
             onClick={handleFavoritesClick}
             className="relative flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-zinc-700 transition-colors hover:bg-zinc-100 hover:text-[var(--wineo-red)] focus:outline-none"
             aria-label={user ? "ფავორიტები" : "ფავორიტები (შედით ანგარიშში)"}
@@ -340,6 +338,13 @@ export function Header() {
         </div>
       </div>
 
+      {/* Mobile: expandable search row */}
+      {mobileSearchOpen && (
+        <div className="border-t border-zinc-200 bg-zinc-50/80 px-4 py-3 lg:hidden">
+          <HeaderSearchBar />
+        </div>
+      )}
+
       {/* Subheader: desktop only — hides on scroll down, shows on scroll up */}
       <div
         className={`hidden overflow-hidden transition-[max-height,opacity] duration-300 ease-out border-t border-zinc-200 bg-zinc-50 lg:block ${
@@ -348,19 +353,33 @@ export function Header() {
         aria-hidden={!subheaderVisible}
       >
         <nav
-          className="nav-font-medium mx-auto flex h-12 max-w-7xl items-center gap-6 px-4 sm:px-6 lg:px-8"
+          className="nav-font-medium mx-auto flex h-12 max-w-7xl items-center justify-between gap-6 px-4 sm:px-6 lg:px-8"
           aria-label="Main navigation"
         >
-          {navLinks.map(({ href, label }) => (
-            <Link
-              key={href}
-              href={href}
-              className={`nav-link text-[20px] font-medium ${isActive(pathname, href) ? "nav-link-active" : ""}`}
-              aria-current={isActive(pathname, href) ? "page" : undefined}
-            >
-              {label}
-            </Link>
-          ))}
+          <div className="flex items-center gap-6">
+            {navLinks.slice(0, -2).map(({ href, label }) => (
+              <Link
+                key={href}
+                href={href}
+                className={`nav-link text-[20px] font-medium ${isActive(pathname, href) ? "nav-link-active" : ""}`}
+                aria-current={isActive(pathname, href) ? "page" : undefined}
+              >
+                {label}
+              </Link>
+            ))}
+          </div>
+          <div className="flex items-center gap-6">
+            {navLinks.slice(-2).map(({ href, label }) => (
+              <Link
+                key={href}
+                href={href}
+                className={`nav-link text-[20px] font-medium ${isActive(pathname, href) ? "nav-link-active" : ""}`}
+                aria-current={isActive(pathname, href) ? "page" : undefined}
+              >
+                {label}
+              </Link>
+            ))}
+          </div>
         </nav>
       </div>
 
@@ -370,10 +389,7 @@ export function Header() {
         className={`nav-font-medium overflow-hidden transition-[height,opacity] duration-300 ease-out lg:hidden ${menuOpen ? "max-h-[480px] opacity-100" : "max-h-0 opacity-0"}`}
         aria-hidden={!menuOpen}
       >
-        {/* Search — before nav on mobile */}
-        <div className="border-t border-zinc-200 bg-zinc-50/80 px-4 py-3 sm:px-6">
-          <HeaderSearchBar />
-        </div>
+       
         <nav
           className="border-t border-zinc-200 bg-white px-4 py-4 sm:px-6"
           aria-label="Main navigation"
@@ -437,52 +453,62 @@ export function Header() {
       <Link
         href="/"
         onClick={() => setMenuOpen(false)}
-        className={`flex flex-col items-center gap-0.5 py-3 px-4 min-w-0 flex-1 ${isActive(pathname, "/") ? "nav-link-active" : "text-zinc-600"}`}
+        className={`flex flex-col items-center gap-0.5 py-2 px-2 min-w-0 flex-1 ${isActive(pathname, "/") ? "nav-link-active" : "text-zinc-600"}`}
         aria-current={pathname === "/" ? "page" : undefined}
       >
         <MobileBottomNavIcon icon="home" active={pathname === "/"} />
-        <span className="text-xs font-medium truncate w-full text-center">მთავარი</span>
+        <span className="text-[10px] font-medium truncate w-full text-center">მთავარი</span>
       </Link>
       )}
       {pathname === "/" && (
         <button
           type="button"
           onClick={openFiltersModal}
-          className="flex flex-col items-center gap-0.5 py-3 px-4 min-w-0 flex-1 text-zinc-600"
+          className="flex flex-col items-center gap-0.5 py-2 px-2 min-w-0 flex-1 text-zinc-600"
           aria-label="ფილტრები"
         >
           <MobileBottomNavIcon icon="filters" active={false} />
-          <span className="text-xs font-medium truncate w-full text-center">ფილტრები</span>
+          <span className="text-[10px] font-medium truncate w-full text-center">ფილტრები</span>
         </button>
       )}
       <Link
         href="/buy"
         onClick={() => setMenuOpen(false)}
-        className={`flex flex-col items-center gap-0.5 py-3 px-4 min-w-0 flex-1 ${isActive(pathname, "/buy") ? "nav-link-active" : "text-zinc-600"}`}
+        className={`flex flex-col items-center gap-0.5 py-2 px-2 min-w-0 flex-1 ${isActive(pathname, "/buy") ? "nav-link-active" : "text-zinc-600"}`}
         aria-current={isActive(pathname, "/buy") ? "page" : undefined}
       >
         <MobileBottomNavIcon icon="buy" active={isActive(pathname, "/buy")} />
-        <span className="text-xs font-medium truncate w-full text-center">იყიდე</span>
+        <span className="text-[10px] font-medium truncate w-full text-center">იყიდე</span>
+      </Link>
+      <Link
+        href="/add-product"
+        onClick={() => setMenuOpen(false)}
+        className={`flex flex-col items-center gap-0.5 py-2 px-2 min-w-0 flex-1 ${isActive(pathname, "/add-product") ? "nav-link-active" : "text-zinc-600"}`}
+        aria-current={isActive(pathname, "/add-product") ? "page" : undefined}
+      >
+        <MobileBottomNavIcon icon="add" active={isActive(pathname, "/add-product")} />
+        <span className="text-[10px] font-medium truncate w-full text-center wineo-red">დამატება</span>
       </Link>
       <Link
         href="/rent"
         onClick={() => setMenuOpen(false)}
-        className={`flex flex-col items-center gap-0.5 py-3 px-4 min-w-0 flex-1 ${isActive(pathname, "/rent") ? "nav-link-active" : "text-zinc-600"}`}
+        className={`flex flex-col items-center gap-0.5 py-2 px-2 min-w-0 flex-1 ${isActive(pathname, "/rent") ? "nav-link-active" : "text-zinc-600"}`}
         aria-current={isActive(pathname, "/rent") ? "page" : undefined}
       >
         <MobileBottomNavIcon icon="rent" active={isActive(pathname, "/rent")} />
-        <span className="text-xs font-medium truncate w-full text-center">იქირავე</span>
+        <span className="text-[10px] font-medium truncate w-full text-center">იქირავე</span>
       </Link>
+   
       {!loading && user ? (
           <button
             type="button"
             onClick={() => setAccountDrawerOpen(true)}
-            className={`flex flex-col items-center gap-0.5 py-3 px-4 min-w-0 flex-1 ${isAccountPath(pathname) ? "nav-link-active" : "text-zinc-600"}`}
+            className={`flex flex-col items-center gap-0.5 py-2 px-2 min-w-0 flex-1 text-zinc-600`}
             aria-label="ანგარიში"
             aria-expanded={accountDrawerOpen}
           >
-            <MobileBottomNavIcon icon="account" active={isAccountPath(pathname)} />
-            <span className="text-xs font-medium truncate w-full text-center">ანგარიში</span>
+            <MobileBottomNavIcon icon="account" active={false} />
+            <span className="text-[10px] font-medium truncate w-full text-center">ანგარიში</span>
           </button>
         ) : (
           <button
@@ -491,11 +517,11 @@ export function Header() {
               openLoginModal();
               setMenuOpen(false);
             }}
-            className={`flex flex-col items-center gap-0.5 py-3 px-4 min-w-0 flex-1 ${isActive(pathname, "/login") ? "nav-link-active" : "text-zinc-600"}`}
+            className={`flex flex-col items-center gap-0.5 py-2 px-2 min-w-0 flex-1 text-zinc-600`}
             aria-label="შესვლა"
           >
-            <MobileBottomNavIcon icon="account" active={isActive(pathname, "/login")} />
-            <span className="text-xs font-medium truncate w-full text-center">ანგარიში</span>
+            <MobileBottomNavIcon icon="account" active={false} />
+            <span className="text-[10px] font-medium truncate w-full text-center">ანგარიში</span>
           </button>
         )}
     </nav>
