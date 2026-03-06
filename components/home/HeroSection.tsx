@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState, useMemo, useRef } from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { getCategories, getRegions } from "@/lib/api";
 import type { ApiCategory } from "@/lib/api";
@@ -10,9 +9,8 @@ import type { CategoryTreeNode } from "@/types/category";
 import type { ListingType } from "@/types/listing";
 import { listingBasePath, buildListingSearchString } from "@/lib/listing-search";
 import { useFiltersModal } from "@/contexts/FiltersModalContext";
-import { ClockIcon, PlusIcon, SearchIcon, ShoppingBagIcon, XIcon } from "lucide-react";
-
-const HERO_PLACEHOLDER = "/next.svg";
+import { ClockIcon, SearchIcon, ShoppingBagIcon, XIcon } from "lucide-react";
+import { HeroSlider } from "@/components/hero/HeroSlider";
 
 export function HeroSection() {
   const router = useRouter();
@@ -124,36 +122,15 @@ export function HeroSection() {
       className="relative z-10 min-h-[520px] bg-zinc-100 text-zinc-900 md:min-h-[580px] border-b border-zinc-200"
       aria-label="Hero"
     >
-      {/* Slider: single slide placeholder */}
+      {/* Hero slider: full-bleed background + slides (title, subtitle, CTA per slide) */}
       <div className="absolute inset-0 overflow-hidden">
-        <div
-          className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-20"
-          style={{ backgroundImage: `url(${HERO_PLACEHOLDER})` }}
-        />
-        <div className="absolute inset-0 bg-gradient-to-b from-white/90 via-zinc-50/95 to-zinc-100" />
+        <HeroSlider />
       </div>
 
-      <div className="relative mx-auto flex min-h-[520px] max-w-7xl flex-col justify-center px-4 py-14 sm:px-6 lg:px-8 md:min-h-[580px]">
-        <div className="max-w-2xl">
-          <h1 className="text-2xl font-bold tracking-tight text-zinc-900 sm:text-4xl md:text-5xl">
-            განცხადებების ძებნა და დამატება
-          </h1>
-          <p className="mt-4 text-md text-zinc-600 sm:text-xl">
-          იყიდეთ ან იქირავეთ ბოთლები, კასრები, დანადგარები და ვენახის მიწები. დაუკავშირდით მყიდველებსა და დამქირავებლებს საქართველოს რეგიონებში.          </p>
-          <div className="mt-8 flex flex-wrap gap-3">
-            <Link
-              href="/add-product"
-              className="inline-flex items-center justify-center rounded-lg border border-zinc-300 bg-white px-5 py-2.5 text-[14px] md:text-[20px] font-semibold normal-font text-[#8a052d] transition  hover:text-white hover:bg-[#8a052d]"
-            >
-              <PlusIcon className="h-4 w-4 shrink-0 mr-2" />
-             განცხადების დამატება
-            </Link>
-          </div>
-        </div>
-
-        {/* Search bar */}
-        <div ref={searchSectionRef} className="mt-10">
-          <form
+      {/* Search bar overlaid at bottom */}
+      <div ref={searchSectionRef} className="absolute bottom-0 left-0 right-0 z-10 px-4 pb-6 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-4xl">
+        <form
             onSubmit={handleSubmit}
             className="flex flex-col gap-3 rounded-xl border border-zinc-200 bg-white p-4 shadow-lg sm:flex-row sm:flex-wrap sm:items-end sm:gap-4"
             role="search"

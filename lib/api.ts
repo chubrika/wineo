@@ -604,3 +604,37 @@ export async function getNewsById(id: string): Promise<ApiNewsItem | null> {
     return null;
   }
 }
+
+/** Hero slide from GET /hero-slides/active */
+export type ApiHeroSlide = {
+  id: string;
+  title: string;
+  subtitle: string;
+  buttonText: string;
+  buttonLink: string;
+  image: string;
+  mobileImage: string;
+  order: number;
+  active: boolean;
+  createdAt?: string;
+  updatedAt?: string;
+};
+
+/** Response from GET /hero-slides/active */
+export type ApiHeroSlidesResponse = {
+  items: ApiHeroSlide[];
+};
+
+/**
+ * GET /hero-slides/active — list active hero slides (sorted by order).
+ */
+export async function getActiveHeroSlides(): Promise<ApiHeroSlide[]> {
+  try {
+    const res = await fetch(`${API_BASE}/hero-slides/active`, { cache: "no-store" });
+    const data = await handleRes<ApiHeroSlidesResponse>(res);
+    const items = Array.isArray(data?.items) ? data.items : [];
+    return items.slice().sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+  } catch {
+    return [];
+  }
+}

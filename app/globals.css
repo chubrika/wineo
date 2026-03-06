@@ -79,3 +79,34 @@ body {
 .normal-font {
   font-family: var(--font-normal);
 }
+
+/* Hero slider: pagination bullets and navigation */
+.hero-swiper .swiper-pagination {
+  position: absolute;
+  bottom: 1rem;
+  left: 0;
+  right: 0;
+  z-index: 10;
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+}
+.hero-swiper .swiper-pagination-bullet {
+  width: 8px;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.5);
+  opacity: 1;
+  transition: background 0.2s, transform 0.2s;
+}
+.hero-swiper .swiper-pagination-bullet:hover {
+  background: rgba(255, 255, 255, 0.8);
+}
+.hero-swiper .swiper-pagination-bullet-active {
+  background: #fff;
+  transform: scale(1.2);
+}
+.hero-swiper .swiper,
+.hero-swiper .swiper-wrapper,
+.hero-swiper .swiper-slide {
+  height: 100%;
+}
