@@ -1,5 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 
+/**
+ * API proxy is handled by next.config.ts rewrites (/api/* → BACKEND_URL/api/*).
+ * This middleware only returns 503 on Vercel when BACKEND_URL is missing or points to localhost,
+ * so the app fails clearly instead of 404.
+ */
 const BACKEND_URL = (process.env.BACKEND_URL || "http://localhost:4000").trim().replace(/\/$/, "");
 
 function isPrivateOrLocalhost(url: URL): boolean {
@@ -18,11 +23,10 @@ function isPrivateOrLocalhost(url: URL): boolean {
 
 export function middleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
-  const search = request.nextUrl.search;
   if (!pathname.startsWith("/api/")) {
     return NextResponse.next();
   }
-  const url = new URL(pathname + search, BACKEND_URL);
+  const url = new URL(pathname + request.nextUrl.search, BACKEND_URL);
   if (process.env.VERCEL === "1" && isPrivateOrLocalhost(url)) {
     return NextResponse.json(
       {
@@ -33,7 +37,7 @@ export function middleware(request: NextRequest) {
       { status: 503 }
     );
   }
-  return NextResponse.rewrite(url, { request });
+  return NextResponse.next();
 }
 
 export const config = {
