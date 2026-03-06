@@ -6,11 +6,11 @@ import { EventsPageClient } from "@/components/events/EventsPageClient";
 import type { ApiEvent } from "@/types/event";
 
 export const metadata: Metadata = buildMetadata({
-  title: `Events | ${SITE_NAME}`,
-  description: "Discover wine events: tastings, festivals, workshops and more.",
+  title: `ღონისძიებები | ${SITE_NAME}`,
+  description: "დაგეგმილი ღონისძიებების სია. კალენდარის დახმარებით შეგიძლიათ მოძებნოთ ღონისძიებები და გაეცნოთ.",
   path: "/events",
   image: DEFAULT_OG_IMAGE,
-  keywords: [...DEFAULT_KEYWORDS, "wine events", "tasting", "festival"],
+  keywords: [...DEFAULT_KEYWORDS, "ღვინის ფესტივალი", "დეგუსტაცია", "ფესტივალი", "სომელიე"],
   openGraphType: "website",
 });
 
