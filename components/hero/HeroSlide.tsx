@@ -18,7 +18,7 @@ export function HeroSlideContent({ slide }: HeroSlideProps) {
   const hasMobileImage = Boolean(slide.mobileImage?.trim());
 
   return (
-    <div className="relative flex min-h-[320px] h-full w-full flex-col justify-center px-4 py-12 text-center md:min-h-[420px] md:py-16">
+    <div className="relative flex min-h-[320px] h-full w-full flex-col justify-start md:justify-center px-4 py-12 text-center md:min-h-[420px] md:py-16">
       {/* Background: picture for responsive + lazy */}
       <div className="absolute inset-0 overflow-hidden">
         {(desktopImage || mobileImage) && (
