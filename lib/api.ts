@@ -1,8 +1,11 @@
 /**
- * API base path. Next.js rewrites /api/* to BACKEND_URL (dev: http://localhost:4000).
- * Browser always talks to same origin; no CORS. Use credentials: "include" for cookies.
+ * API base: relative "/api" in the browser (same-origin, middleware proxies);
+ * absolute BACKEND_URL + "/api" on the server (Node fetch requires absolute URL).
  */
-export const API_BASE = "/api";
+export const API_BASE =
+  typeof window === "undefined"
+    ? `${(process.env.BACKEND_URL || "http://localhost:4000").replace(/\/$/, "")}/api`
+    : "/api";
 
 export type AuthUser = {
   id: string;
