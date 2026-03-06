@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLoginModal } from "@/contexts/LoginModalContext";
 import { resendVerification } from "@/lib/api";
-import { XIcon } from "lucide-react";
+import { XIcon, Eye, EyeOff } from "lucide-react";
 
 type Tab = "login" | "register";
 
@@ -29,6 +29,8 @@ export function LoginModal() {
   const [registerSuccess, setRegisterSuccess] = useState("");
   const [resendLoading, setResendLoading] = useState(false);
   const [resendMessage, setResendMessage] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showRepeatPassword, setShowRepeatPassword] = useState(false);
 
   useEffect(() => {
     if (isOpen) {
@@ -137,7 +139,11 @@ export function LoginModal() {
     setError("");
     setRegisterSuccess("");
     setResendMessage("");
-    if (t === "login") setRepeatPassword("");
+    if (t === "login") {
+      setRepeatPassword("");
+      setShowPassword(false);
+      setShowRepeatPassword(false);
+    }
   };
 
   if (!isOpen && !isClosing) return null;
@@ -335,16 +341,27 @@ export function LoginModal() {
                 <label htmlFor="modal-password" className="block text-sm font-medium text-zinc-700">
                   პაროლი
                 </label>
-                <input
-                  id="modal-password"
-                  type="password"
-                  autoComplete={tab === "login" ? "current-password" : "new-password"}
-                  required
-                  minLength={tab === "register" ? 6 : undefined}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="mt-1 block w-full rounded-lg border border-zinc-300 px-3 py-2 text-zinc-900 shadow-sm focus:border-[var(--nav-link-active)] focus:outline-none focus:ring-1 focus:ring-[var(--nav-link-active)]"
-                />
+                <div className="relative mt-1">
+                  <input
+                    id="modal-password"
+                    type={showPassword ? "text" : "password"}
+                    autoComplete={tab === "login" ? "current-password" : "new-password"}
+                    required
+                    minLength={tab === "register" ? 6 : undefined}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="block w-full rounded-lg border border-zinc-300 px-3 py-2 pr-10 text-zinc-900 shadow-sm focus:border-[var(--nav-link-active)] focus:outline-none focus:ring-1 focus:ring-[var(--nav-link-active)]"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword((p) => !p)}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 rounded p-1.5 text-zinc-500 transition-colors hover:bg-zinc-100 hover:text-zinc-700"
+                    aria-label={showPassword ? "პაროლის დამალვა" : "პაროლის ჩვენება"}
+                    tabIndex={-1}
+                  >
+                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  </button>
+                </div>
                 {tab === "register" && <p className="mt-1 text-xs text-zinc-500">მინიმუმ 6 სიმბოლო</p>}
               </div>
 
@@ -353,16 +370,27 @@ export function LoginModal() {
                   <label htmlFor="modal-repeatPassword" className="block text-sm font-medium text-zinc-700">
                     გაიმეორეთ პაროლი
                   </label>
-                  <input
-                    id="modal-repeatPassword"
-                    type="password"
-                    autoComplete="new-password"
-                    required
-                    minLength={6}
-                    value={repeatPassword}
-                    onChange={(e) => setRepeatPassword(e.target.value)}
-                    className="mt-1 block w-full rounded-lg border border-zinc-300 px-3 py-2 text-zinc-900 shadow-sm focus:border-[var(--nav-link-active)] focus:outline-none focus:ring-1 focus:ring-[var(--nav-link-active)]"
-                  />
+                  <div className="relative mt-1">
+                    <input
+                      id="modal-repeatPassword"
+                      type={showRepeatPassword ? "text" : "password"}
+                      autoComplete="new-password"
+                      required
+                      minLength={6}
+                      value={repeatPassword}
+                      onChange={(e) => setRepeatPassword(e.target.value)}
+                      className="block w-full rounded-lg border border-zinc-300 px-3 py-2 pr-10 text-zinc-900 shadow-sm focus:border-[var(--nav-link-active)] focus:outline-none focus:ring-1 focus:ring-[var(--nav-link-active)]"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowRepeatPassword((p) => !p)}
+                      className="absolute right-2 top-1/2 -translate-y-1/2 rounded p-1.5 text-zinc-500 transition-colors hover:bg-zinc-100 hover:text-zinc-700"
+                      aria-label={showRepeatPassword ? "პაროლის დამალვა" : "პაროლის ჩვენება"}
+                      tabIndex={-1}
+                    >
+                      {showRepeatPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    </button>
+                  </div>
                 </div>
               )}
 

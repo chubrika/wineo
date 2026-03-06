@@ -6,6 +6,7 @@ import {
   FeaturedListings,
   RegionSection,
   HowItWorks,
+  NewsSection,
 } from "@/components/home";
 import { SITE_NAME, SITE_DESCRIPTION } from "@/constants/site";
 import { buildMetadata, DEFAULT_KEYWORDS } from "@/lib/seo";
@@ -27,6 +28,7 @@ export default function HomePage() {
       <CategoryGrid />
       <FeaturedListings />
       <RegionSection />
+      <NewsSection />
       <HowItWorks />
     </>
   );
