@@ -4,4 +4,5 @@ export { BuyRentSection } from "./BuyRentSection";
 export { FeaturedListings } from "./FeaturedListings";
 export { RegionSection } from "./RegionSection";
 export { HowItWorks } from "./HowItWorks";
+export { EventsSection } from "./EventsSection";
 export { NewsSection } from "./NewsSection";

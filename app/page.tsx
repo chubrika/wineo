@@ -6,6 +6,7 @@ import {
   FeaturedListings,
   RegionSection,
   HowItWorks,
+  EventsSection,
   NewsSection,
 } from "@/components/home";
 import { SITE_NAME, SITE_DESCRIPTION } from "@/constants/site";
@@ -28,6 +29,7 @@ export default function HomePage() {
       <CategoryGrid />
       <FeaturedListings />
       <RegionSection />
+      <EventsSection />
       <NewsSection />
       <HowItWorks />
     </>

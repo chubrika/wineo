@@ -11,7 +11,7 @@ import { useWishlist } from "@/contexts/WishlistContext";
 import { HeaderSearchBar } from "./HeaderSearchBar";
 import { AccountNavContent } from "@/components/account/AccountNavContent";
 import { CategoriesModal } from "./CategoriesModal";
-import { SlidersHorizontalIcon, Heart, Plus, LayoutGrid, ChevronDownIcon, Home, ShoppingBag, Clock, User, CirclePlus, Search } from "lucide-react";
+import { SlidersHorizontalIcon, Heart, LayoutGrid, ChevronDownIcon, Home, ShoppingBag, Clock, User, CirclePlus, Search } from "lucide-react";
 
 const SCROLL_THRESHOLD = 80; // min pixels scrolled before we change show/hide
 const SCROLL_TOP_SHOW = 10;
@@ -21,6 +21,7 @@ const navLinks = [
   { href: "/buy", label: "იყიდე" },
   { href: "/rent", label: "იქირავე" },
   { href: "/news", label: "სიახლეები" },
+  { href: "/events", label: "ღონისძიებები" },
   { href: "/about", label: "ჩვენ შესახებ" },
   { href: "/contact", label: "კონტაქტი" },
 ] as const;
