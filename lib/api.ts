@@ -1,12 +1,8 @@
 /**
- * Backend API base URL. Set NEXT_PUBLIC_API_URL in .env.local (e.g. http://localhost:4000).
+ * API base path. Next.js rewrites /api/* to BACKEND_URL (dev: http://localhost:4000).
+ * Browser always talks to same origin; no CORS. Use credentials: "include" for cookies.
  */
-export const API_URL =
-  (typeof process !== "undefined" && process.env?.NEXT_PUBLIC_API_URL) ||
-  "http://localhost:4000";
-
-/** Base URL for API routes (backend uses /api prefix, vivi-style). */
-export const API_BASE = `${API_URL}/api`;
+export const API_BASE = "/api";
 
 export type AuthUser = {
   id: string;
@@ -54,8 +50,7 @@ const AUTH_OPTS: RequestInit = {
 };
 
 /**
- * Example: PATCH/DELETE with cookie-based JWT (no CORS preflight issues).
- * Backend reads token from httpOnly cookie when credentials: "include" is used.
+ * Example: PATCH/DELETE with cookie-based auth (same-origin via Next.js proxy).
  *
  * await fetch(`${API_BASE}/auth/me`, {
  *   method: "PATCH",
@@ -418,6 +413,7 @@ export async function createProduct(
 ): Promise<ApiProduct> {
   const res = await fetch(`${API_BASE}/products`, {
     method: "POST",
+    credentials: "include",
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${token}`,
@@ -450,6 +446,7 @@ export async function updateProduct(
 ): Promise<ApiProduct> {
   const res = await fetch(`${API_BASE}/products/${encodeURIComponent(id)}`, {
     method: "PUT",
+    credentials: "include",
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${token}`,
@@ -479,6 +476,7 @@ export async function deleteProduct(token: string | null | undefined, id: string
 export async function getWishlist(token: string): Promise<ApiProduct[]> {
   const res = await fetch(`${API_BASE}/wishlist`, {
     cache: "no-store",
+    credentials: "include",
     headers: { Authorization: `Bearer ${token}` },
   });
   return handleRes<ApiProduct[]>(res);
@@ -491,6 +489,7 @@ export async function addToWishlist(
 ): Promise<{ count: number }> {
   const res = await fetch(`${API_BASE}/wishlist/${encodeURIComponent(productId)}`, {
     method: "POST",
+    credentials: "include",
     headers: { Authorization: `Bearer ${token}` },
   });
   return handleRes<{ count: number }>(res);
@@ -503,6 +502,7 @@ export async function removeFromWishlist(
 ): Promise<{ count: number }> {
   const res = await fetch(`${API_BASE}/wishlist/${encodeURIComponent(productId)}`, {
     method: "DELETE",
+    credentials: "include",
     headers: { Authorization: `Bearer ${token}` },
   });
   return handleRes<{ count: number }>(res);
@@ -523,6 +523,7 @@ export async function getPresignedUploadUrls(
 ): Promise<PresignUploadResponse> {
   const res = await fetch(`${API_BASE}/products/upload/presign`, {
     method: "POST",
+    credentials: "include",
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${token}`,
