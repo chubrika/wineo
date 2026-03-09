@@ -320,3 +320,30 @@ export function truncateForMeta(text: string, maxLength: number = 160): string {
   const end = lastSpace > maxLength * 0.7 ? lastSpace : maxLength;
   return cut.slice(0, end).trim() + "…";
 }
+
+/** Format listing price for meta/snippet (buy: "1,500 ₾", rent: "1,500 ₾ - დღე"). */
+export function formatListingPriceForMeta(listing: Listing): string {
+  const value = Number(listing.price);
+  const num = Number.isFinite(value) ? value : 0;
+  const formatted = num.toLocaleString("en-US", { maximumFractionDigits: 0 });
+  const currencySymbol = (listing.currency || "GEL").toUpperCase() === "GEL" ? "₾" : "$";
+  if (listing.type === "rent" && listing.priceUnit) {
+    const unitLabel =
+      listing.priceUnit === "day" ? "დღე" : listing.priceUnit === "week" ? "კვირა" : listing.priceUnit === "month" ? "თვე" : listing.priceUnit;
+    return `${formatted} ${currencySymbol} - ${unitLabel}`;
+  }
+  return `${formatted} ${currencySymbol}`;
+}
+
+/**
+ * Build meta description for a listing: price + truncated description (for SEO / OG).
+ */
+export function buildListingMetaDescription(listing: Listing, maxLength: number = 160): string {
+  const priceStr = formatListingPriceForMeta(listing);
+  const rawDesc = (listing.description || listing.excerpt || "").trim();
+  const plain = rawDesc.replace(/<[^>]*>/g, "").trim();
+  if (!plain) return priceStr;
+  const allowed = Math.max(60, maxLength - priceStr.length - 3);
+  const truncated = truncateForMeta(plain, allowed);
+  return `${priceStr} · ${truncated}`;
+}

@@ -18,7 +18,7 @@ interface NewsCardProps {
   compact?: boolean;
 }
 
-export function NewsCard({ item, expandFull = false, href, compact = false }: NewsCardProps) {
+export function NewsCard({ item, expandFull = false, href, compact = true }: NewsCardProps) {
   const slugOrId = (item.slug && item.slug.trim()) ? item.slug : (item.id ?? item._id ?? "");
   const linkHref = href ?? (slugOrId ? `/news/${slugOrId}` : undefined);
 
@@ -54,7 +54,7 @@ export function NewsCard({ item, expandFull = false, href, compact = false }: Ne
         >
           {item.title}
         </h2>
-        {!compact ? (
+        {/* {!compact ? (
           <p className="mt-2 text-sm text-zinc-600 line-clamp-3 min-h-[3.75rem] flex-shrink-0">
             {item.shortDescription || "\u00A0"}
           </p>
@@ -62,7 +62,7 @@ export function NewsCard({ item, expandFull = false, href, compact = false }: Ne
           <p className="mt-1 text-xs text-zinc-600 line-clamp-2 min-h-[2rem]">
             {item.shortDescription}
           </p>
-        ) : null}
+        ) : null} */}
         {expandFull && item.fullDescription?.trim() ? (
           <div className="mt-3 border-t border-zinc-100 pt-3">
             <RichTextContent content={item.fullDescription} />

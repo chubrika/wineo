@@ -27,7 +27,7 @@ export default async function NewsPage() {
       {items.length === 0 ? (
         <p className="mt-10 text-zinc-500">სიახლეები ჯერ არ არის.</p>
       ) : (
-        <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="mt-8 grid grid-cols-2 gap-4 sm:gap-6 lg:grid-cols-4">
           {items.map((item) => (
             <NewsCard key={item.id ?? item._id} item={item} />
           ))}

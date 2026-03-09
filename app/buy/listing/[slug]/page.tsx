@@ -3,7 +3,7 @@ import { notFound, redirect } from "next/navigation";
 import Link from "next/link";
 import { getListingBySlug, getListings } from "@/lib/listings";
 import { SITE_NAME, SITE_URL } from "@/constants/site";
-import { listingToProductJsonLd, buildMetadata } from "@/lib/seo";
+import { listingToProductJsonLd, buildMetadata, buildListingMetaDescription } from "@/lib/seo";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { ListingImageGallery } from "@/components/listing/ListingImageGallery";
 import { RichTextContent } from "@/components/listing/RichTextContent";
@@ -21,7 +21,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     return { title: "Not Found" };
   }
   const title = listing.title;
-  const description = listing.excerpt;
+  const description = buildListingMetaDescription(listing);
   const path = `/buy/listing/${listing.slug}`;
   const image =
     listing.images?.[0] || listing.imageUrl;
