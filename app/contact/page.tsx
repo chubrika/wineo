@@ -22,10 +22,10 @@ export default function ContactPage() {
               <dt className="text-sm font-medium text-zinc-500">ელფოსტა</dt>
               <dd>
                 <a
-                  href="mailto:info@example.com"
+                  href="mailto:info@wineo.ge"
                   className="font-medium text-zinc-900 hover:underline"
                 >
-                  info@example.com
+                  info@wineo.ge
                 </a>
               </dd>
             </div>
@@ -33,10 +33,10 @@ export default function ContactPage() {
               <dt className="text-sm font-medium text-zinc-500">ტელეფონი</dt>
               <dd>
                 <a
-                  href="tel:+995000000000"
+                  href="tel:+995591170265"
                   className="font-medium text-zinc-900 hover:underline"
                 >
-                  +995 000 000 000
+                  +995 591 170 265
                 </a>
               </dd>
             </div>
