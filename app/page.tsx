@@ -13,7 +13,7 @@ import { SITE_NAME, SITE_DESCRIPTION } from "@/constants/site";
 import { buildMetadata, DEFAULT_KEYWORDS } from "@/lib/seo";
 
 export const metadata: Metadata = buildMetadata({
-  title: `იყიდე ან იქირავე ღვინის დასაყენებელი მოწყობილობები საქართველოში | ${SITE_NAME}`,
+  title: `ყველაფერი მეღვინეობა-მევენახეობაზე | ${SITE_NAME}`,
   description: SITE_DESCRIPTION,
   path: "/",
   image: "/og-default.png",
