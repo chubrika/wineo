@@ -41,7 +41,7 @@ export async function BuyRentSection() {
                 ყველა →
               </Link>
             </div>
-            <ul className="grid grid-cols-2 gap-4">
+            <ul className="grid grid-cols-2 gap-2 md:gap-4">
               {buyLatest.length === 0 ? (
                 <li className="col-span-full text-zinc-500">
                   განცხადებები ჯერ არ გაქვთ.
@@ -71,7 +71,7 @@ export async function BuyRentSection() {
                 ყველა →
               </Link>
             </div>
-            <ul className="grid grid-cols-2 gap-4">
+            <ul className="grid grid-cols-2 gap-2 md:gap-4">
               {rentLatest.length === 0 ? (
                 <li className="col-span-full text-zinc-500">
                   განცხადებები ჯერ არ გაქვთ.

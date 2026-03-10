@@ -90,14 +90,14 @@ export function ListingCard({ listing }: ListingCardProps) {
             </span>
           )}
         </div>
-        <div className="p-4">
-          {(listing.ownerType === "business" && listing.ownerName) || listing.ownerType === "physical" ? (
+        <div className="p-2 md:p-4">
+          {/* {(listing.ownerType === "business" && listing.ownerName) || listing.ownerType === "physical" ? (
             <p className="text-xs text-zinc-500 mb-4">
               {listing.ownerType === "business" ? listing.ownerName : "ფიზიკური პირი"}
             </p>
           ) : listing.ownerName ? (
             <p className="text-xs text-zinc-500 mb-4"> {listing.ownerName}</p>
-          ) : null}
+          ) : null} */}
           <h2 className="font-medium text-zinc-900 line-clamp-2 text-sm">
             {listing.title}
           </h2>
