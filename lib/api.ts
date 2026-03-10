@@ -270,8 +270,11 @@ export type ApiProduct = {
   type: "sell" | "rent";
   category: { name: string; slug: string };
   categoryId?: string;
-  /** Attribute values from category filters (filterId as string, value as stored) */
-  attributes?: { filterId: string; value: string | number | boolean | string[] }[];
+  /** Attribute values: API single-product response is array [{ name, slug, values }]; create payload uses array with filterId. */
+  attributes?:
+    | { filterId: string; value: string | number | boolean | string[] }[]
+    | Record<string, string | string[]>
+    | { name: string; slug: string; values: string[] }[];
   price: number;
   currency?: string;
   rentPeriod?: "hour" | "day" | "week" | "month";

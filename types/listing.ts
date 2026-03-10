@@ -64,6 +64,8 @@ export interface Listing {
     condition?: "new" | "used";
     [key: string]: unknown;
   };
+  /** Dynamic attribute values: array of { name, slug, values } from API (enriched for single-product endpoints). */
+  attributes?: { name: string; slug: string; values: string[] }[];
   promotionType: PromotionType;
   /** ISO string or null */
   promotionExpiresAt: string | null;

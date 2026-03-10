@@ -44,7 +44,7 @@ export function FilterSidebarWithDrawer({
       <FilterDrawer
         open={drawerOpen}
         onClose={() => setDrawerOpen(false)}
-        title="Filters"
+        title="ფილტრები"
       >
         <FilterSidebar
           {...props}
@@ -56,14 +56,14 @@ export function FilterSidebarWithDrawer({
             onClick={() => setDrawerOpen(false)}
             className="w-full rounded-lg bg-zinc-900 px-4 py-3 text-sm font-medium text-white hover:bg-zinc-800"
           >
-            Apply
+            ჩასმა
           </button>
           <button
             type="button"
             onClick={() => setDrawerOpen(false)}
             className="w-full rounded-lg border border-zinc-200 px-4 py-3 text-sm font-medium text-zinc-700 hover:bg-zinc-50"
           >
-            Close
+            გაუქმება
           </button>
         </div>
       </FilterDrawer>

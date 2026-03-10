@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 
 type ListingImageGalleryProps = {
   images: string[];
@@ -32,6 +32,15 @@ function ChevronRight(props: React.SVGProps<SVGSVGElement>) {
   );
 }
 
+function CloseIcon(props: React.SVGProps<SVGSVGElement>) {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
+      <path d="M18 6 6 18" />
+      <path d="m6 6 12 12" />
+    </svg>
+  );
+}
+
 function StarIcon(props: React.SVGProps<SVGSVGElement>) {
   return (
     <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
@@ -50,6 +59,7 @@ function conditionLabel(condition: string): string {
 
 export function ListingImageGallery({ images, alt, mainClass = "aspect-[16/10]", condition, promotionType, listingType = "buy" }: ListingImageGalleryProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [isFullscreen, setIsFullscreen] = useState(false);
   const hasMultiple = images.length > 1;
   const hasPromotion = promotionType && promotionType !== "none";
   const promotionLabel =
@@ -69,9 +79,27 @@ export function ListingImageGallery({ images, alt, mainClass = "aspect-[16/10]",
     setCurrentIndex((i) => (i >= images.length - 1 ? 0 : i + 1));
   }, [images.length]);
 
+  useEffect(() => {
+    if (!isFullscreen) return;
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setIsFullscreen(false);
+      if (e.key === "ArrowLeft") goPrev();
+      if (e.key === "ArrowRight") goNext();
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [isFullscreen, goPrev, goNext]);
+
   return (
     <div className="flex flex-col gap-3">
-      <div className={`relative w-full overflow-hidden rounded-xl border border-zinc-200 bg-zinc-100 ${mainClass}`}>
+      <div
+        role="button"
+        tabIndex={0}
+        onClick={() => setIsFullscreen(true)}
+        onKeyDown={(e) => e.key === "Enter" && setIsFullscreen(true)}
+        className={`relative w-full cursor-zoom-in overflow-hidden rounded-xl border border-zinc-200 bg-zinc-100 ${mainClass}`}
+        aria-label="View image fullscreen"
+      >
         <Image
           key={currentIndex}
           src={images[currentIndex]}
@@ -88,6 +116,7 @@ export function ListingImageGallery({ images, alt, mainClass = "aspect-[16/10]",
                 ? "bg-green-500 text-white"
                 : "bg-blue-500 text-white"
             }`}
+            onClick={(e) => e.stopPropagation()}
           >
             {conditionLabel(condition)}
           </span>
@@ -101,18 +130,25 @@ export function ListingImageGallery({ images, alt, mainClass = "aspect-[16/10]",
                   ? "bg-purple-600 text-white"
                   : "bg-zinc-700 text-white"
             }`}
+            onClick={(e) => e.stopPropagation()}
           >
             <StarIcon className="h-3.5 w-3.5 shrink-0" />
           </span>
         )}
-        <span className="absolute bottom-2 right-2 rounded-md bg-white/95 px-2.5 py-1 text-xs font-medium text-zinc-800 shadow-sm">
+        <span
+          className="absolute bottom-2 right-2 rounded-md bg-white/95 px-2.5 py-1 text-xs font-medium text-zinc-800 shadow-sm"
+          onClick={(e) => e.stopPropagation()}
+        >
           {listingType === "rent" ? "ქირავდება" : "იყიდება"}
         </span>
         {hasMultiple && (
           <>
             <button
               type="button"
-              onClick={goPrev}
+              onClick={(e) => {
+                e.stopPropagation();
+                goPrev();
+              }}
               className="absolute left-2 top-1/2 -translate-y-1/2 rounded-full bg-white/90 p-2 shadow-md transition hover:bg-white"
               aria-label="Previous image"
             >
@@ -120,7 +156,10 @@ export function ListingImageGallery({ images, alt, mainClass = "aspect-[16/10]",
             </button>
             <button
               type="button"
-              onClick={goNext}
+              onClick={(e) => {
+                e.stopPropagation();
+                goNext();
+              }}
               className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full bg-white/90 p-2 shadow-md transition hover:bg-white"
               aria-label="Next image"
             >
@@ -161,6 +200,64 @@ export function ListingImageGallery({ images, alt, mainClass = "aspect-[16/10]",
           >
             <ChevronRight className="h-5 w-5" />
           </button>
+        </div>
+      )}
+
+      {/* Fullscreen overlay */}
+      {isFullscreen && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/95"
+          onClick={() => setIsFullscreen(false)}
+          role="dialog"
+          aria-modal="true"
+          aria-label="Image fullscreen view"
+        >
+          <button
+            type="button"
+            onClick={() => setIsFullscreen(false)}
+            className="absolute right-4 top-4 z-10 rounded-full bg-white/10 p-2.5 text-white transition hover:bg-white/20 focus:outline-none focus:ring-2 focus:ring-white/50"
+            aria-label="Close fullscreen"
+          >
+            <CloseIcon className="h-6 w-6" />
+          </button>
+          <div
+            className="relative h-[90vh] w-[90vw]"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <Image
+              src={images[currentIndex]}
+              alt={alt}
+              fill
+              className="object-contain"
+              sizes="90vw"
+            />
+          </div>
+          {hasMultiple && (
+            <>
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  goPrev();
+                }}
+                className="absolute left-4 top-1/2 -translate-y-1/2 rounded-full bg-white/10 p-2.5 text-white transition hover:bg-white/20 focus:outline-none focus:ring-2 focus:ring-white/50"
+                aria-label="Previous image"
+              >
+                <ChevronLeft className="h-8 w-8" />
+              </button>
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  goNext();
+                }}
+                className="absolute right-4 top-1/2 -translate-y-1/2 rounded-full bg-white/10 p-2.5 text-white transition hover:bg-white/20 focus:outline-none focus:ring-2 focus:ring-white/50"
+                aria-label="Next image"
+              >
+                <ChevronRight className="h-8 w-8" />
+              </button>
+            </>
+          )}
         </div>
       )}
     </div>

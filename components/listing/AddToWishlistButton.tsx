@@ -30,7 +30,7 @@ export function AddToWishlistButton({ productId, className }: AddToWishlistButto
         strokeWidth={2}
         fill={inWishlist ? "currentColor" : "none"}
       />
-      {inWishlist ? "სურვილების სიიდან ამოშლა" : "დაამატე სურვილების სიაში"}
+      {inWishlist ? "ამოშლა" : "დამატება"}
     </button> 
   );
 }

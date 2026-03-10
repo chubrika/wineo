@@ -82,13 +82,19 @@ export default async function BuyListingPage({ params }: Props) {
         )
       : [];
   const condition = listing.specifications?.condition;
+  const attributeEntries =
+    Array.isArray(listing.attributes) && listing.attributes.length > 0
+      ? listing.attributes.filter(
+          (a) => a && a.name != null && a.slug != null && Array.isArray(a.values) && a.values.length > 0,
+        )
+      : [];
 
   return (
     <div className="mx-auto max-w-6xl bg-white px-4 py-8 sm:px-6 lg:px-8">
       <JsonLd data={productJsonLd} />
       <nav className="mb-6 text-sm text-zinc-500" aria-label="Breadcrumb">
         <Link href="/buy" className="hover:text-zinc-700">
-          Buy
+          ყიდვა
         </Link>
         <span className="mx-2">/</span>
         <span className="text-zinc-900">{listing.title}</span>
@@ -142,8 +148,8 @@ export default async function BuyListingPage({ params }: Props) {
 
         {/* Right: price + add to favorites */}
         <div className="lg:col-span-3">
-          <div className="sticky top-6 rounded-xl border border-zinc-200 bg-white p-6">
-            <p className="mt-4 text-2xl font-semibold text-zinc-900">{price}</p>
+          <div className="rounded-xl border border-zinc-200 bg-white p-6 md:sticky md:top-[72px]">
+            <p className="text-2xl font-semibold text-zinc-900">{price}</p>
 
             {listing.ownerPhone && (
               <>
@@ -165,28 +171,37 @@ export default async function BuyListingPage({ params }: Props) {
       </div>
 
       {/* Bottom: specifications */}
-      {(condition || specEntries.length > 0) && (
+      {(condition || specEntries.length > 0 || attributeEntries.length > 0) && (
         <section className="mt-10 border-t border-zinc-200 pt-8">
           <h2 className="mb-4 text-lg font-semibold text-zinc-900">
             მახასიათებლები
           </h2>
-          <dl className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-3">
+          <dl className="flex flex-col gap-3 w-full md:w-[50%]">
             {condition && (
-              <>
-                <dt className="text-sm font-medium text-zinc-500">მდგომარეობა</dt>
-                <dd className="text-sm text-zinc-900 capitalize">
+              <div className="flex items-center gap-2">
+                <dt className="shrink-0 text-sm font-medium text-zinc-500">მდგომარეობა</dt>
+                <span className="min-w-[20px] flex-1 border-b border-dashed border-zinc-300" aria-hidden />
+                <dd className="shrink-0 text-sm capitalize text-zinc-900">
                   {condition === "new" ? "ახალი" : "მეორადი"}
                 </dd>
-              </>
+              </div>
             )}
             {specEntries.map(([key, value]) => (
-              <div key={key} className="contents">
-                <dt className="text-sm font-medium text-zinc-500 capitalize">
+              <div key={key} className="flex items-center gap-2">
+                <dt className="shrink-0 text-sm font-medium capitalize text-zinc-500">
                   {key.replace(/([A-Z])/g, " $1").trim()}
                 </dt>
-                <dd className="text-sm text-zinc-900">
+                <span className="min-w-[20px] flex-1 border-b border-dashed border-zinc-300" aria-hidden />
+                <dd className="shrink-0 text-sm text-zinc-900">
                   {Array.isArray(value) ? value.join(", ") : String(value)}
                 </dd>
+              </div>
+            ))}
+            {attributeEntries.map((attr) => (
+              <div key={attr.slug} className="flex items-center gap-2">
+                <dt className="shrink-0 text-sm font-medium text-zinc-500">{attr.name}</dt>
+                <span className="min-w-[20px] flex-1 border-b border-dashed border-zinc-300" aria-hidden />
+                <dd className="shrink-0 text-sm text-zinc-900">{attr.values.join(", ")}</dd>
               </div>
             ))}
           </dl>

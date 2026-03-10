@@ -5,7 +5,7 @@ import { useCallback, useState } from "react";
 import { useDropzone } from "react-dropzone";
 import { getPresignedUploadUrls } from "@/lib/api";
 
-const MAX_IMAGES = 20;
+const MAX_IMAGES = 10;
 const ACCEPT = { "image/jpeg": [".jpg", ".jpeg"], "image/png": [".png"], "image/webp": [".webp"] };
 
 export type UploadedImage = {

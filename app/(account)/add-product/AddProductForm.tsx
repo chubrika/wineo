@@ -316,14 +316,43 @@ export function AddProductForm({
     getFiltersByCategoryId(categoryId)
       .then((list) => {
         if (!cancelled) {
-          setCategoryFilters(list.filter((f) => f.isActive));
-          const attrs = productId && initialProduct?.attributes && Array.isArray(initialProduct.attributes) && initialProduct.attributes.length > 0
-            ? initialProduct.attributes
-            : null;
-          if (attrs) {
-            const fromProduct = Object.fromEntries(
-              attrs.map((a) => [String(a.filterId), a.value])
-            );
+          const activeList = list.filter((f) => f.isActive);
+          setCategoryFilters(activeList);
+          const attrs = productId && initialProduct?.attributes ? initialProduct.attributes : null;
+          if (attrs != null) {
+            let fromProduct: Record<string, string | string[] | number | boolean>;
+            if (Array.isArray(attrs) && attrs.length > 0) {
+              const first = attrs[0];
+              const isNewShape =
+                first &&
+                typeof first === "object" &&
+                "slug" in first &&
+                "values" in first &&
+                Array.isArray((first as { values?: unknown }).values);
+              if (isNewShape) {
+                fromProduct = {};
+                for (const a of attrs as { name: string; slug: string; values: string[] }[]) {
+                  const f = activeList.find((x) => x.slug === a.slug);
+                  if (f && a.values.length > 0) {
+                    fromProduct[f.id] = a.values.length === 1 ? a.values[0] : a.values;
+                  }
+                }
+              } else {
+                const arr = attrs as { filterId: string; value: string | number | boolean | string[] }[];
+                fromProduct = Object.fromEntries(arr.map((a) => [String(a.filterId), a.value]));
+              }
+            } else if (typeof attrs === "object" && attrs !== null && !Array.isArray(attrs)) {
+              const slugMap = attrs as Record<string, string[] | string | number | boolean>;
+              fromProduct = {};
+              for (const f of activeList) {
+                const raw = slugMap[f.slug];
+                if (raw !== undefined && raw !== null) {
+                  fromProduct[f.id] = Array.isArray(raw) ? raw : raw;
+                }
+              }
+            } else {
+              fromProduct = {};
+            }
             setDynamicFilterValues(fromProduct);
           } else {
             setDynamicFilterValues({});
@@ -660,7 +689,7 @@ export function AddProductForm({
               aria-haspopup="listbox"
               aria-expanded={categoryDropdownOpen}
               aria-label="აირჩიეთ კატეგორია"
-              className={`${inputClass} flex w-full items-center justify-between text-left`}
+              className={`${inputClass} flex w-full items-center justify-between text-left cursor-pointer`}
             >
               <span className={selectedCategory ? "text-zinc-900" : "text-zinc-500"}>
                 {selectedCategory ? selectedCategory.name : "— აირჩიეთ კატეგორია —"}
@@ -918,12 +947,12 @@ export function AddProductForm({
             disabled={submitting}
           />
           {!isEditMode && getTempImageKeys(uploadedImages).length === 0 && getExistingImageUrls(uploadedImages).length === 0 && (
-            <p className="text-xs text-zinc-500">პირველი სურათი გამოჩნდება როგორც მთავარი. დაამატეთ მინიმუმ ერთი სურათი.</p>
+            <p className="text-xs text-zinc-500"> დაამატეთ მინიმუმ ერთი სურათი.</p>
           )}
         </div>
       </section>
 
-      <section className="rounded-xl border border-zinc-200 bg-white p-4">
+      {/* <section className="rounded-xl border border-zinc-200 bg-white p-4">
         <h2 className="text-sm font-semibold text-zinc-900 normal-font mb-4">პრომოუშენი (არასავალდებულო)</h2>
         <div className="grid gap-4 sm:grid-cols-3" role="radiogroup" aria-label="პრიორიტეტი">
           {PROMOTION_OPTIONS.map((opt) => (
@@ -960,7 +989,7 @@ export function AddProductForm({
             </label>
           ))}
         </div>
-      </section>
+      </section> */}
 
       <div className="flex gap-3 rounded-xl border border-zinc-200 bg-white p-4">
         <button

@@ -58,6 +58,19 @@ export function mapApiProductToListing(api: ApiProduct): Listing {
               : {}),
           } as Listing["specifications"])
         : undefined,
+    attributes:
+      Array.isArray(api.attributes) && api.attributes.length > 0
+        ? api.attributes
+            .filter(
+              (a): a is { name: string; slug: string; values: string[] } =>
+                a != null &&
+                typeof a === "object" &&
+                typeof (a as { name?: unknown }).name === "string" &&
+                typeof (a as { slug?: unknown }).slug === "string" &&
+                Array.isArray((a as { values?: unknown }).values)
+            )
+            .map((a) => ({ name: a.name, slug: a.slug, values: a.values }))
+        : undefined,
     images:
       Array.isArray(api.images) && api.images.length > 0
         ? api.images
