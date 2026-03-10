@@ -115,7 +115,7 @@ export default async function RentListingPage({ params }: Props) {
       </nav>
 
       {/* Three columns: left gallery, center info, right price */}
-      <div className="grid grid-cols-1 gap-8 lg:grid-cols-12">
+      <div className="grid grid-cols-1 gap-8 pb-24 md:pb-0 lg:grid-cols-12">
         {/* Left: image + gallery */}
         <div className="lg:col-span-4">
           <ListingImageGallery
@@ -132,7 +132,7 @@ export default async function RentListingPage({ params }: Props) {
           <div className="space-y-4">
             <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-zinc-500">
               <span>ID: {listing.itemId}</span>
-              {listing.views != null && <span>{listing.views} ნახვა</span>}
+              {/* {listing.views != null && <span>{listing.views} ნახვა</span>} */}
               <span>{formatDate(listing.createdAt)}</span>
             </div>
             <h1 className="text-sm font-bold tracking-tight text-zinc-900 sm:text-xl">
@@ -161,9 +161,9 @@ export default async function RentListingPage({ params }: Props) {
           </div>
         </div>
 
-        {/* Right: price + add to favorites */}
-        <div className="lg:col-span-3">
-          <div className="sticky top-6 rounded-xl border border-zinc-200 bg-white p-6">
+        {/* Right: price + add to favorites — hidden on mobile (shown in fixed bar) */}
+        <div className="hidden lg:col-span-3 lg:block">
+          <div className="rounded-xl border border-zinc-200 bg-white p-6 md:sticky md:top-[72px]">
             <p className="text-2xl font-semibold text-zinc-900">{price}</p>
 
             {listing.ownerPhone && (
@@ -182,6 +182,22 @@ export default async function RentListingPage({ params }: Props) {
             )}
             <AddToWishlistButton productId={listing.id} />
           </div>
+        </div>
+      </div>
+
+      {/* Mobile: fixed bottom bar with price, call, wishlist */}
+      <div className="fixed bottom-[58px] left-0 right-0 z-40 flex justify-between items-center gap-3 border-t border-zinc-200 bg-white px-4 py-2 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] md:hidden">
+        <p className="text-lg font-semibold text-zinc-900">{price}</p>
+        <div className="flex items-center gap-2">
+        {listing.ownerPhone && (
+          <a
+            href={`tel:${listing.ownerPhone}`}
+            className="flex items-center justify-center gap-2 rounded-full border border-blue-500 bg-blue-50 px-2.5 py-2.5 text-sm font-medium text-blue-700 hover:bg-blue-100"
+          >
+            <Phone className="h-5 w-5 shrink-0 text-green-600" />
+          </a>
+        )}
+        <AddToWishlistButton productId={listing.id} iconOnly />
         </div>
       </div>
 

@@ -57,7 +57,7 @@ function conditionLabel(condition: string): string {
   return condition;
 }
 
-export function ListingImageGallery({ images, alt, mainClass = "aspect-[16/10]", condition, promotionType, listingType = "buy" }: ListingImageGalleryProps) {
+export function ListingImageGallery({ images, alt, mainClass = "aspect-[4/3]", condition, promotionType, listingType = "buy" }: ListingImageGalleryProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const hasMultiple = images.length > 1;

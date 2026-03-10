@@ -13,7 +13,7 @@ export function Footer() {
 
   return (
     <footer className="border-t border-zinc-200 bg-zinc-50">
-      <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 sm:py-10 lg:px-8 lg:py-12">
+      <div className="mx-auto max-w-7xl px-4 pt-8 pb-35 md:pb-10 sm:px-6 sm:py-10 lg:px-8 lg:py-12">
         <div className="flex flex-col gap-8 md:flex-row md:items-center md:justify-between">
           <p className="text-center text-sm font-medium text-zinc-700 sm:text-left">
             © {year} {SITE_NAME}. მწარმოებლების და მყიდველების პლატფორმა. ყველაფერი მევენახეობაზე და მეღვინეობაზე.

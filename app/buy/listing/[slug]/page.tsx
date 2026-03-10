@@ -3,7 +3,11 @@ import { notFound, redirect } from "next/navigation";
 import Link from "next/link";
 import { getListingBySlug, getListings } from "@/lib/listings";
 import { SITE_NAME, SITE_URL } from "@/constants/site";
-import { listingToProductJsonLd, buildMetadata, buildListingMetaDescription } from "@/lib/seo";
+import {
+  listingToProductJsonLd,
+  buildMetadata,
+  buildListingMetaDescription,
+} from "@/lib/seo";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { ListingImageGallery } from "@/components/listing/ListingImageGallery";
 import { RichTextContent } from "@/components/listing/RichTextContent";
@@ -23,8 +27,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const title = listing.title;
   const description = buildListingMetaDescription(listing);
   const path = `/buy/listing/${listing.slug}`;
-  const image =
-    listing.images?.[0] || listing.imageUrl;
+  const image = listing.images?.[0] || listing.imageUrl;
   return buildMetadata({
     title: `${title} | ${SITE_NAME}`,
     description,
@@ -54,7 +57,8 @@ export default async function BuyListingPage({ params }: Props) {
   const { slug } = await params;
   const listing = await getListingBySlug("buy", slug);
   if (!listing) notFound();
-  if (listing.type === "rent" && listing.slug) redirect(`/rent/listing/${listing.slug}`);
+  if (listing.type === "rent" && listing.slug)
+    redirect(`/rent/listing/${listing.slug}`);
   if (listing.type === "rent") notFound();
 
   const productJsonLd = listingToProductJsonLd(listing, SITE_URL);
@@ -85,7 +89,12 @@ export default async function BuyListingPage({ params }: Props) {
   const attributeEntries =
     Array.isArray(listing.attributes) && listing.attributes.length > 0
       ? listing.attributes.filter(
-          (a) => a && a.name != null && a.slug != null && Array.isArray(a.values) && a.values.length > 0,
+          (a) =>
+            a &&
+            a.name != null &&
+            a.slug != null &&
+            Array.isArray(a.values) &&
+            a.values.length > 0,
         )
       : [];
 
@@ -101,7 +110,7 @@ export default async function BuyListingPage({ params }: Props) {
       </nav>
 
       {/* Three columns: left gallery, center info, right price */}
-      <div className="grid grid-cols-1 gap-8 lg:grid-cols-12">
+      <div className="grid grid-cols-1 gap-8 pb-24 md:pb-0 lg:grid-cols-12">
         {/* Left: image + gallery */}
         <div className="lg:col-span-4">
           <ListingImageGallery
@@ -117,7 +126,7 @@ export default async function BuyListingPage({ params }: Props) {
           <div className="space-y-4">
             <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-zinc-500">
               <span>ID: {listing.itemId}</span>
-              {listing.views != null && <span>{listing.views} ნახვა</span>}
+              {/* {listing.views != null && <span>{listing.views} ნახვა</span>} */}
               <span>{formatDate(listing.createdAt)}</span>
             </div>
             <h1 className="text-sm font-bold tracking-tight text-zinc-900 sm:text-xl">
@@ -147,7 +156,7 @@ export default async function BuyListingPage({ params }: Props) {
         </div>
 
         {/* Right: price + add to favorites */}
-        <div className="lg:col-span-3">
+        <div className="hidden lg:col-span-3 lg:block">
           <div className="rounded-xl border border-zinc-200 bg-white p-6 md:sticky md:top-[72px]">
             <p className="text-2xl font-semibold text-zinc-900">{price}</p>
 
@@ -170,6 +179,22 @@ export default async function BuyListingPage({ params }: Props) {
         </div>
       </div>
 
+      {/* Mobile: fixed bottom bar with price, call, wishlist */}
+      <div className="fixed bottom-[58px] left-0 right-0 z-40 flex justify-between items-center gap-3 border-t border-zinc-200 bg-white px-4 py-2 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] md:hidden">
+        <p className="text-lg font-semibold text-zinc-900">{price}</p>
+        <div className="flex items-center gap-2">
+          {listing.ownerPhone && (
+            <a
+              href={`tel:${listing.ownerPhone}`}
+              className="flex items-center justify-center gap-2 rounded-full border border-blue-500 bg-blue-50 px-2.5 py-2.5 text-sm font-medium text-blue-700 hover:bg-blue-100"
+            >
+              <Phone className="h-5 w-5 shrink-0 text-green-600" />
+            </a>
+          )}
+          <AddToWishlistButton productId={listing.id} iconOnly />
+        </div>
+      </div>
+
       {/* Bottom: specifications */}
       {(condition || specEntries.length > 0 || attributeEntries.length > 0) && (
         <section className="mt-10 border-t border-zinc-200 pt-8">
@@ -179,8 +204,13 @@ export default async function BuyListingPage({ params }: Props) {
           <dl className="flex flex-col gap-3 w-full md:w-[50%]">
             {condition && (
               <div className="flex items-center gap-2">
-                <dt className="shrink-0 text-sm font-medium text-zinc-500">მდგომარეობა</dt>
-                <span className="min-w-[20px] flex-1 border-b border-dashed border-zinc-300" aria-hidden />
+                <dt className="shrink-0 text-sm font-medium text-zinc-500">
+                  მდგომარეობა
+                </dt>
+                <span
+                  className="min-w-[20px] flex-1 border-b border-dashed border-zinc-300"
+                  aria-hidden
+                />
                 <dd className="shrink-0 text-sm capitalize text-zinc-900">
                   {condition === "new" ? "ახალი" : "მეორადი"}
                 </dd>
@@ -191,7 +221,10 @@ export default async function BuyListingPage({ params }: Props) {
                 <dt className="shrink-0 text-sm font-medium capitalize text-zinc-500">
                   {key.replace(/([A-Z])/g, " $1").trim()}
                 </dt>
-                <span className="min-w-[20px] flex-1 border-b border-dashed border-zinc-300" aria-hidden />
+                <span
+                  className="min-w-[20px] flex-1 border-b border-dashed border-zinc-300"
+                  aria-hidden
+                />
                 <dd className="shrink-0 text-sm text-zinc-900">
                   {Array.isArray(value) ? value.join(", ") : String(value)}
                 </dd>
@@ -199,9 +232,16 @@ export default async function BuyListingPage({ params }: Props) {
             ))}
             {attributeEntries.map((attr) => (
               <div key={attr.slug} className="flex items-center gap-2">
-                <dt className="shrink-0 text-sm font-medium text-zinc-500">{attr.name}</dt>
-                <span className="min-w-[20px] flex-1 border-b border-dashed border-zinc-300" aria-hidden />
-                <dd className="shrink-0 text-sm text-zinc-900">{attr.values.join(", ")}</dd>
+                <dt className="shrink-0 text-sm font-medium text-zinc-500">
+                  {attr.name}
+                </dt>
+                <span
+                  className="min-w-[20px] flex-1 border-b border-dashed border-zinc-300"
+                  aria-hidden
+                />
+                <dd className="shrink-0 text-sm text-zinc-900">
+                  {attr.values.join(", ")}
+                </dd>
               </div>
             ))}
           </dl>
