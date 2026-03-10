@@ -6,7 +6,7 @@ import { FiltersModalProvider } from "@/contexts/FiltersModalContext";
 import { LoginModalProvider } from "@/contexts/LoginModalContext";
 import { WishlistProvider } from "@/contexts/WishlistContext";
 import { LoginModal } from "@/components/auth/LoginModal";
-import { SITE_NAME, SITE_DESCRIPTION, SITE_URL } from "@/constants/site";
+import { SITE_NAME, SITE_DESCRIPTION, SITE_URL, DEFAULT_OG_IMAGE } from "@/constants/site";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -29,6 +29,18 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     locale: "en_US",
+    images: [
+      {
+        url: DEFAULT_OG_IMAGE,
+        width: 1200,
+        height: 630,
+        alt: SITE_NAME,
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    images: [DEFAULT_OG_IMAGE],
   },
 };
 

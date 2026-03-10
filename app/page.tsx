@@ -9,14 +9,14 @@ import {
   EventsSection,
   NewsSection,
 } from "@/components/home";
-import { SITE_NAME, SITE_DESCRIPTION } from "@/constants/site";
+import { SITE_NAME, SITE_DESCRIPTION, DEFAULT_OG_IMAGE } from "@/constants/site";
 import { buildMetadata, DEFAULT_KEYWORDS } from "@/lib/seo";
 
 export const metadata: Metadata = buildMetadata({
   title: `ყველაფერი მეღვინეობა-მევენახეობაზე | ${SITE_NAME}`,
   description: SITE_DESCRIPTION,
   path: "/",
-  image: "/og-default.png",
+  image: DEFAULT_OG_IMAGE,
   keywords: DEFAULT_KEYWORDS,
   openGraphType: "website",
 });
