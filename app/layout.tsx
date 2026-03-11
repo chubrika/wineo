@@ -22,7 +22,7 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: `${SITE_NAME} | Buy & Rent Winemaking Equipment`,
+    default: `${SITE_NAME} | იყიდე, გაყიდე, იქირავე ან გააქირავე`,
     template: `%s | ${SITE_NAME}`,
   },
   description: SITE_DESCRIPTION,
