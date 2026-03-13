@@ -4,8 +4,8 @@ import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLoginModal } from "@/contexts/LoginModalContext";
-import { resendVerification } from "@/lib/api";
-import { XIcon, Eye, EyeOff } from "lucide-react";
+import { resendVerification, requestPasswordReset } from "@/lib/api";
+import { XIcon, Eye, EyeOff, ArrowLeftIcon } from "lucide-react";
 
 type Tab = "login" | "register";
 
@@ -31,6 +31,9 @@ export function LoginModal() {
   const [resendMessage, setResendMessage] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showRepeatPassword, setShowRepeatPassword] = useState(false);
+  const [showResetView, setShowResetView] = useState(false);
+  const [resetSuccess, setResetSuccess] = useState("");
+  const [resetLoading, setResetLoading] = useState(false);
 
   useEffect(() => {
     if (isOpen) {
@@ -54,6 +57,8 @@ export function LoginModal() {
   const handleClose = () => {
     setIsVisible(false);
     setIsClosing(true);
+    setShowResetView(false);
+    setResetSuccess("");
     closeTimeoutRef.current = setTimeout(() => {
       closeLoginModal();
       setIsClosing(false);
@@ -139,10 +144,34 @@ export function LoginModal() {
     setError("");
     setRegisterSuccess("");
     setResendMessage("");
+    setShowResetView(false);
+    setResetSuccess("");
     if (t === "login") {
       setRepeatPassword("");
       setShowPassword(false);
       setShowRepeatPassword(false);
+    }
+  };
+
+  const handleBackFromReset = () => {
+    setShowResetView(false);
+    setResetSuccess("");
+    setError("");
+  };
+
+  const handleRequestReset = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email?.trim()) return;
+    setError("");
+    setResetSuccess("");
+    setResetLoading(true);
+    try {
+      const result = await requestPasswordReset(email.trim());
+      setResetSuccess(result.message);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "შეცდომა");
+    } finally {
+      setResetLoading(false);
     }
   };
 
@@ -176,7 +205,7 @@ export function LoginModal() {
         <div className="flex h-full w-full flex-col bg-white">
           <div className="flex shrink-0 items-center justify-between border-b border-zinc-200 px-4 py-3 md:px-6">
             <h2 className="text-lg font-semibold tracking-tight text-zinc-900 medium-font">
-              {tab === "login" ? "შესვლა" : "რეგისტრაცია"}
+              {showResetView ? "პაროლის აღდგენა" : tab === "login" ? "შესვლა" : "რეგისტრაცია"}
             </h2>
             <button
               type="button"
@@ -189,6 +218,52 @@ export function LoginModal() {
           </div>
 
           <div className="flex-1 overflow-y-auto px-4 py-6 md:px-6">
+            {showResetView ? (
+              <form onSubmit={handleRequestReset} className="mt-2 space-y-5">
+                {resetSuccess && (
+                  <div className="rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-800" role="alert">
+                    {resetSuccess}
+                  </div>
+                )}
+                {error && (
+                  <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800" role="alert">
+                    {error}
+                  </div>
+                )}
+                <div>
+                  
+                <button
+                  type="button"
+                  onClick={handleBackFromReset}
+                  className="w-full mb-4 text-sm text-zinc-600 hover:text-zinc-900 cursor-pointer"
+                >
+                 <span className="flex items-center gap-2"> 
+                  <ArrowLeftIcon className="h-4 w-4" /> უკან</span>
+                </button>
+                  <label htmlFor="modal-reset-email" className="block text-sm font-medium text-zinc-700">
+                    ელფოსტა
+                  </label>
+                  <input
+                    id="modal-reset-email"
+                    type="email"
+                    autoComplete="email"
+                    required
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="mt-1 block w-full rounded-lg border border-zinc-300 px-3 py-2 text-zinc-900 shadow-sm focus:border-[var(--nav-link-active)] focus:outline-none focus:ring-1 focus:ring-[var(--nav-link-active)]"
+                    placeholder="example@mail.com"
+                  />
+                </div>
+                <button
+                  type="submit"
+                  disabled={resetLoading}
+                  className="w-full rounded-lg bg-[var(--nav-link-active)] px-4 py-2.5 font-medium text-white transition-colors hover:opacity-90 disabled:opacity-60"
+                >
+                  {resetLoading ? "იგზავნება..." : "გაგზავნა"}
+                </button>
+              </form>
+            ) : (
+              <>
             {/* Tabs */}
             <div className="flex border-b border-zinc-200">
               <button
@@ -363,6 +438,17 @@ export function LoginModal() {
                   </button>
                 </div>
                 {tab === "register" && <p className="mt-1 text-xs text-zinc-500">მინიმუმ 6 სიმბოლო</p>}
+                {tab === "login" && (
+                  <p className="pt-4">
+                    <button
+                      type="button"
+                      onClick={() => setShowResetView(true)}
+                      className="text-sm text-[var(--nav-link-active)] cursor-pointer"
+                    >
+                      პაროლის აღდგენა
+                    </button>
+                  </p>
+                )}
               </div>
 
               {tab === "register" && (
@@ -402,6 +488,8 @@ export function LoginModal() {
                 {submitting ? "იწვევს..." : tab === "login" ? "შესვლა" : "რეგისტრაცია"}
               </button>
             </form>
+              </>
+            )}
           </div>
         </div>
       </div>

@@ -120,6 +120,26 @@ export async function resendVerification(email: string): Promise<{ message: stri
   return handleRes<{ message: string }>(res);
 }
 
+/** POST /auth/forgot-password — request reset link to email. */
+export async function requestPasswordReset(email: string): Promise<{ message: string }> {
+  const res = await fetch(`${API_BASE}/auth/forgot-password`, {
+    ...AUTH_OPTS,
+    method: "POST",
+    body: JSON.stringify({ email: email.trim() }),
+  });
+  return handleRes<{ message: string }>(res);
+}
+
+/** POST /auth/reset-password — set new password using token from email link. */
+export async function resetPassword(token: string, newPassword: string): Promise<{ message: string }> {
+  const res = await fetch(`${API_BASE}/auth/reset-password`, {
+    ...AUTH_OPTS,
+    method: "POST",
+    body: JSON.stringify({ token, newPassword }),
+  });
+  return handleRes<{ message: string }>(res);
+}
+
 export async function logout(): Promise<void> {
   const res = await fetch(`${API_BASE}/auth/logout`, {
     credentials: "include",
