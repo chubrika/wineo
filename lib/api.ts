@@ -641,3 +641,50 @@ export async function getActiveHeroSlides(): Promise<ApiHeroSlide[]> {
     return [];
   }
 }
+
+/** CMS page from GET /pages */
+export type ApiPage = {
+  id: string;
+  title: string;
+  slug: string;
+  content: string;
+  createdAt?: string;
+  updatedAt?: string;
+};
+
+/** Response from GET /pages */
+export type ApiPagesListResponse = {
+  items: ApiPage[];
+  total: number;
+};
+
+/**
+ * GET /pages — list all CMS pages (for footer, sitemap).
+ */
+export async function getPages(): Promise<ApiPage[]> {
+  try {
+    const res = await fetch(`${API_BASE}/pages`, { cache: "no-store" });
+    const data = await handleRes<ApiPagesListResponse>(res);
+    return Array.isArray(data?.items) ? data.items : [];
+  } catch {
+    return [];
+  }
+}
+
+/**
+ * GET /pages/slug/:slug — one page by slug (for dynamic /pages/[slug]).
+ */
+export async function getPageBySlug(slug: string): Promise<ApiPage | null> {
+  try {
+    const normalizedSlug = typeof slug === "string" ? slug.trim().toLowerCase() : "";
+    if (!normalizedSlug) return null;
+    const res = await fetch(
+      `${API_BASE}/pages/slug/${encodeURIComponent(normalizedSlug)}`,
+      { cache: "no-store" }
+    );
+    if (!res.ok) return null;
+    return await handleRes<ApiPage>(res);
+  } catch {
+    return null;
+  }
+}

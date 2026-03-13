@@ -22,7 +22,7 @@ const navLinks = [
   { href: "/rent", label: "იქირავე" },
   { href: "/news", label: "სიახლეები" },
   { href: "/events", label: "ღონისძიებები" },
-  { href: "/about", label: "ჩვენ შესახებ" },
+  { href: "/pages/about-us", label: "ჩვენ შესახებ" },
   { href: "/contact", label: "კონტაქტი" },
 ] as const;
 
