@@ -2,17 +2,23 @@ import Link from "next/link";
 import { Facebook, Instagram, Youtube } from "lucide-react";
 import { SITE_NAME } from "@/constants/site";
 import { getPages } from "@/lib/api";
+import Image from "next/image";
 
 const socialLinks = [
-  { href: "https://facebook.com", icon: Facebook, label: "Facebook" },
+  { href: "https://www.facebook.com/wineo.ge", icon: Facebook, label: "Facebook" },
   { href: "https://instagram.com", icon: Instagram, label: "Instagram" },
   { href: "https://www.youtube.com/@georgianvineyard", icon: Youtube, label: "YouTube" },
 ] as const;
 
-const staticFooterLinks = [
-  { href: "/buy", label: "იყიდე" },
-  { href: "/rent", label: "იქირავე" },
-  { href: "/contact", label: "კონტაქტი" },
+const footerSections = [
+  {
+    title: "ნავიგაცია",
+    links: [
+      { href: "/buy", label: "იყიდე" },
+      { href: "/rent", label: "იქირავე" },
+      { href: "/contact", label: "კონტაქტი" },
+    ],
+  },
 ] as const;
 
 export async function Footer() {
@@ -21,50 +27,78 @@ export async function Footer() {
 
   return (
     <footer className="border-t border-zinc-200 bg-zinc-50">
-      <div className="mx-auto max-w-7xl px-4 pt-8 pb-35 md:pb-10 sm:px-6 sm:py-10 lg:px-8 lg:py-12">
-        <div className="flex flex-col gap-8 md:flex-row md:items-center md:justify-between">
-          <div className="flex flex-col gap-4 sm:items-center sm:gap-5 md:items-start">
-            <div className="flex justify-center gap-4 sm:justify-start" aria-label="Social links">
-              {socialLinks.map(({ href, icon: Icon, label }) => (
-                <Link
-                  key={label}
-                  href={href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-zinc-500 transition-colors hover:text-[var(--wineo-red)]"
-                  aria-label={label}
-                >
-                  <Icon className="h-5 w-5" strokeWidth={1.5} />
-                </Link>
-              ))}
-            </div>
-            <p className="text-center text-sm font-medium text-zinc-700 sm:text-left">
-              © {year} {SITE_NAME}. მწარმოებლების და მყიდველების პლატფორმა. ყველაფერი მევენახეობაზე და მეღვინეობაზე.
+      <div className="mx-auto max-w-7xl px-4 py-10 pb-20 md:pb-10 sm:px-6 lg:px-8">
+        <div className="grid gap-10 md:grid-cols-12 md:items-start">
+          <div className="md:col-span-5">
+            <Link
+              href="/"
+              className="inline-flex items-center text-base font-semibold tracking-tight text-zinc-900 hover:text-[var(--wineo-red)]"
+            >
+              <Image src="/logo.svg" alt="wineo.ge" width={100} height={100} priority />
+              {/* {SITE_NAME} */}
+            </Link>
+            <p className="mt-3 max-w-md text-sm leading-6 text-zinc-600">
+              იყიდე, გაყიდე, იქირავე ან გააქირავე. ყველაფერი მევენახეობაზე და მეღვინეობაზე.
             </p>
+
+            <ul className="mt-5 flex flex-wrap items-center gap-3" aria-label="Social links">
+              {socialLinks.map(({ href, icon: Icon, label }) => (
+                <li key={label}>
+                  <Link
+                    href={href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex h-10 w-10 items-center justify-center rounded-full text-zinc-500 ring-1 ring-zinc-200 transition hover:text-[var(--wineo-red)] hover:ring-zinc-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--wineo-red)] focus-visible:ring-offset-2"
+                  >
+                    <span className="sr-only">{label}</span>
+                    <Icon className="h-5 w-5" strokeWidth={2} aria-hidden="true" />
+                  </Link>
+                </li>
+              ))}
+            </ul>
           </div>
-          <nav
-            className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:justify-center sm:gap-6 md:justify-end"
-            aria-label="Footer navigation"
-          >
-            {staticFooterLinks.map(({ href, label }) => (
-              <Link
-                key={href}
-                href={href}
-                className="py-2 text-center text-sm text-zinc-600 transition-colors hover:text-[var(--wineo-red)] sm:py-0"
-              >
-                {label}
-              </Link>
-            ))}
-            {cmsPages.map((page) => (
-              <Link
-                key={page.id}
-                href={`/pages/${page.slug}`}
-                className="py-2 text-center text-sm text-zinc-600 transition-colors hover:text-[var(--wineo-red)] sm:py-0"
-              >
-                {page.title}
-              </Link>
-            ))}
-          </nav>
+
+          <div className="md:col-span-7">
+            <div className="grid gap-8 grid-cols-2">
+              {footerSections.map((section) => (
+                <nav key={section.title} aria-label={section.title}>
+                  <h2 className="text-sm font-semibold text-zinc-900">{section.title}</h2>
+                  <ul className="mt-4 space-y-2">
+                    {section.links.map((link) => (
+                      <li key={link.href}>
+                        <Link
+                          href={link.href}
+                          className="text-sm text-zinc-600 transition-colors hover:text-[var(--wineo-red)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--wineo-red)] focus-visible:ring-offset-2"
+                        >
+                          {link.label}
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                </nav>
+              ))}
+
+              <nav aria-label="გვერდები">
+                <h2 className="text-sm font-semibold text-zinc-900">გვერდები</h2>
+                <ul className="mt-4 space-y-2">
+                  {cmsPages.map((page) => (
+                    <li key={page.id}>
+                      <Link
+                        href={`/pages/${page.slug}`}
+                        className="text-sm text-zinc-600 transition-colors hover:text-[var(--wineo-red)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--wineo-red)] focus-visible:ring-offset-2"
+                      >
+                        {page.title}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </nav>
+            </div>
+          </div>
+        </div>
+
+        <div className="mt-10 border-t border-zinc-200 pt-6 md:pt-10">
+          <p className="text-sm text-zinc-500">© {year} {SITE_NAME}. ყველა უფლება დაცულია.</p>
         </div>
       </div>
     </footer>
