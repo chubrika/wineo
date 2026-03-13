@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { ChevronDownIcon } from "lucide-react";
 import type { ListingSearchState } from "@/lib/listing-search";
 import { getFiltersByCategoryId, type ApiFilter } from "@/lib/api";
 
@@ -83,6 +84,7 @@ export function DynamicFilters({
   const [filters, setFilters] = useState<ApiFilter[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isOpen, setIsOpen] = useState(false);
 
   const attrParams = getAttrParams(searchParams, filters.map((f) => f.slug));
 
@@ -185,21 +187,32 @@ export function DynamicFilters({
 
   return (
     <div className="space-y-4">
-      <h2 className="text-xs font-semibold uppercase tracking-wider text-zinc-900">
-        ფილტრები
-      </h2>
-      <div className="space-y-4">
-        {filters.map((filter) => (
-          <DynamicFilterControl
-            key={filter.id}
-            filter={filter}
-            value={attrParams[filter.slug] ?? []}
-            valueSingle={attrParams[filter.slug]?.[0] ?? ""}
-            onChange={(value) => setAttr(filter.slug, value)}
-            onChangeMulti={(values) => setAttrMulti(filter.slug, values)}
-          />
-        ))}
-      </div>
+      <button
+        type="button"
+        onClick={() => setIsOpen((prev) => !prev)}
+        className="flex cursor-pointer w-full items-center justify-between text-left text-xs font-semibold uppercase tracking-wider text-zinc-900"
+        aria-expanded={isOpen}
+      >
+        <span>ფილტრები</span>
+        <ChevronDownIcon
+          className={`h-4 w-4 shrink-0 transition-transform ${isOpen ? "rotate-180" : ""}`}
+          aria-hidden
+        />
+      </button>
+      {isOpen && (
+        <div className="space-y-4">
+          {filters.map((filter) => (
+            <DynamicFilterControl
+              key={filter.id}
+              filter={filter}
+              value={attrParams[filter.slug] ?? []}
+              valueSingle={attrParams[filter.slug]?.[0] ?? ""}
+              onChange={(value) => setAttr(filter.slug, value)}
+              onChangeMulti={(values) => setAttrMulti(filter.slug, values)}
+            />
+          ))}
+        </div>
+      )}
     </div>
   );
 }

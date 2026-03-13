@@ -11,6 +11,7 @@ import { useWishlist } from "@/contexts/WishlistContext";
 import { HeaderSearchBar } from "./HeaderSearchBar";
 import { AccountNavContent } from "@/components/account/AccountNavContent";
 import { CategoriesModal } from "./CategoriesModal";
+import { HomeLogoLink } from "./HomeLogoLink";
 import { SlidersHorizontalIcon, Heart, LayoutGrid, ChevronDownIcon, Home, ShoppingBag, Clock, User, CirclePlus, Search } from "lucide-react";
 
 const SCROLL_THRESHOLD = 80; // min pixels scrolled before we change show/hide
@@ -29,10 +30,6 @@ const navLinks = [
 function isActive(pathname: string, href: string) {
   if (href === "/") return pathname === "/";
   return pathname === href || pathname.startsWith(href + "/");
-}
-
-function isAccountPath(pathname: string) {
-  return pathname === "/profile" || pathname === "/products" || pathname.startsWith("/products/") || pathname === "/wishlist" || pathname === "/add-product";
 }
 
 function MenuIcon({ open }: { open: boolean }) {
@@ -190,13 +187,12 @@ export function Header() {
     <>
     <header className="sticky top-0 z-50 border-b border-zinc-200 bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/80">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-3 px-4 sm:px-6 lg:px-8">
-        <Link
-          href="/"
+        <HomeLogoLink
           className="shrink-0 text-xl font-semibold tracking-tight text-zinc-900"
           onClick={() => setMenuOpen(false)}
         >
           <Image src="/logo.svg" alt="wineo.ge" width={100} height={100} priority />
-        </Link>
+        </HomeLogoLink>
 
         {/* Search — before nav */}
         <div className="hidden flex-1 min-w-0 items-center gap-3 lg:flex">

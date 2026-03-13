@@ -19,10 +19,15 @@ export function CategoryGrid() {
   const [modalOpen, setModalOpen] = useState(false);
   const [categoryLevelStack, setCategoryLevelStack] = useState<CategoryTreeNode[][]>([]);
   const [modalTitle, setModalTitle] = useState("");
+  const [showAllCategories, setShowAllCategories] = useState(false);
   const categoryDropdownRefModal = useRef<HTMLDivElement>(null);
+
+  const INITIAL_CATEGORIES_COUNT = 6;
 
   const categoryTree = useMemo(() => buildCategoryTree(categoriesApi), [categoriesApi]);
   const roots = categoryTree;
+  const visibleRoots = showAllCategories ? roots : roots.slice(0, INITIAL_CATEGORIES_COUNT);
+  const hasMoreCategories = roots.length > INITIAL_CATEGORIES_COUNT;
 
   useEffect(() => {
     let cancelled = false;
@@ -118,20 +123,33 @@ export function CategoryGrid() {
           </p>
         )}
         {!loading && !error && roots.length > 0 && (
-          <ul className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {roots.map((node) => (
-              <li key={node.id}>
+          <>
+            <ul className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {visibleRoots.map((node) => (
+                <li key={node.id}>
+                  <button
+                    type="button"
+                    onClick={() => handleCategoryClick(node)}
+                    className="flex w-full cursor-pointer items-center justify-between rounded-xl border border-zinc-200 bg-zinc-50/50 px-5 py-4 text-left text-zinc-900 transition hover:border-zinc-300 hover:bg-zinc-100"
+                  >
+                    <span className="font-medium">{node.name}</span>
+                    <ChevronRightIcon className="h-5 w-5 shrink-0 text-zinc-400" aria-hidden />
+                  </button>
+                </li>
+              ))}
+            </ul>
+            {hasMoreCategories && (
+              <div className="mt-4 flex justify-center">
                 <button
                   type="button"
-                  onClick={() => handleCategoryClick(node)}
-                  className="flex w-full cursor-pointer items-center justify-between rounded-xl border border-zinc-200 bg-zinc-50/50 px-5 py-4 text-left text-zinc-900 transition hover:border-zinc-300 hover:bg-zinc-100"
+                  onClick={() => setShowAllCategories((prev) => !prev)}
+                  className="rounded-xl border cursor-pointer border-zinc-200 bg-white px-5 py-2.5 text-sm font-medium text-zinc-700 transition hover:border-zinc-300 hover:bg-zinc-50"
                 >
-                  <span className="font-medium">{node.name}</span>
-                  <ChevronRightIcon className="h-5 w-5 shrink-0 text-zinc-400" aria-hidden />
+                  {showAllCategories ? "აკეცვა" : "ყველას ჩვენება"}
                 </button>
-              </li>
-            ))}
-          </ul>
+              </div>
+            )}
+          </>
         )}
         {!loading && !error && roots.length === 0 && (
           <p className="mt-8 text-zinc-500">კატეგორიები ვერ მოიძებნა.</p>

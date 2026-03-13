@@ -52,6 +52,7 @@ export function FilterSidebar({
       className="flex flex-col gap-6 bg-white p-4 rounded-lg"
       aria-label="Filter listings"
     >
+      <PriceFilter state={state} />
       <CategoryTree
         type={type}
         tree={categoryTree}
@@ -62,7 +63,6 @@ export function FilterSidebar({
         categorySlug={categorySlug}
         categoryId={categoryId}
       />
-      <PriceFilter state={state} />
       <RegionFilter state={state} regions={regions} />
       {hasActiveFilters && (
         <button

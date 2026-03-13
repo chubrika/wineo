@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
+import { ChevronDownIcon } from "lucide-react";
 import type { ListingType } from "@/types/listing";
 import type { CategoryTreeNode } from "@/types/category";
 import { listingBasePath } from "@/lib/listing-search";
@@ -124,35 +125,47 @@ export function CategoryTree({ type, tree, currentSlug }: CategoryTreeProps) {
   const pathname = usePathname();
   const basePath = listingBasePath(type);
   const isAllActive = !currentSlug && pathname === basePath;
+  const [isOpen, setIsOpen] = useState(false);
 
   return (
     <nav aria-label="Categories" className="space-y-0.5">
-      <h2 className="mb-2 px-2 text-xs font-semibold uppercase tracking-wider text-zinc-900">
-        კატეგორიები
-      </h2>
-      <div className="space-y-0">
-        <div className="border-b border-zinc-100">
-          <Link
-            href={basePath}
-            className={`block rounded-lg px-3 py-2 text-sm transition-colors ${
-              isAllActive
-                ? "bg-zinc-100 font-medium text-zinc-900"
-                : "text-zinc-600 hover:bg-zinc-50 hover:text-zinc-900"
-            }`}
-          >
-            ყველა
-          </Link>
+      <button
+        type="button"
+        onClick={() => setIsOpen((prev) => !prev)}
+        className="flex w-full items-center justify-between text-left cursor-pointer text-xs font-semibold uppercase tracking-wider text-zinc-900"
+        aria-expanded={isOpen}
+      >
+        <span>კატეგორიები</span>
+        <ChevronDownIcon
+          className={`h-4 w-4 shrink-0 transition-transform ${isOpen ? "rotate-180" : ""}`}
+          aria-hidden
+        />
+      </button>
+      {isOpen && (
+        <div className="space-y-0">
+          <div className="border-b border-zinc-100">
+            <Link
+              href={basePath}
+              className={`block rounded-lg px-3 py-2 text-sm transition-colors ${
+                isAllActive
+                  ? "bg-zinc-100 font-medium text-zinc-900"
+                  : "text-zinc-600 hover:bg-zinc-50 hover:text-zinc-900"
+              }`}
+            >
+              ყველა
+            </Link>
+          </div>
+          {tree.map((node) => (
+            <TreeNode
+              key={node.id}
+              type={type}
+              node={node}
+              currentSlug={currentSlug}
+              level={0}
+            />
+          ))}
         </div>
-        {tree.map((node) => (
-          <TreeNode
-            key={node.id}
-            type={type}
-            node={node}
-            currentSlug={currentSlug}
-            level={0}
-          />
-        ))}
-      </div>
+      )}
     </nav>
   );
 }

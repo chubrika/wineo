@@ -1,7 +1,9 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { ChevronDownIcon } from "lucide-react";
 import type { ListingSearchState } from "@/lib/listing-search";
 import { buildListingSearchString } from "@/lib/listing-search";
 
@@ -19,12 +21,23 @@ interface RegionFilterProps {
 export function RegionFilter({ state, regions = [] }: RegionFilterProps) {
   const pathname = usePathname();
   const current = state.region;
+  const [isOpen, setIsOpen] = useState(false);
 
   return (
     <div className="space-y-3">
-      <h2 className="text-xs font-semibold uppercase tracking-wider text-zinc-900">
-        რეგიონი
-      </h2>
+      <button
+        type="button"
+        onClick={() => setIsOpen((prev) => !prev)}
+        className="flex cursor-pointer w-full items-center justify-between text-left text-xs font-semibold uppercase tracking-wider text-zinc-900"
+        aria-expanded={isOpen}
+      >
+        <span>რეგიონი</span>
+        <ChevronDownIcon
+          className={`h-4 w-4 shrink-0 transition-transform ${isOpen ? "rotate-180" : ""}`}
+          aria-hidden
+        />
+      </button>
+      {isOpen && (
       <ul className="space-y-1" role="list">
         {regions.map((region) => {
           const isActive = current === region.slug;
@@ -52,6 +65,7 @@ export function RegionFilter({ state, regions = [] }: RegionFilterProps) {
           );
         })}
       </ul>
+      )}
     </div>
   );
 }

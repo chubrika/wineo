@@ -3,6 +3,8 @@ import { Facebook, Instagram, Youtube } from "lucide-react";
 import { SITE_NAME } from "@/constants/site";
 import { getPages } from "@/lib/api";
 import Image from "next/image";
+import { ScrollToTopButton } from "./ScrollToTopButton";
+import { HomeLogoLink } from "./HomeLogoLink";
 
 const socialLinks = [
   { href: "https://www.facebook.com/wineo.ge", icon: Facebook, label: "Facebook" },
@@ -27,16 +29,12 @@ export async function Footer() {
 
   return (
     <footer className="border-t border-zinc-200 bg-zinc-50">
-      <div className="mx-auto max-w-7xl px-4 py-10 pb-20 md:pb-10 sm:px-6 lg:px-8">
+      <div className="relative mx-auto max-w-7xl px-4 py-10 pb-20 md:pb-10 sm:px-6 lg:px-8">
         <div className="grid gap-10 md:grid-cols-12 md:items-start">
           <div className="md:col-span-5">
-            <Link
-              href="/"
-              className="inline-flex items-center text-base font-semibold tracking-tight text-zinc-900 hover:text-[var(--wineo-red)]"
-            >
+            <HomeLogoLink className="inline-flex items-center text-base font-semibold tracking-tight text-zinc-900 hover:text-[var(--wineo-red)]">
               <Image src="/logo.svg" alt="wineo.ge" width={100} height={100} priority />
-              {/* {SITE_NAME} */}
-            </Link>
+            </HomeLogoLink>
             <p className="mt-3 max-w-md text-sm leading-6 text-zinc-600">
               იყიდე, გაყიდე, იქირავე ან გააქირავე. ყველაფერი მევენახეობაზე და მეღვინეობაზე.
             </p>
@@ -100,6 +98,8 @@ export async function Footer() {
         <div className="mt-10 border-t border-zinc-200 pt-6 md:pt-10">
           <p className="text-sm text-zinc-500">© {year} {SITE_NAME}. ყველა უფლება დაცულია.</p>
         </div>
+
+        <ScrollToTopButton className="absolute bottom-6 right-4 sm:right-6" />
       </div>
     </footer>
   );
