@@ -99,7 +99,7 @@ export async function Footer() {
           <p className="text-sm text-zinc-500">© {year} {SITE_NAME}. ყველა უფლება დაცულია.</p>
         </div>
 
-        <ScrollToTopButton className="absolute bottom-6 right-4 sm:right-6" />
+        <ScrollToTopButton className="absolute bottom-17 md:bottom-6 right-4 sm:right-6" />
       </div>
     </footer>
   );
