@@ -90,7 +90,7 @@ export function ListingCard({ listing }: ListingCardProps) {
             </span>
           )}
         </div>
-        <div className="flex h-[130px] flex-col justify-between p-2 md:p-4">
+        <div className="flex h-[115px] md:h-[130px] flex-col justify-between p-2 md:p-4">
           {/* {(listing.ownerType === "business" && listing.ownerName) || listing.ownerType === "physical" ? (
             <p className="text-xs text-zinc-500 mb-4">
               {listing.ownerType === "business" ? listing.ownerName : "ფიზიკური პირი"}
@@ -112,9 +112,9 @@ export function ListingCard({ listing }: ListingCardProps) {
          
 
          <div className="flex justify-between items-center">
-         <p className="text-md font-medium text-zinc-900">
-           {priceLabel}
-         </p>
+          <p className="text-md font-medium text-zinc-900">
+            {priceLabel}
+          </p>
            <button
              type="button"
              onClick={handleWishlistClick}
