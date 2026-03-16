@@ -53,7 +53,7 @@ export function ListingCard({ listing }: ListingCardProps) {
       }`}
     >
       <Link href={href} className="block">
-        <div className="relative aspect-[16/10] w-full overflow-hidden bg-zinc-100">
+        <div className="relative aspect-[14/11] w-full overflow-hidden bg-zinc-100">
           <Image
             src={listing.imageUrl}
             alt={listing.imageAlt}
@@ -90,7 +90,7 @@ export function ListingCard({ listing }: ListingCardProps) {
             </span>
           )}
         </div>
-        <div className="p-2 md:p-4">
+        <div className="flex h-[130px] flex-col justify-between p-2 md:p-4">
           {/* {(listing.ownerType === "business" && listing.ownerName) || listing.ownerType === "physical" ? (
             <p className="text-xs text-zinc-500 mb-4">
               {listing.ownerType === "business" ? listing.ownerName : "ფიზიკური პირი"}
@@ -98,33 +98,37 @@ export function ListingCard({ listing }: ListingCardProps) {
           ) : listing.ownerName ? (
             <p className="text-xs text-zinc-500 mb-4"> {listing.ownerName}</p>
           ) : null} */}
-          <h2 className="font-medium text-zinc-900 line-clamp-2 text-sm">
+          <div>
+          <h2 className="min-h-[2.3rem] font-medium text-zinc-900 line-clamp-2 text-sm leading-tight">
             {listing.title}
           </h2>
 
-          {listing.location && (
-            <p className="mt-1 text-xs text-zinc-500">{listing.location}</p>
-          )}
-          <div className="border-t border-zinc-200 mt-4"></div>
+          <p className="mt-1 flex flex-col justify-end text-xs text-zinc-500 line-clamp-1">
+            {listing.location || "\u00A0"}
+          </p>
+          </div>
+            <div>
+            <div className="mt-2 md:mt-auto border-t border-zinc-200"></div>
          
 
-          <div className="mt-3 flex justify-between">
-          <p className="text-md font-medium text-zinc-900">
-            {priceLabel}
-          </p>
-            <button
-              type="button"
-              onClick={handleWishlistClick}
-              className={`rounded-full cursor-pointer p-1.5 transition-colors hover:bg-zinc-100 focus:outline-none focus:ring-2 focus:ring-red-400 focus:ring-offset-2 ${inWishlist ? "text-red-500 hover:text-red-600" : "text-zinc-400 hover:text-red-500"}`}
-              aria-label={inWishlist ? "სურვილების სიიდან ამოშლა" : "დამატება სურვილების სიაში"}
-            >
-              <Heart
-                className="h-5 w-5"
-                strokeWidth={2}
-                fill={inWishlist ? "currentColor" : "none"}
-              />
-            </button>
-          </div>
+         <div className="flex justify-between items-center">
+         <p className="text-md font-medium text-zinc-900">
+           {priceLabel}
+         </p>
+           <button
+             type="button"
+             onClick={handleWishlistClick}
+             className={`rounded-full cursor-pointer p-1.5 transition-colors hover:bg-zinc-100 focus:outline-none focus:ring-2 focus:ring-red-400 focus:ring-offset-2 ${inWishlist ? "text-red-500 hover:text-red-600" : "text-zinc-400 hover:text-red-500"}`}
+             aria-label={inWishlist ? "სურვილების სიიდან ამოშლა" : "დამატება სურვილების სიაში"}
+           >
+             <Heart
+               className="h-5 w-5"
+               strokeWidth={2}
+               fill={inWishlist ? "currentColor" : "none"}
+             />
+           </button>
+         </div>
+            </div>
         </div>
       </Link>
     </article>

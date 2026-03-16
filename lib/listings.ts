@@ -39,9 +39,8 @@ export function mapApiProductToListing(api: ApiProduct): Listing {
     imageAlt: title,
     category: api.category as unknown as EquipmentCategory,
     categorySlug: api.category?.slug,
-    location: api.location
-      ? `${api.location.city}, ${api.location.region}`
-      : undefined,
+    // For cards we only need city; keep a simple string.
+    location: api.location?.city || undefined,
     ownerName: api.ownerName,
     ownerType: api.ownerType,
     ownerPhone: api.ownerPhone,
