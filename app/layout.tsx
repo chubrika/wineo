@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import Script from "next/script";
 import { Header, Footer } from "@/components/layout";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { FiltersModalProvider } from "@/contexts/FiltersModalContext";
@@ -54,6 +55,18 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} min-h-screen antialiased flex flex-col`}
       >
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=G-QYG9Y34ND3"
+          strategy="afterInteractive"
+        />
+        <Script id="google-analytics" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'G-QYG9Y34ND3');
+          `}
+        </Script>
         <AuthProvider>
           <FiltersModalProvider>
             <LoginModalProvider>
