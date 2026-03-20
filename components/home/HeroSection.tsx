@@ -9,7 +9,7 @@ import type { CategoryTreeNode } from "@/types/category";
 import type { ListingType } from "@/types/listing";
 import { listingBasePath, buildListingSearchString } from "@/lib/listing-search";
 import { useFiltersModal } from "@/contexts/FiltersModalContext";
-import { ClockIcon, SearchIcon, ShoppingBagIcon, XIcon } from "lucide-react";
+import { ChevronDownIcon, ChevronUpIcon, ClockIcon, FilterIcon, SearchIcon, ShoppingBagIcon, XIcon } from "lucide-react";
 import { HeroSlider } from "@/components/hero/HeroSlider";
 
 export function HeroSection() {
@@ -23,6 +23,9 @@ export function HeroSection() {
   const [categoryLevelStack, setCategoryLevelStack] = useState<CategoryTreeNode[][]>([]);
   const categoryDropdownRef = useRef<HTMLDivElement>(null);
   const categoryDropdownRefModal = useRef<HTMLDivElement>(null);
+  const [regionDropdownOpen, setRegionDropdownOpen] = useState(false);
+  const regionDropdownRef = useRef<HTMLDivElement>(null);
+  const regionDropdownRefModal = useRef<HTMLDivElement>(null);
   const searchSectionRef = useRef<HTMLDivElement>(null);
   const { isOpen: filtersModalOpen, closeFiltersModal } = useFiltersModal();
 
@@ -37,6 +40,7 @@ export function HeroSection() {
     return null;
   }
   const selectedCategoryLabel = category ? findCategoryNameBySlug(categoryTree, category) : null;
+  const selectedRegionLabel = region ? regions.find((r) => r.slug === region)?.label ?? null : null;
 
   useEffect(() => {
     let cancelled = false;
@@ -64,14 +68,33 @@ export function HeroSection() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [categoryDropdownOpen]);
 
+  useEffect(() => {
+    if (!regionDropdownOpen) return;
+    function handleClickOutside(e: MouseEvent) {
+      const target = e.target as Node;
+      if (regionDropdownRef.current?.contains(target) || regionDropdownRefModal.current?.contains(target)) return;
+      setRegionDropdownOpen(false);
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [regionDropdownOpen]);
+
   const openCategoryDropdown = () => {
     setCategoryLevelStack([categoryTree]);
-    setCategoryDropdownOpen(true);
+    setCategoryDropdownOpen((prev) => !prev);
   };
 
   const closeCategoryDropdown = () => {
     setCategoryDropdownOpen(false);
     setCategoryLevelStack([]);
+  };
+
+  const openRegionDropdown = () => {
+    setRegionDropdownOpen((prev) => !prev);
+  };
+
+  const closeRegionDropdown = () => {
+    setRegionDropdownOpen(false);
   };
 
   const handleCategoryOptionClick = (node: CategoryTreeNode) => {
@@ -128,18 +151,18 @@ export function HeroSection() {
       </div>
 
       {/* Search bar overlaid at bottom */}
-      <div ref={searchSectionRef} className="absolute bottom-0 left-0 right-0 z-10 px-4 pb-6 sm:px-6 lg:px-8">
-        <div className="mx-auto max-w-4xl">
+      <div ref={searchSectionRef} className="absolute bottom-0 md:bottom-[-60px] left-0 right-0 z-10 px-4 pb-6 sm:px-6 lg:px-8">
+        <div className="mx-auto  p-4 max-w-[850px] rounded-md border border-zinc-200 bg-white shadow-lg">
         <form
             onSubmit={handleSubmit}
-            className="flex flex-col gap-3 rounded-xl border border-zinc-200 bg-white p-4 shadow-lg sm:flex-row sm:flex-wrap sm:items-end sm:gap-4"
+            className="flex flex-col gap-3 h-full justify-between  sm:flex-row sm:flex-wrap sm:items-end sm:gap-4"
             role="search"
           >
-            <div className="flex items-center gap-2" role="group" aria-label="Listing type">
+            <div className="flex items-center justify-between md:justify-start gap-2" role="group" aria-label="Listing type">
               <button
                 type="button"
                 onClick={() => setListingType("buy")}
-                className={`rounded-lg cursor-pointer px-3 py-2.5 text-sm font-medium transition flex items-center justify-center ${
+                className={`min-h-[40px] min-w-[120px] rounded-md cursor-pointer px-3 py-2.5 text-sm font-medium transition flex items-center justify-center ${
                   listingType === "buy"
                     ? "bg-[#8a052d] text-white"
                     : "bg-zinc-100 text-zinc-600 hover:bg-zinc-200"
@@ -151,7 +174,7 @@ export function HeroSection() {
               <button
                 type="button"
                 onClick={() => setListingType("rent")}
-                className={`rounded-lg cursor-pointer px-3 py-2.5 text-sm font-medium transition flex items-center justify-center ${
+                className={`min-h-[40px] min-w-[120px] rounded-md cursor-pointer px-3 py-2.5 text-sm font-medium transition flex items-center justify-center ${
                   listingType === "rent"
                     ? "bg-[#8a052d] text-white"
                     : "bg-zinc-100 text-zinc-600 hover:bg-zinc-200"
@@ -171,26 +194,30 @@ export function HeroSection() {
                   aria-haspopup="listbox"
                   aria-expanded={categoryDropdownOpen}
                   aria-label="კატეგორია"
-                  className="w-full rounded-lg border border-zinc-300 bg-white px-3 py-2.5 text-left sm:w-[180px] flex items-center justify-between"
+                  className="min-h-[40px] w-full cursor-pointer rounded-md bg-white px-3 py-0 text-left sm:w-[180px] flex items-center justify-between"
                 >
-                  <span className={selectedCategoryLabel ? "text-zinc-900" : "text-zinc-500"}>
-                    {selectedCategoryLabel ?? "კატეგორიები"}
-                  </span>
-                  <svg
-                    className={`h-4 w-4 shrink-0 text-zinc-500 transition-transform ${categoryDropdownOpen ? "rotate-180" : ""}`}
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    aria-hidden
-                  >
-                    <path d="M6 9l6 6 6-6" />
-                  </svg>
+                  <div className="flex flex-col items-start">
+                    <span className="text-[11px] leading-4 text-zinc-500 normal-font">კატეგორიები</span>
+                    <span
+                      className={
+                        selectedCategoryLabel
+                          ? "text-[13px] leading-5 font-medium text-zinc-900"
+                          : "text-[13px] leading-5 text-zinc-900"
+                      }
+                    >
+                      {selectedCategoryLabel ?? "ყველა"}
+                    </span>
+                  </div>
+                  {categoryDropdownOpen ? (
+                    <ChevronUpIcon className="h-4 w-4 shrink-0 text-zinc-500 transition-transform" aria-hidden />
+                  ) : (
+                    <ChevronDownIcon className="h-4 w-4 shrink-0 text-zinc-500 transition-transform" aria-hidden />
+                  )}
                 </button>
                 {categoryDropdownOpen && (
                   <div
                     role="listbox"
-                    className="absolute z-50 mt-1 max-h-64 w-full min-w-[180px] overflow-auto rounded-lg border border-zinc-300 bg-white py-1 shadow-lg"
+                    className="absolute z-50 mt-1 max-h-64 w-full min-w-[180px] overflow-auto rounded-lg bg-white py-1 shadow-lg"
                     onMouseDown={(e) => e.stopPropagation()}
                   >
                     {canCategoryGoBack && (
@@ -222,7 +249,7 @@ export function HeroSection() {
                         }}
                         className="flex w-full cursor-pointer items-center px-3 py-2 text-left text-sm text-zinc-600 hover:bg-zinc-100"
                       >
-                        ყველა კატეგორია
+                        ყველა
                       </button>
                     )}
                     {currentCategoryOptions.length === 0 && !canCategoryGoBack && (
@@ -260,26 +287,82 @@ export function HeroSection() {
             </label>
             <label className="w-full sm:w-auto min-w-[140px]">
               <span className="sr-only">რეგიონი</span>
-              <select
-                name="region"
-                value={region}
-                onChange={(e) => setRegion(e.target.value)}
-                className="w-full rounded-lg border border-zinc-300 bg-white px-3 py-2.5 text-zinc-500 sm:w-[130px]"
-                aria-label="Region"
-              >
-                <option value="">ყველა</option>
-                {regions.map((r) => (
-                  <option key={r.slug} value={r.slug}>
-                    {r.label}
-                  </option>
-                ))}
-              </select>
+              <div ref={regionDropdownRef} className="relative">
+                <button
+                  type="button"
+                  onClick={openRegionDropdown}
+                  aria-haspopup="listbox"
+                  aria-expanded={regionDropdownOpen}
+                  aria-label="რეგიონი"
+                  className="min-h-[40px] w-full cursor-pointer rounded-md bg-white px-3 py-0 text-left sm:w-[130px] flex items-center justify-between"
+                >
+                  <div className="flex flex-col items-start">
+                    <span className="text-[11px] leading-4 text-zinc-500 normal-font">რეგიონი</span>
+                    <span
+                      className={
+                        selectedRegionLabel
+                          ? "text-[13px] leading-5 font-medium text-zinc-900"
+                          : "text-[13px] leading-5 text-zinc-900"
+                      }
+                    >
+                      {selectedRegionLabel ?? "ყველა"}
+                    </span>
+                  </div>
+                  {regionDropdownOpen ? (
+                    <ChevronUpIcon className="h-4 w-4 shrink-0 text-zinc-500 transition-transform" aria-hidden />
+                  ) : (
+                    <ChevronDownIcon className="h-4 w-4 shrink-0 text-zinc-500 transition-transform" aria-hidden />
+                  )}
+                </button>
+                {regionDropdownOpen && (
+                  <div
+                    role="listbox"
+                    className="absolute z-50 mt-1 max-h-64 w-full overflow-auto rounded-lg bg-white py-1 shadow-lg"
+                    onMouseDown={(e) => e.stopPropagation()}
+                  >
+                    <button
+                      type="button"
+                      role="option"
+                      aria-selected={!region}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        setRegion("");
+                        closeRegionDropdown();
+                      }}
+                      className="flex w-full cursor-pointer items-center px-3 py-2 text-left text-sm text-zinc-600 hover:bg-zinc-100"
+                    >
+                      ყველა
+                    </button>
+                    {regions.map((r) => (
+                      <button
+                        key={r.slug}
+                        type="button"
+                        role="option"
+                        aria-selected={r.slug === region}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          setRegion(r.slug);
+                          closeRegionDropdown();
+                        }}
+                        className={`flex w-full cursor-pointer items-center justify-between px-3 py-2 text-left text-sm transition-colors ${
+                          r.slug === region ? "font-medium text-zinc-900 hover:bg-zinc-50" : "text-zinc-700 hover:bg-zinc-100"
+                        }`}
+                      >
+                        <span>{r.label}</span>
+                      </button>
+                    ))}
+                  </div>
+                )}
+                <input type="hidden" name="region" value={region} readOnly aria-hidden />
+              </div>
             </label>
             <button
               type="submit"
-              className="rounded-lg cursor-pointer bg-[#8a052d] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[#6d0423] flex items-center justify-center"
+              className="min-h-[40px] min-w-[150px] rounded-md cursor-pointer wineo-green-bg px-5 py-2.5 text-sm font-normal text-white transition hover:bg-[#6d0423] flex items-center justify-center"
             >
-              <SearchIcon className="h-4 w-4 shrink-0 mr-2" />
+              <FilterIcon className="h-4 w-4 shrink-0 mr-2" />
               ძებნა
             </button>
           </form>
@@ -314,11 +397,11 @@ export function HeroSection() {
             </div>
             <div className="p-4 pb-24 lg:pb-4">
               <form onSubmit={handleSubmit} className="flex flex-col gap-4" role="search">
-                <div className="flex items-center gap-2" role="group" aria-label="Listing type">
+                <div className="flex items-center gap-2 h-full" role="group" aria-label="Listing type">
                   <button
                     type="button"
                     onClick={() => setListingType("buy")}
-                    className={`flex flex-1 items-center justify-center gap-2 rounded-lg px-3 py-2.5 text-sm font-medium transition ${listingType === "buy" ? "bg-[#8a052d] text-white" : "bg-zinc-100 text-zinc-600 hover:bg-zinc-200"}`}
+                    className={`min-h-[40px] flex flex-1 h-full items-center justify-center gap-2 rounded-md px-3 py-2.5 text-sm font-medium transition ${listingType === "buy" ? "bg-[#8a052d] text-white" : "bg-zinc-100 text-zinc-600 hover:bg-zinc-200"}`}
                   >
                     <ShoppingBagIcon className="h-4 w-4 shrink-0" />
                     იყიდე
@@ -326,7 +409,7 @@ export function HeroSection() {
                   <button
                     type="button"
                     onClick={() => setListingType("rent")}
-                    className={`flex flex-1 items-center justify-center gap-2 rounded-lg px-3 py-2.5 text-sm font-medium transition ${listingType === "rent" ? "bg-[#8a052d] text-white" : "bg-zinc-100 text-zinc-600 hover:bg-zinc-200"}`}
+                    className={`min-h-[40px] flex flex-1 h-full items-center justify-center gap-2 rounded-md px-3 py-2.5 text-sm font-medium transition ${listingType === "rent" ? "bg-[#8a052d] text-white" : "bg-zinc-100 text-zinc-600 hover:bg-zinc-200"}`}
                   >
                     <ClockIcon className="h-4 w-4 shrink-0" />
                     იქირავე
@@ -339,17 +422,24 @@ export function HeroSection() {
                     onClick={openCategoryDropdown}
                     aria-haspopup="listbox"
                     aria-expanded={categoryDropdownOpen}
-                    className="flex w-full items-center justify-between rounded-lg border border-zinc-300 bg-white px-3 py-2.5 text-left"
+                    className="min-h-[40px] flex w-full items-center justify-between rounded-lg bg-white px-3 py-2.5 text-left"
                   >
-                    <span className={selectedCategoryLabel ? "text-zinc-900" : "text-zinc-500"}>
-                      {selectedCategoryLabel ?? "ყველა კატეგორია"}
-                    </span>
+                    <div className="flex flex-col items-start">
+                      <span className="text-[11px] leading-4 text-zinc-500 normal-font">კატეგორიები</span>
+                      <span
+                        className={
+                          selectedCategoryLabel ? "text-[13px] leading-5 font-medium text-zinc-900" : "text-[13px] leading-5 text-zinc-500"
+                        }
+                      >
+                        {selectedCategoryLabel ?? "ყველა"}
+                      </span>
+                    </div>
                     <svg className={`h-4 w-4 shrink-0 text-zinc-500 transition-transform ${categoryDropdownOpen ? "rotate-180" : ""}`} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                       <path d="M6 9l6 6 6-6" />
                     </svg>
                   </button>
                   {categoryDropdownOpen && (
-                    <div role="listbox" className="absolute z-50 mt-1 max-h-64 w-full overflow-auto rounded-lg border border-zinc-300 bg-white py-1 shadow-lg" onMouseDown={(e) => e.stopPropagation()}>
+                    <div role="listbox" className="absolute z-50 mt-1 max-h-64 w-full overflow-auto rounded-lg bg-white py-1 shadow-lg" onMouseDown={(e) => e.stopPropagation()}>
                       {canCategoryGoBack && (
                         <button type="button" onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleCategoryBack(); }} className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-zinc-600 hover:bg-zinc-100">
                           <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M15 18l-6-6 6-6" /></svg>
@@ -358,7 +448,7 @@ export function HeroSection() {
                       )}
                       {!canCategoryGoBack && (
                         <button type="button" role="option" aria-selected={!category} onClick={(e) => { e.preventDefault(); e.stopPropagation(); setCategory(""); closeCategoryDropdown(); }} className="flex w-full cursor-pointer items-center px-3 py-2 text-left text-sm text-zinc-600 hover:bg-zinc-100">
-                          ყველა კატეგორია
+                          ყველა
                         </button>
                       )}
                       {currentCategoryOptions.length === 0 && !canCategoryGoBack && <div className="px-3 py-4 text-center text-sm text-zinc-500">კატეგორია არ მოიძებნა</div>}
@@ -380,13 +470,86 @@ export function HeroSection() {
                   <input type="hidden" name="category" value={category} readOnly aria-hidden />
                 </div>
                 <div>
-                  <label htmlFor="modal-region" className="mb-1 block text-sm font-medium text-zinc-700">რეგიონი</label>
-                  <select id="modal-region" name="region" value={region} onChange={(e) => setRegion(e.target.value)} className="w-full rounded-lg border border-zinc-300 bg-white px-3 py-2.5 text-zinc-700">
-                    <option value="">ყველა</option>
-                    {regions.map((r) => <option key={r.slug} value={r.slug}>{r.label}</option>)}
-                  </select>
+                  <label className="mb-1 block text-sm font-medium text-zinc-700">რეგიონი</label>
+                  <div ref={regionDropdownRefModal} className="relative">
+                    <button
+                      type="button"
+                      onClick={openRegionDropdown}
+                      aria-haspopup="listbox"
+                      aria-expanded={regionDropdownOpen}
+                      aria-label="რეგიონი"
+                      className="min-h-[40px] flex w-full items-center justify-between rounded-lg bg-white px-3 py-2.5 text-left"
+                    >
+                      <div className="flex flex-col items-start">
+                        <span className="text-[11px] leading-4 text-zinc-500 normal-font">რეგიონი</span>
+                        <span
+                          className={
+                            selectedRegionLabel
+                              ? "text-[13px] leading-5 font-medium text-zinc-900"
+                              : "text-[13px] leading-5 text-zinc-500"
+                          }
+                        >
+                          {selectedRegionLabel ?? "ყველა"}
+                        </span>
+                      </div>
+                      <svg
+                        className={`h-4 w-4 shrink-0 text-zinc-500 transition-transform ${
+                          regionDropdownOpen ? "rotate-180" : ""
+                        }`}
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        aria-hidden
+                      >
+                        <path d="M6 9l6 6 6-6" />
+                      </svg>
+                    </button>
+                    {regionDropdownOpen && (
+                      <div
+                        role="listbox"
+                        className="absolute z-50 mt-1 max-h-64 w-full overflow-auto rounded-lg bg-white py-1 shadow-lg"
+                        onMouseDown={(e) => e.stopPropagation()}
+                      >
+                        <button
+                          type="button"
+                          role="option"
+                          aria-selected={!region}
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            setRegion("");
+                            closeRegionDropdown();
+                          }}
+                          className="flex w-full cursor-pointer items-center px-3 py-2 text-left text-sm text-zinc-600 hover:bg-zinc-100"
+                        >
+                          ყველა
+                        </button>
+                        {regions.map((r) => (
+                          <button
+                            key={r.slug}
+                            type="button"
+                            role="option"
+                            aria-selected={r.slug === region}
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              setRegion(r.slug);
+                              closeRegionDropdown();
+                            }}
+                            className={`flex w-full cursor-pointer items-center justify-between px-3 py-2 text-left text-sm transition-colors ${
+                              r.slug === region ? "font-medium text-zinc-900 hover:bg-zinc-50" : "text-zinc-700 hover:bg-zinc-100"
+                            }`}
+                          >
+                            <span>{r.label}</span>
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                    <input type="hidden" name="region" value={region} readOnly aria-hidden />
+                  </div>
                 </div>
-                <button type="submit" className="flex items-center justify-center gap-2 rounded-lg bg-[#8a052d] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[#6d0423]">
+                <button type="submit" className="min-h-[40px] flex items-center justify-center h-full gap-2 rounded-lg bg-[#8a052d] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[#6d0423]">
                   <SearchIcon className="h-4 w-4 shrink-0" />
                   ძებნა
                 </button>
