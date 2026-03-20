@@ -39,6 +39,9 @@ export type ApiCategory = {
   name: string;
   slug: string;
   description: string;
+  icon?: string;
+  iconColor?: string;
+  iconBg?: string;
   active: boolean;
   parentId: string | null;
   level: number;

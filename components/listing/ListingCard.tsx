@@ -44,7 +44,7 @@ export function ListingCard({ listing }: ListingCardProps) {
 
   return (
     <article
-      className={`group overflow-hidden rounded-xl border hover:border-zinc-300 ${
+      className={`group overflow-hidden rounded-lg border hover:border-zinc-300 ${
         listing.promotionType === "homepageTop"
           ? "border-purple-400/60 bg-purple-50/80"
           : listing.promotionType === "highlighted"
@@ -53,20 +53,21 @@ export function ListingCard({ listing }: ListingCardProps) {
       }`}
     >
       <Link href={href} className="block">
-        <div className="relative aspect-[14/11] w-full overflow-hidden bg-zinc-100">
+        <div className="relative aspect-[14/11] w-full overflow-hidden  p-3 rounded-md">
           <Image
             src={listing.imageUrl}
             alt={listing.imageAlt}
-            fill
-            className="object-cover"
+            width={1200}
+            height={943}
+            className="h-full w-full rounded-md object-cover"
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           />
-          <span className="absolute left-3 bottom-3 rounded-full bg-white/90 px-2.5 py-0.5 text-xs font-medium capitalize text-zinc-800">
+          <span className="absolute left-5 bottom-5 rounded-full bg-white/90 px-2.5 py-0.5 text-xs font-medium capitalize text-zinc-800">
             {listing.type === "buy" ? "იყიდე" : "იქირავე"}
           </span>
           {listing.promotionType && listing.promotionType !== "none" && (
             <span
-              className={`absolute left-3 top-3 z-10 inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-semibold uppercase tracking-wide text-white ${
+              className={`absolute left-5 top-5 z-10 inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-semibold uppercase tracking-wide text-white ${
                 listing.promotionType === "homepageTop"
                   ? "bg-purple-600"
                   : listing.promotionType === "featured"
@@ -75,12 +76,12 @@ export function ListingCard({ listing }: ListingCardProps) {
               }`}
             >
               <PromotionIcon type={listing.promotionType} />
-              {listing.promotionType === "homepageTop" ? "TOP" : null}
+              {listing.promotionType === "homepageTop" ? "VIP" : null}
             </span>
           )}
           {listing.specifications && listing.specifications?.condition && (
             <span
-              className={`absolute right-3 bottom-3 rounded-full px-2.5 py-0.5 text-xs font-medium capitalize ${
+              className={`absolute right-5 bottom-5 rounded-full px-2.5 py-0.5 text-xs font-medium capitalize ${
                 listing.specifications.condition === "new"
                   ? "bg-green-500 text-white"
                   : "bg-blue-500 text-white"
@@ -90,7 +91,7 @@ export function ListingCard({ listing }: ListingCardProps) {
             </span>
           )}
         </div>
-        <div className="flex h-[115px] md:h-[130px] flex-col justify-between p-2 md:p-4">
+        <div className="flex h-[115px] md:h-[130px] flex-col justify-between px-2 pt-3 pb-2 md:px-3 md:pt-4 md:pb-3">
           {/* {(listing.ownerType === "business" && listing.ownerName) || listing.ownerType === "physical" ? (
             <p className="text-xs text-zinc-500 mb-4">
               {listing.ownerType === "business" ? listing.ownerName : "ფიზიკური პირი"}

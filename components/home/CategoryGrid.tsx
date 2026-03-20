@@ -8,7 +8,8 @@ import { buildCategoryTree } from "@/lib/categories";
 import type { CategoryTreeNode } from "@/types/category";
 import type { ListingType } from "@/types/listing";
 import { listingBasePath } from "@/lib/listing-search";
-import { ChevronRightIcon, XIcon } from "lucide-react";
+import { ChevronDownIcon, ChevronRightIcon, XIcon } from "lucide-react";
+import { ChevronUpIcon } from "lucide-react";
 
 export function CategoryGrid() {
   const router = useRouter();
@@ -75,7 +76,7 @@ export function CategoryGrid() {
 
   return (
     <section
-      className="border-b border-zinc-200 bg-white py-14 sm:py-18"
+      className="border-b border-zinc-200 bg-[#f5f6f8] py-14 sm:py-18"
       aria-labelledby="categories-heading"
     >
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -130,7 +131,7 @@ export function CategoryGrid() {
                   <button
                     type="button"
                     onClick={() => handleCategoryClick(node)}
-                    className="flex w-full cursor-pointer items-center justify-between rounded-xl border border-zinc-200 bg-zinc-50/50 px-5 py-4 text-left text-zinc-900 transition hover:border-zinc-300 hover:bg-zinc-100"
+                    className="flex w-full cursor-pointer border-l-3 border-l-[#8a052d] items-center justify-between rounded-xl border border-zinc-200 bg-zinc-50/50 px-5 py-4 text-left text-zinc-900 transition hover:border-zinc-300 hover:bg-zinc-100"
                   >
                     <span className="font-medium">{node.name}</span>
                     <ChevronRightIcon className="h-5 w-5 shrink-0 text-zinc-400" aria-hidden />
@@ -143,9 +144,10 @@ export function CategoryGrid() {
                 <button
                   type="button"
                   onClick={() => setShowAllCategories((prev) => !prev)}
-                  className="rounded-xl border cursor-pointer border-zinc-200 bg-white px-5 py-2.5 text-sm font-medium text-zinc-700 transition hover:border-zinc-300 hover:bg-zinc-50"
+                  className="rounded-md border flex items-center justify-center gap-2 cursor-pointer border-zinc-200 bg-white px-5 py-2.5 text-sm font-medium text-zinc-700 transition hover:border-zinc-300 hover:bg-zinc-50"
                 >
                   {showAllCategories ? "აკეცვა" : "ყველას ჩვენება"}
+                  {showAllCategories ? <ChevronUpIcon className="h-5 w-5 shrink-0 text-zinc-400" aria-hidden /> : <ChevronDownIcon className="h-5 w-5 shrink-0 text-zinc-400" aria-hidden />}
                 </button>
               </div>
             )}

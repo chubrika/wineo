@@ -8,6 +8,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useFiltersModal } from "@/contexts/FiltersModalContext";
 import { useLoginModal } from "@/contexts/LoginModalContext";
 import { useWishlist } from "@/contexts/WishlistContext";
+import { useCategoriesModal } from "@/contexts/CategoriesModalContext";
 import { HeaderSearchBar } from "./HeaderSearchBar";
 import { AccountNavContent } from "@/components/account/AccountNavContent";
 import { CategoriesModal } from "./CategoriesModal";
@@ -81,7 +82,6 @@ export function Header() {
   const router = useRouter();
   const [menuOpen, setMenuOpen] = useState(false);
   const [accountDrawerOpen, setAccountDrawerOpen] = useState(false);
-  const [categoriesModalOpen, setCategoriesModalOpen] = useState(false);
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const userMenuRef = useRef<HTMLDivElement>(null);
@@ -94,6 +94,12 @@ export function Header() {
   const { openFiltersModal } = useFiltersModal();
   const { openLoginModal } = useLoginModal();
   const { count: favoritesCount } = useWishlist();
+  const {
+    open: categoriesModalOpen,
+    initialRootSlug,
+    openCategoriesModal,
+    closeCategoriesModal,
+  } = useCategoriesModal();
 
   const handleFavoritesClick = () => {
     if (user) {
@@ -198,7 +204,7 @@ export function Header() {
         <div className="hidden flex-1 min-w-0 items-center gap-3 lg:flex">
           <button
             type="button"
-            onClick={() => setCategoriesModalOpen(true)}
+            onClick={() => openCategoriesModal()}
             className="flex items-center cursor-pointer gap-2 rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm font-medium text-zinc-700 transition-colors hover:bg-zinc-50 hover:text-[var(--wineo-red)] focus:outline-none"
             aria-label="კატეგორიები"
           >
@@ -558,7 +564,11 @@ export function Header() {
       </>
     )}
 
-    <CategoriesModal open={categoriesModalOpen} onClose={() => setCategoriesModalOpen(false)} />
+    <CategoriesModal
+      open={categoriesModalOpen}
+      onClose={closeCategoriesModal}
+      initialRootSlug={initialRootSlug}
+    />
     </>
   );
 }

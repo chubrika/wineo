@@ -13,9 +13,11 @@ import { XIcon, ChevronRightIcon } from "lucide-react";
 type CategoriesModalProps = {
   open: boolean;
   onClose: () => void;
+  /** Optional slug to pre-select a root category when the modal opens. */
+  initialRootSlug?: string | null;
 };
 
-export function CategoriesModal({ open, onClose }: CategoriesModalProps) {
+export function CategoriesModal({ open, onClose, initialRootSlug }: CategoriesModalProps) {
   const router = useRouter();
   const pathname = usePathname();
   const [categoriesApi, setCategoriesApi] = useState<Awaited<ReturnType<typeof getCategories>>>([]);
@@ -46,9 +48,20 @@ export function CategoriesModal({ open, onClose }: CategoriesModalProps) {
 
   useEffect(() => {
     if (!open) return;
-    queueMicrotask(() => setSelectedRoot(null));
-    queueMicrotask(() => setListingType(pathname.startsWith("/rent") ? "rent" : "buy"));
-  }, [open, pathname]);
+    setListingType(pathname.startsWith("/rent") ? "rent" : "buy");
+
+    // When opening without a pre-selection, reset immediately.
+    if (!initialRootSlug) setSelectedRoot(null);
+  }, [open, pathname, initialRootSlug]);
+
+  useEffect(() => {
+    if (!open) return;
+    if (!initialRootSlug) return;
+
+    const normalized = initialRootSlug.trim().toLowerCase();
+    const found = roots.find((n) => n.slug.toLowerCase() === normalized) ?? null;
+    setSelectedRoot(found);
+  }, [open, initialRootSlug, roots]);
 
   function handleRootClick(node: CategoryTreeNode) {
     if (node.children.length > 0) {

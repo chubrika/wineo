@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import {
   HeroSection,
   CategoryGrid,
+  CategoriesCards,
   BuyRentSection,
   FeaturedListings,
   RegionSection,
@@ -25,6 +26,7 @@ export default function HomePage() {
   return (
     <>
       <HeroSection />
+      <CategoriesCards />
       <BuyRentSection />
       <CategoryGrid />
       <FeaturedListings />
