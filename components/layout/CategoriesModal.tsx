@@ -81,21 +81,32 @@ export function CategoriesModal({ open, onClose, initialRootSlug }: CategoriesMo
 
   return (
     <div
-      className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 p-4"
+      className="fixed inset-0 z-[60] flex items-end justify-center bg-black/50 p-0 sm:items-center sm:p-4"
       aria-modal="true"
       role="dialog"
       aria-labelledby="categories-modal-title"
       onClick={onClose}
     >
       <div
-        className="relative flex w-full max-w-2xl flex-col overflow-hidden rounded-2xl bg-white shadow-xl sm:max-h-[85vh]"
+        className="relative flex h-[88dvh] w-full max-w-2xl flex-col overflow-hidden rounded-t-2xl bg-white shadow-xl sm:h-auto sm:max-h-[85vh] sm:rounded-2xl"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex shrink-0 items-center justify-between border-b border-zinc-200 bg-white px-4 py-3">
-          <h2 id="categories-modal-title" className="text-lg font-semibold text-zinc-900">
-            კატეგორიები
-          </h2>
-          <div className="flex items-center gap-2" role="group" aria-label="Listing type">
+        <div className="shrink-0 border-b border-zinc-200 bg-white px-4 pb-3 pt-2 sm:py-3">
+          <div className="mx-auto mb-2 h-1.5 w-10 rounded-full bg-zinc-200 sm:hidden" aria-hidden />
+          <div className="flex items-center justify-between gap-3">
+            <h2 id="categories-modal-title" className="text-base font-semibold text-zinc-900 sm:text-lg">
+              კატეგორიები
+            </h2>
+            <button
+              type="button"
+              onClick={onClose}
+              className="rounded-lg p-2 text-zinc-500 hover:bg-zinc-100 hover:text-zinc-700"
+              aria-label="დახურვა"
+            >
+              <XIcon className="h-5 w-5" />
+            </button>
+          </div>
+          <div className="mt-2 flex items-center gap-2" role="group" aria-label="Listing type">
             <button
               type="button"
               onClick={() => setListingType("buy")}
@@ -119,19 +130,11 @@ export function CategoriesModal({ open, onClose, initialRootSlug }: CategoriesMo
               იქირავე
             </button>
           </div>
-          <button
-            type="button"
-            onClick={onClose}
-            className="rounded-lg p-2 text-zinc-500 hover:bg-zinc-100 hover:text-zinc-700"
-            aria-label="დახურვა"
-          >
-            <XIcon className="h-5 w-5" />
-          </button>
         </div>
 
         <div className="flex min-h-0 flex-1 flex-col sm:flex-row">
           {/* Left: root categories */}
-          <div className="w-full shrink-0 border-b border-zinc-200 bg-zinc-50/80 sm:w-56 sm:border-b-0 sm:border-r sm:border-zinc-200">
+          <div className="w-full shrink-0 border-b border-zinc-200 bg-zinc-50/80 max-sm:max-h-[40dvh] max-sm:overflow-auto sm:w-56 sm:border-b-0 sm:border-r sm:border-zinc-200">
             {loading ? (
               <p className="p-4 text-sm text-zinc-500">იტვირთება...</p>
             ) : roots.length === 0 ? (
@@ -161,7 +164,7 @@ export function CategoriesModal({ open, onClose, initialRootSlug }: CategoriesMo
           </div>
 
           {/* Right: children of selected root */}
-          <div className="flex-1 overflow-auto bg-white p-4">
+          <div className="flex-1 overflow-auto bg-white p-3 sm:p-4">
             {!selectedRoot ? (
               <p className="py-8 text-center text-sm text-zinc-500">
                 დააკლიკეთ კატეგორიაზე ქვეკატეგორიების სანახავად
