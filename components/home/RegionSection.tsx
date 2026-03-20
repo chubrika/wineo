@@ -28,11 +28,12 @@ export function RegionSection() {
     getRegions()
       .then((list) => {
         if (cancelled) return;
-        const sorted = (list as RegionCardItem[])
-          .slice()
-          .sort((a, b) => (a.index ?? Number.MAX_SAFE_INTEGER) - (b.index ?? Number.MAX_SAFE_INTEGER));
-        setRegions(sorted);
-        if (sorted[0]?.slug) setSelectedRegionSlug(sorted[0].slug);
+        const ordered = [...(list as RegionCardItem[])];
+        console.log(ordered);
+        const firstSix = ordered.sort((a, b) => (a.index ?? Number.MAX_SAFE_INTEGER) - (b.index ?? Number.MAX_SAFE_INTEGER)).slice(0, 5);
+        console.log(firstSix);
+        setRegions(firstSix);
+        if (firstSix[0]?.slug) setSelectedRegionSlug(firstSix[0].slug);
       })
       .catch(() => {
         if (!cancelled) {
@@ -49,7 +50,7 @@ export function RegionSection() {
   }, []);
 
   const baseHref = listingType === "buy" ? "/buy" : "/rent";
-  const featuredRegions = regions.slice(0, 4);
+  const featuredRegions = regions;
   const selectedRegion =
     featuredRegions.find((region) => region.slug === selectedRegionSlug) ?? featuredRegions[0];
 
