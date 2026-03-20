@@ -211,6 +211,11 @@ export type ApiRegion = {
   id: string;
   slug: string;
   label: string;
+  description?: string;
+  largeTitle?: string;
+  shortDesc?: string;
+  image?: string;
+  index?: number;
   createdAt?: string;
   updatedAt?: string;
 };

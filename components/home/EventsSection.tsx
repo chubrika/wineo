@@ -12,7 +12,7 @@ export async function EventsSection() {
 
   return (
     <section
-      className="border-b border-zinc-200 bg-zinc-50/50 py-14 sm:py-18"
+      className="border-b border-zinc-200 bg-white py-14 sm:py-18"
       aria-labelledby="events-heading"
     >
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">

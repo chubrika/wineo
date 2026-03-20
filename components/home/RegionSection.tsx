@@ -4,10 +4,23 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { getRegions } from "@/lib/api";
 import type { ListingType } from "@/types/listing";
+import { ChevronRightIcon } from "lucide-react";
+
+type RegionCardItem = {
+  id: string;
+  slug: string;
+  label: string;
+  description?: string;
+  largeTitle?: string;
+  shortDesc?: string;
+  image?: string;
+  index?: number;
+};
 
 export function RegionSection() {
   const [listingType, setListingType] = useState<ListingType>("buy");
-  const [regions, setRegions] = useState<{ slug: string; label: string }[]>([]);
+  const [regions, setRegions] = useState<RegionCardItem[]>([]);
+  const [selectedRegionSlug, setSelectedRegionSlug] = useState<string>("");
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -15,10 +28,17 @@ export function RegionSection() {
     getRegions()
       .then((list) => {
         if (cancelled) return;
-        setRegions(list.map((r) => ({ slug: r.slug, label: r.label })));
+        const sorted = (list as RegionCardItem[])
+          .slice()
+          .sort((a, b) => (a.index ?? Number.MAX_SAFE_INTEGER) - (b.index ?? Number.MAX_SAFE_INTEGER));
+        setRegions(sorted);
+        if (sorted[0]?.slug) setSelectedRegionSlug(sorted[0].slug);
       })
       .catch(() => {
-        if (!cancelled) setRegions([]);
+        if (!cancelled) {
+          setRegions([]);
+          setSelectedRegionSlug("");
+        }
       })
       .finally(() => {
         if (!cancelled) setLoading(false);
@@ -29,19 +49,19 @@ export function RegionSection() {
   }, []);
 
   const baseHref = listingType === "buy" ? "/buy" : "/rent";
+  const featuredRegions = regions.slice(0, 4);
+  const selectedRegion =
+    featuredRegions.find((region) => region.slug === selectedRegionSlug) ?? featuredRegions[0];
 
   return (
     <section
-      className="border-b border-zinc-200 bg-white py-14 sm:py-18"
+      className="border-b border-zinc-200 py-14 sm:py-18 bg-[#f5f6f8]"
       aria-labelledby="regions-heading"
     >
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <h2 id="regions-heading" className="text-2xl font-bold tracking-tight wineo-red sm:text-3xl">
           რეგიონებით ძებნა
         </h2>
-        <p className="mt-2 text-zinc-600">
-          მოიძიეთ პროდუქტები საქართველოს რეგიონებში.
-        </p>
 
         {/* იყიდე / იქირავე toggle */}
         <div className="mt-6 flex items-center gap-2" role="group" aria-label="Listing type">
@@ -74,19 +94,60 @@ export function RegionSection() {
             რეგიონები იტვირთება...
           </p>
         )}
-        {!loading && regions.length > 0 && (
-          <ul className="mt-8 flex flex-wrap gap-3">
-            {regions.map(({ slug, label }) => (
-              <li key={slug}>
-                <Link
-                  href={`${baseHref}?region=${encodeURIComponent(slug)}`}
-                  className="inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full border border-zinc-300 bg-white px-5 py-2.5 text-sm font-medium text-zinc-700 transition hover:border-zinc-400 hover:bg-zinc-50 active:bg-zinc-100 active:border-zinc-400"
-                >
-                  {label}
-                </Link>
-              </li>
-            ))}
-          </ul>
+        {!loading && regions.length > 0 && selectedRegion && (
+          <div className="mt-8 grid gap-8 lg:grid-cols-2 lg:items-start">
+            <div className="relative bg-white p-3 rounded-lg border border-zinc-200 shadow-lg">
+              <div
+                className="min-h-[360px] w-full bg-cover bg-center sm:min-h-[420px]"
+                style={selectedRegion.image ? { backgroundImage: `url("${selectedRegion.image}")` } : undefined}
+                aria-label={selectedRegion.label}
+                role="img"
+              />
+              <div className="absolute bottom-[-20px] right-[-20px] max-w-[50%] rounded-sm bg-white/95 p-4 shadow-lg backdrop-blur sm:p-5">
+                <h3 className="text-base font-semibold text-zinc-900 sm:text-lg">
+                  {selectedRegion.label}
+                </h3>
+                {selectedRegion.shortDesc ? (
+                  <p className="mt-2 text-xs italic text-zinc-600">&quot;{selectedRegion.shortDesc}&quot;</p>
+                ) : null}
+              </div>
+            </div>
+
+            <div>
+              <p className="text-zinc-700 text-sm whitespace-pre-line">
+                {selectedRegion.description || "აღწერა დროებით არ არის ხელმისაწვდომი."}
+              </p>
+
+              <ul className="mt-6 space-y-3">
+                {featuredRegions.map((region) => {
+                  const isActive = region.slug === selectedRegion.slug;
+                  return (
+                    <li key={region.slug}>
+                      <button
+                        type="button"
+                        onClick={() => setSelectedRegionSlug(region.slug)}
+                        className={`w-full cursor-pointer rounded-md flex items-center justify-between px-4 py-3 text-left text-sm font-medium transition sm:text-base ${
+                          isActive
+                            ? " border-l-3 border-l-[#8a052d]  bg-white"
+                            : "border-zinc-200 bg-[#fbfcff]  text-zinc-700 hover:border-white hover:bg-white"
+                        }`}
+                      >
+                        {region.largeTitle || region.label}
+                        <ChevronRightIcon className="h-5 w-5 shrink-0 text-zinc-400" aria-hidden />
+                      </button>
+                    </li>
+                  );
+                })}
+              </ul>
+
+              <Link
+                href={`${baseHref}?region=${encodeURIComponent(selectedRegion.slug)}`}
+                className="mt-6 inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded-lg bg-[#8a052d] px-5 py-2.5 text-sm font-medium text-white transition hover:bg-[#740426] active:bg-[#5f031f]"
+              >
+                განცხადებების ნახვა
+              </Link>
+            </div>
+          </div>
         )}
         {!loading && regions.length === 0 && (
           <p className="mt-8 text-zinc-500">რეგიონები ვერ მოიძებნა.</p>
