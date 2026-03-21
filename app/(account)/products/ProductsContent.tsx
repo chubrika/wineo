@@ -171,7 +171,7 @@ export function ProductsContent() {
   if (authLoading || loading) {
     return (
       <div className="rounded-xl border border-zinc-200 bg-white p-6 sm:p-8">
-        <h1 className="text-2xl font-bold tracking-tight wineo-red medium-font">
+        <h1 className="text-md md:text-lg nav-font-caps font-bold tracking-tight wineo-red">
           განცხადებები
         </h1>
         <p className="mt-4 text-zinc-500">იტვირთება…</p>
@@ -182,7 +182,7 @@ export function ProductsContent() {
   if (!user) {
     return (
       <div className="rounded-xl border border-zinc-200 bg-white p-6 sm:p-8">
-        <h1 className="text-2xl font-bold tracking-tight wineo-red medium-font">
+        <h1 className="text-md md:text-lg nav-font-caps font-bold tracking-tight wineo-red">
           განცხადებები
         </h1>
         <p className="mt-4 text-zinc-600">
@@ -210,7 +210,7 @@ export function ProductsContent() {
   return (
     <div className="rounded-xl border border-zinc-200 bg-white p-6 sm:p-8">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <h1 className="text-2xl font-bold tracking-tight wineo-red medium-font">
+        <h1 className="text-md md:text-lg nav-font-caps font-bold tracking-tight wineo-red">
           განცხადებები
         </h1>
 

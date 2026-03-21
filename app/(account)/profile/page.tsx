@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 export default function ProfilePage() {
   return (
     <div className="rounded-xl border border-zinc-200 bg-white p-6 sm:p-8">
-      <h1 className="text-2xl font-bold tracking-tight wineo-red medium-font">
+      <h1 className="text-md md:text-lg nav-font-caps font-bold tracking-tight wineo-red">
         პროფილი
       </h1>
       <ProfileContent />

@@ -103,7 +103,7 @@ export function ProfileContent() {
 
       <div>
         <label className={labelClass}>მომხმარებლის ტიპი</label>
-        <p className="mt-1 text-zinc-600">
+        <p className="mt-1 text-zinc-600 rounded-lg bg-zinc-100 px-3 py-2 text-sm">
           {user.userType === "business" ? "ბიზნესი" : "ფიზიკური პირი"}
         </p>
       </div>

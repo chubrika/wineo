@@ -26,6 +26,23 @@ function formatPrice(listing: Listing): string {
   return `${value} ${currencySymbol}`;
 }
 
+function formatListingPriceValue(value: number, listing: Listing): string {
+  const currencySymbol = listing.currency === "GEL" ? "₾" : "$";
+  const formatted = value.toLocaleString("en-US", { maximumFractionDigits: 2 });
+  if (listing.type === "rent" && listing.priceUnit) {
+    const unitLabel =
+      listing.priceUnit === "day"
+        ? "დღე"
+        : listing.priceUnit === "week"
+          ? "კვირა"
+          : listing.priceUnit === "month"
+            ? "თვე"
+            : listing.priceUnit;
+    return `${formatted} ${currencySymbol} - ${unitLabel}`;
+  }
+  return `${formatted} ${currencySymbol}`;
+}
+
 interface ListingCardProps {
   listing: Listing;
 }
@@ -33,6 +50,20 @@ interface ListingCardProps {
 export function ListingCard({ listing }: ListingCardProps) {
   const href = `/${listing.type}/listing/${listing.slug}`;
   const priceLabel = formatPrice(listing);
+  const hasDiscount =
+    typeof listing.discountedPrice === "number" &&
+    Number.isFinite(listing.discountedPrice) &&
+    listing.discountedPrice >= 0 &&
+    listing.discountedPrice < listing.price;
+  const discountPercentLabel =
+    typeof listing.discountedPercent === "number" &&
+    Number.isFinite(listing.discountedPercent) &&
+    listing.discountedPercent > 0
+      ? Number(listing.discountedPercent.toFixed(2)).toString()
+      : null;
+  const discountedLabel = hasDiscount
+    ? formatListingPriceValue(listing.discountedPrice as number, listing)
+    : null;
   const { isInWishlist, toggleWishlist } = useWishlist();
   const inWishlist = isInWishlist(listing.id);
 
@@ -65,7 +96,11 @@ export function ListingCard({ listing }: ListingCardProps) {
           <span className="absolute left-5 bottom-5 rounded-full bg-white/90 px-2.5 py-0.5 text-xs font-medium capitalize text-zinc-800">
             {listing.type === "buy" ? "იყიდე" : "იქირავე"}
           </span>
-          {listing.promotionType && listing.promotionType !== "none" && (
+          {discountPercentLabel != null ? (
+            <span className="absolute left-5 top-5 z-10 inline-flex items-center rounded-full bg-red-600 px-2.5 py-0.5 text-xs font-semibold uppercase tracking-wide text-white">
+              -{discountPercentLabel}%
+            </span>
+          ) : listing.promotionType && listing.promotionType !== "none" ? (
             <span
               className={`absolute left-5 top-5 z-10 inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-semibold uppercase tracking-wide text-white ${
                 listing.promotionType === "homepageTop"
@@ -78,7 +113,7 @@ export function ListingCard({ listing }: ListingCardProps) {
               <PromotionIcon type={listing.promotionType} />
               {listing.promotionType === "homepageTop" ? "VIP" : null}
             </span>
-          )}
+          ) : null}
           {listing.specifications && listing.specifications?.condition && (
             <span
               className={`absolute right-5 bottom-5 rounded-full px-2.5 py-0.5 text-xs font-medium capitalize ${
@@ -113,9 +148,14 @@ export function ListingCard({ listing }: ListingCardProps) {
          
 
          <div className="flex justify-between items-center">
-          <p className="text-md font-medium text-zinc-900">
-            {priceLabel}
-          </p>
+          <div className="flex items-center gap-2">
+            {hasDiscount && (
+              <p className="text-xs text-zinc-500 line-through">{priceLabel}</p>
+            )}
+             <p className="text-md font-medium text-zinc-900">
+              {discountedLabel ?? priceLabel}
+            </p>
+          </div>
            <button
              type="button"
              onClick={handleWishlistClick}

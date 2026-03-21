@@ -20,7 +20,7 @@ export function HowItWorks() {
       aria-labelledby="how-it-works-heading"
     >
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <h2 id="how-it-works-heading" className="text-2xl font-bold tracking-tight wineo-red sm:text-3xl">
+        <h2 id="how-it-works-heading" className="text-md md:text-2xl nav-font-caps font-bold tracking-tight wineo-red sm:text-3xl">
           როგორ მუშაობს
         </h2>
         <p className="mt-2 text-zinc-600">

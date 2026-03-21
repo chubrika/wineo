@@ -12,7 +12,7 @@ export async function FeaturedListings() {
       aria-labelledby="featured-heading"
     >
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <h2 id="featured-heading" className="tex-md md:text-2xl font-bold tracking-tight wineo-red sm:text-3xl">
+        <h2 id="featured-heading" className="tex-md md:text-2xl nav-font-caps font-bold tracking-tight wineo-red sm:text-3xl">
           რეკომენდირებული პროდუქტები
         </h2>
         <div className="w-full max-w-full overflow-x-auto pb-2 md:overflow-visible">

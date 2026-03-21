@@ -15,7 +15,7 @@ export async function NewsSection() {
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between">
           <div>
-            <h2 id="news-heading" className="text-md md:text-2xl font-bold tracking-tight wineo-red sm:text-3xl">
+            <h2 id="news-heading" className="text-md md:text-2xl nav-font-caps font-bold tracking-tight wineo-red sm:text-3xl">
               სიახლეები
             </h2>
           </div>

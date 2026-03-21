@@ -67,7 +67,13 @@ export default async function RentListingPage({ params }: Props) {
   if (listing.type === "buy") notFound();
 
   const isGEL = (listing.currency || "USD").toUpperCase() === "GEL";
-  const priceNum = listing.price.toLocaleString("en-US", { maximumFractionDigits: 0 });
+  const safePrice = Number.isFinite(Number(listing.price)) ? Number(listing.price) : 0;
+  const discountedPriceNum = Number(listing.discountedPrice);
+  const hasDiscount =
+    Number.isFinite(discountedPriceNum) &&
+    discountedPriceNum >= 0 &&
+    discountedPriceNum < safePrice;
+  const priceNum = safePrice.toLocaleString("en-US", { maximumFractionDigits: 0 });
   const periodLabel = listing.priceUnit ? rentPeriodLabel(listing.priceUnit) : null;
   const price =
     periodLabel != null
@@ -77,6 +83,16 @@ export default async function RentListingPage({ params }: Props) {
       : isGEL
         ? `${priceNum} ₾`
         : `$${priceNum}`;
+  const discountedPrice =
+    hasDiscount
+      ? periodLabel != null
+        ? isGEL
+          ? `${discountedPriceNum.toLocaleString("en-US", { maximumFractionDigits: 2 })} ₾ - ${periodLabel}`
+          : `$${discountedPriceNum.toLocaleString("en-US", { maximumFractionDigits: 2 })} - ${periodLabel}`
+        : isGEL
+          ? `${discountedPriceNum.toLocaleString("en-US", { maximumFractionDigits: 2 })} ₾`
+          : `$${discountedPriceNum.toLocaleString("en-US", { maximumFractionDigits: 2 })}`
+      : null;
 
   const productJsonLd = listingToProductJsonLd(listing, SITE_URL);
 
@@ -164,7 +180,10 @@ export default async function RentListingPage({ params }: Props) {
         {/* Right: price + add to favorites — hidden on mobile (shown in fixed bar) */}
         <div className="hidden lg:col-span-3 lg:block">
           <div className="rounded-xl border border-zinc-200 bg-white p-6 md:sticky md:top-[72px]">
-            <p className="text-2xl font-semibold text-zinc-900">{price}</p>
+            <div>
+              <p className="text-2xl font-semibold text-zinc-900">{discountedPrice ?? price}</p>
+              {hasDiscount && <p className="text-sm text-zinc-500 line-through">{price}</p>}
+            </div>
 
             {listing.ownerPhone && (
               <>
@@ -187,7 +206,10 @@ export default async function RentListingPage({ params }: Props) {
 
       {/* Mobile: fixed bottom bar with price, call, wishlist */}
       <div className="fixed bottom-[58px] left-0 right-0 z-40 flex justify-between items-center gap-3 border-t border-zinc-200 bg-white px-4 py-2 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] md:hidden">
-        <p className="text-lg font-semibold text-zinc-900">{price}</p>
+        <div>
+          <p className="text-lg font-semibold text-zinc-900">{discountedPrice ?? price}</p>
+          {hasDiscount && <p className="text-xs text-zinc-500 line-through">{price}</p>}
+        </div>
         <div className="flex items-center gap-2">
         {listing.ownerPhone && (
           <a

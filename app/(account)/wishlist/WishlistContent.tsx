@@ -41,7 +41,7 @@ export function WishlistContent() {
     return (
       <div className="mt-6 rounded-lg border border-zinc-200 bg-zinc-50 p-8 text-center">
         <Heart className="mx-auto h-12 w-12 text-zinc-400" strokeWidth={1.5} />
-        <p className="mt-3 text-zinc-600">სურვილების სია.</p>
+        <p className="mt-3 text-zinc-600 ">სურვილების სია.</p>
         <p className="mt-1 text-sm text-zinc-500">
           განცხადებებზე გულის ხატულაზე დაწკაპუნებით დაამატებთ მათ აქ.
         </p>

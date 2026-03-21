@@ -23,6 +23,14 @@ export function mapApiProductToListing(api: ApiProduct): Listing {
       : undefined;
   const title = typeof api.title === "string" ? api.title : "";
   const price = typeof api.price === "number" && Number.isFinite(api.price) ? api.price : 0;
+  const discountedPrice =
+    typeof api.discountedPrice === "number" && Number.isFinite(api.discountedPrice)
+      ? api.discountedPrice
+      : undefined;
+  const discountedPercent =
+    typeof api.discountedPercent === "number" && Number.isFinite(api.discountedPercent)
+      ? api.discountedPercent
+      : undefined;
   const createdAt = typeof api.createdAt === "string" ? api.createdAt : new Date().toISOString();
   return {
     id: api.id ?? "",
@@ -33,6 +41,8 @@ export function mapApiProductToListing(api: ApiProduct): Listing {
     description,
     excerpt,
     price,
+    discountedPrice,
+    discountedPercent,
     currency: api.currency || "GEL",
     priceUnit,
     imageUrl: api.thumbnail || api.images?.[0] || "/next.svg",

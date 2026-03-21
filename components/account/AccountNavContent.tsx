@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
+import { User } from "lucide-react";
+import Image from "next/image";
 
 const accountNavLinks = [
   { href: "/add-product", label: "განცხადების დამატება" },
@@ -50,7 +52,8 @@ export function AccountNavContent({
           aria-hidden
         >
           {!loading && user
-            ? getUserInitials(user.firstName, user.lastName, user.email)
+            ? user.avatar ? <Image src={user.avatar} alt="User avatar" width={36} height={36} className="rounded-full" /> : 
+            <User className="h-5 w-5 shrink-0" />
             : "—"}
         </div>
         <div className="min-w-0 flex-1">

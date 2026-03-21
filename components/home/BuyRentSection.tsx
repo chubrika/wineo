@@ -21,7 +21,7 @@ export async function BuyRentSection() {
           {/* Buy */}
           <div className="min-w-0">
             <div className="mb-4 flex items-center justify-between">
-              <h4 className="text-lg font-semibold wineo-red flex items-center gap-2">
+              <h4 className="text-lg nav-font-caps font-semibold wineo-red flex items-center gap-2">
                 <svg
                   className="h-5 w-5 wine-red shrink-0"
                   fill="none"
@@ -67,7 +67,7 @@ export async function BuyRentSection() {
             <>
               <div>
                 <div className="mb-4 flex items-center justify-between">
-                  <h4 className="text-lg font-semibold wineo-red flex items-center gap-2">
+                  <h4 className="text-lg nav-font-caps font-semibold wineo-red flex items-center gap-2">
                     <svg
                       className="h-5 w-5 wine-red shrink-0"
                       fill="none"

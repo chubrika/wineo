@@ -66,6 +66,14 @@ function defaultPromotionExpiryLocal(): string {
   return toLocalDateTimeInputValue(d);
 }
 
+function normalizeDecimalInput(raw: string): string {
+  return raw.replace(",", ".");
+}
+
+function parseDecimal(raw: string): number {
+  return parseFloat(normalizeDecimalInput(raw));
+}
+
 /** Promotion options with price and duration for display */
 const PROMOTION_OPTIONS = [
   { type: "highlighted" as const, label: "გამოკვეთილი", labelClass: "text-yellow-400", desc: "შენი განცხადება უფრო თვალსაჩინო გახდება", price: "9₾", duration: "7 დღე" },
@@ -83,8 +91,8 @@ const RENT_PERIODS = [
   { value: "month" as const, label: "თვე" },
 ];
 const CURRENCIES = [
-  { value: "GEL" as const, label: "₾ (GEL)" },
-  { value: "USD" as const, label: "$ (USD)" },
+  { value: "GEL" as const, label: "ლარი" },
+  { value: "USD" as const, label: "დოლარი" },
 ];
 const PRICE_TYPES = [
   { value: "fixed" as const, label: "ფიქსირებული" },
@@ -207,7 +215,7 @@ function AddProductFilterControl({
 }
 
 const inputClass =
-  "mt-1 block w-full rounded-lg border border-[1px] border-zinc-300 px-3 py-2 text-zinc-900 focus:border-[var(--nav-link-active)] focus:outline-none focus:ring-1 focus:ring-[var(--nav-link-active)]";
+  "mt-1 block w-full rounded-lg border border-[1px] border-zinc-300 px-3 py-2 text-zinc-900 focus:border-[var(--nav-link-active)] focus:outline-none  focus:ring-[var(--nav-link-active)]";
 
 export function AddProductForm({
   productId,
@@ -235,7 +243,9 @@ export function AddProductForm({
   const [type, setType] = useState<"sell" | "rent">("sell");
   const [categoryId, setCategoryId] = useState("");
   const [price, setPrice] = useState("");
+  const [discountedPrice, setDiscountedPrice] = useState("");
   const [currency, setCurrency] = useState<"GEL" | "USD">("GEL");
+  const [currencyDropdownOpen, setCurrencyDropdownOpen] = useState(false);
   const [priceType, setPriceType] = useState<"fixed" | "negotiable">("fixed");
   const [rentPeriod, setRentPeriod] = useState<"hour" | "day" | "week" | "month" | "">("");
   const [regionId, setRegionId] = useState("");
@@ -261,6 +271,7 @@ export function AddProductForm({
   const [categoryDropdownOpen, setCategoryDropdownOpen] = useState(false);
   const [categoryLevelStack, setCategoryLevelStack] = useState<CategoryTreeNode[][]>([]);
   const categoryDropdownRef = useRef<HTMLDivElement>(null);
+  const currencyDropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!categoryDropdownOpen || categoryTree.length === 0) return;
@@ -278,6 +289,34 @@ export function AddProductForm({
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [categoryDropdownOpen]);
+
+  useEffect(() => {
+    if (!currencyDropdownOpen) return;
+    function handleClickOutside(e: MouseEvent) {
+      if (currencyDropdownRef.current && !currencyDropdownRef.current.contains(e.target as Node)) {
+        setCurrencyDropdownOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [currencyDropdownOpen]);
+
+  useEffect(() => {
+    if (priceType === "negotiable") {
+      setCurrencyDropdownOpen(false);
+      setDiscountedPrice("");
+    }
+  }, [priceType]);
+
+  const discountedPercent = useMemo(() => {
+    if (priceType !== "fixed") return "";
+    const basePrice = parseDecimal(price);
+    const salePrice = parseDecimal(discountedPrice);
+    if (Number.isNaN(basePrice) || basePrice <= 0) return "";
+    if (Number.isNaN(salePrice) || salePrice < 0 || salePrice >= basePrice) return "";
+    const percent = ((basePrice - salePrice) / basePrice) * 100;
+    return String(Math.round(percent * 100) / 100);
+  }, [price, discountedPrice, priceType]);
 
   const openCategoryDropdown = () => {
     setCategoryLevelStack([categoryTree]);
@@ -416,6 +455,9 @@ export function AddProductForm({
     setType(initialProduct.type === "rent" ? "rent" : "sell");
     setCategoryId(initialProduct.categoryId ?? "");
     setPrice(initialProduct.price != null ? String(initialProduct.price) : "");
+    setDiscountedPrice(
+      initialProduct.discountedPrice != null ? String(initialProduct.discountedPrice) : ""
+    );
     setCurrency(initialProduct.currency === "USD" ? "USD" : "GEL");
     setPriceType("fixed");
     setRentPeriod((initialProduct.type === "rent" && initialProduct.rentPeriod) ? initialProduct.rentPeriod : "");
@@ -507,9 +549,20 @@ export function AddProductForm({
       setError("დაამატეთ მინიმუმ ერთი სურათი");
       return;
     }
-    const priceNum = priceType === "negotiable" ? 0 : parseFloat(price);
+    const priceNum = priceType === "negotiable" ? 0 : parseDecimal(price);
     if (priceType === "fixed" && (Number.isNaN(priceNum) || priceNum < 0)) {
       setError("შეიყვანეთ სწორი ფასი");
+      return;
+    }
+    const discountedPriceNum =
+      priceType === "fixed" && discountedPrice.trim() !== ""
+        ? parseDecimal(discountedPrice)
+        : null;
+    if (
+      discountedPriceNum != null &&
+      (Number.isNaN(discountedPriceNum) || discountedPriceNum < 0 || discountedPriceNum >= priceNum)
+    ) {
+      setError("ფასდაკლებული ფასი უნდა იყოს ძირითად ფასზე ნაკლები");
       return;
     }
 
@@ -531,6 +584,12 @@ export function AddProductForm({
       category: { name: selectedCategory.name, slug: selectedCategory.slug },
       categoryId: selectedCategory.id,
       price: priceNum,
+      ...(discountedPriceNum != null
+        ? {
+            discountedPrice: discountedPriceNum,
+            discountedPercent: Number(discountedPercent),
+          }
+        : {}),
       currency,
       priceType,
       ...(type === "rent" && rentPeriod ? { rentPeriod } : {}),
@@ -822,8 +881,10 @@ export function AddProductForm({
               ))}
             </div>
           </div>
-          <div className="grid gap-4 sm:grid-cols-2">
-            <div className={priceType === "negotiable" ? "opacity-60" : ""}>
+          <div className={priceType === "negotiable" ? "opacity-60" : ""}>
+            <div className="grid gap-3 sm:grid-cols-2">
+              <div className="flex items-end">
+                <div className="flex-1">
               <label htmlFor="price" className={labelClass}>ფასი</label>
               <input
                 id="price"
@@ -831,30 +892,75 @@ export function AddProductForm({
                 step="0.01"
                 min={0}
                 value={price}
-                onChange={(e) => setPrice(e.target.value)}
+                onChange={(e) => setPrice(normalizeDecimalInput(e.target.value))}
                 disabled={priceType === "negotiable"}
-                className={inputClass}
+                className="mt-1 block w-full rounded-l-lg rounded-r-none border border-zinc-300 border-r-0 px-3 py-2 text-zinc-900 focus:border-[var(--nav-link-active)] focus:outline-none focus:ring-[var(--nav-link-active)]"
                 placeholder="0"
               />
-            </div>
-            <div className={priceType === "negotiable" ? "opacity-60" : ""}>
-              <span className={labelClass}>ვალუტა</span>
-              <div className="mt-1 flex gap-2">
-                {CURRENCIES.map((opt) => (
+                </div>
+                <div className="relative min-w-[100px]" ref={currencyDropdownRef}>
                   <button
-                    key={opt.value}
                     type="button"
-                    onClick={() => setCurrency(opt.value)}
+                    onClick={() => setCurrencyDropdownOpen((prev) => !prev)}
                     disabled={priceType === "negotiable"}
-                    className={`rounded-lg border px-4 py-2 text-sm font-medium transition-colors disabled:cursor-not-allowed ${
-                      currency === opt.value
-                        ? "border-[var(--nav-link-active)] bg-[var(--nav-link-active)] text-white"
-                        : "border-zinc-300 bg-white text-zinc-700 hover:bg-zinc-50"
-                    }`}
+                    className="mt-1 flex h-[42px] w-full items-center justify-between rounded-l-none rounded-r-lg border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 cursor-pointer transition-colors hover:bg-zinc-50 disabled:cursor-not-allowed disabled:bg-zinc-100"
                   >
-                    {opt.label}
+                    <span>{CURRENCIES.find((opt) => opt.value === currency)?.label ?? CURRENCIES[0].label}</span>
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 20 20"
+                      fill="currentColor"
+                      className={`h-4 w-4 text-zinc-500 transition-transform ${currencyDropdownOpen ? "rotate-180" : ""}`}
+                      aria-hidden="true"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M5.23 7.21a.75.75 0 011.06.02L10 11.117l3.71-3.886a.75.75 0 111.08 1.04l-4.25 4.45a.75.75 0 01-1.08 0l-4.25-4.45a.75.75 0 01.02-1.06z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
                   </button>
-                ))}
+                  {currencyDropdownOpen && priceType !== "negotiable" && (
+                    <div className="absolute left-0 top-full z-20 mt-1 w-full rounded-lg border border-zinc-200 bg-white p-1 shadow-lg">
+                      {CURRENCIES.map((opt) => (
+                        <button
+                          key={opt.value}
+                          type="button"
+                          onClick={() => {
+                            setCurrency(opt.value);
+                            setCurrencyDropdownOpen(false);
+                          }}
+                          className={`w-full rounded-md cursor-pointer px-3 py-2 text-left text-sm transition-colors ${
+                            currency === opt.value
+                              ? "wineo-red"
+                              : "text-zinc-700 hover:bg-zinc-50"
+                          }`}
+                        >
+                          {opt.label}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+              <div>
+                <label htmlFor="discountedPrice" className={labelClass}>ფასდაკლება</label>
+                <div className="flex items-end">
+                  <input
+                    id="discountedPrice"
+                    type="number"
+                    step="0.01"
+                    min={0}
+                    value={discountedPrice}
+                    onChange={(e) => setDiscountedPrice(normalizeDecimalInput(e.target.value))}
+                    disabled={priceType === "negotiable"}
+                    className="mt-1 block w-full rounded-l-lg rounded-r-none border border-zinc-300 border-r-0 px-3 py-2 text-zinc-900 focus:border-[var(--nav-link-active)] focus:outline-none focus:ring-[var(--nav-link-active)]"
+                    placeholder="0"
+                  />
+                  <div className="mt-1 flex h-[42px] min-w-[78px] items-center justify-center rounded-l-none rounded-r-lg border border-zinc-300 bg-zinc-100 px-3 py-2 text-sm font-medium text-zinc-600">
+                    {discountedPercent || "0"}%
+                  </div>
+                </div>
               </div>
             </div>
           </div>

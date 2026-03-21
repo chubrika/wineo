@@ -19,6 +19,23 @@ function formatPrice(listing: Listing): string {
   return `${value} ${currencySymbol}`;
 }
 
+function formatListingPriceValue(value: number, listing: Listing): string {
+  const currencySymbol = listing.currency === "GEL" ? "₾" : "$";
+  const formatted = value.toLocaleString("en-US", { maximumFractionDigits: 2 });
+  if (listing.type === "rent" && listing.priceUnit) {
+    const unitLabel =
+      listing.priceUnit === "day"
+        ? "დღე"
+        : listing.priceUnit === "week"
+          ? "კვირა"
+          : listing.priceUnit === "month"
+            ? "თვე"
+            : listing.priceUnit;
+    return `${formatted} ${currencySymbol} - ${unitLabel}`;
+  }
+  return `${formatted} ${currencySymbol}`;
+}
+
 interface FeaturedListingCardProps {
   listing: Listing;
 }
@@ -26,6 +43,14 @@ interface FeaturedListingCardProps {
 export function FeaturedListingCard({ listing }: FeaturedListingCardProps) {
   const href = `/${listing.type}/listing/${listing.slug}`;
   const priceLabel = formatPrice(listing);
+  const hasDiscount =
+    typeof listing.discountedPrice === "number" &&
+    Number.isFinite(listing.discountedPrice) &&
+    listing.discountedPrice >= 0 &&
+    listing.discountedPrice < listing.price;
+  const discountedLabel = hasDiscount
+    ? formatListingPriceValue(listing.discountedPrice as number, listing)
+    : null;
 
   return (
     <article className="group relative overflow-hidden rounded-xl border border-zinc-200 bg-white hover:border-zinc-300">
@@ -47,7 +72,7 @@ export function FeaturedListingCard({ listing }: FeaturedListingCardProps) {
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           />
           <span className="absolute left-5 top-5 rounded-full bg-white/90 px-2.5 py-0.5 text-xs font-medium capitalize text-zinc-800">
-            {listing.type}
+            {listing.type === "buy" ? "იყიდე" : "იქირავე"}
           </span>
         </div>
         <div className="p-4">
@@ -58,9 +83,14 @@ export function FeaturedListingCard({ listing }: FeaturedListingCardProps) {
             <p className="mt-1 text-xs text-zinc-500">{listing.location}</p>
           )}
           <div className="border-t border-zinc-200 mt-4"></div>
-          <p className="mt-4 text-md font-semibold text-zinc-900">
-            {priceLabel}
-          </p>
+          <div className="mt-4">
+            <p className="text-md font-semibold text-zinc-900">
+              {discountedLabel ?? priceLabel}
+            </p>
+            {hasDiscount && (
+              <p className="text-xs text-zinc-500 line-through">{priceLabel}</p>
+            )}
+          </div>
         </div>
       </Link>
     </article>

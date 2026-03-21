@@ -68,7 +68,7 @@ export function RegionSection() {
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between">
           <h2
             id="regions-heading"
-            className="text-md md:text-2xl font-bold tracking-tight wineo-red sm:text-3xl"
+            className="text-md md:text-2xl nav-font-caps font-bold tracking-tight wineo-red sm:text-3xl"
           >
             რეგიონებით ძებნა
           </h2>

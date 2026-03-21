@@ -16,6 +16,7 @@ export type AuthUser = {
   role: 'customer' | 'admin';
   phone?: string;
   userType?: 'physical' | 'business';
+  avatar?: string;
 };
 
 export type RegisterBody = {
@@ -304,6 +305,8 @@ export type ApiProduct = {
     | Record<string, string | string[]>
     | { name: string; slug: string; values: string[] }[];
   price: number;
+  discountedPrice?: number;
+  discountedPercent?: number;
   currency?: string;
   rentPeriod?: "hour" | "day" | "week" | "month";
   images?: string[];
@@ -419,6 +422,8 @@ export type CreateProductPayload = {
   category: { name: string; slug: string };
   categoryId?: string;
   price: number;
+  discountedPrice?: number;
+  discountedPercent?: number;
   currency: "GEL" | "USD";
   priceType: "fixed" | "negotiable";
   rentPeriod?: "hour" | "day" | "week" | "month";

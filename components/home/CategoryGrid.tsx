@@ -96,7 +96,7 @@ export function CategoryGrid() {
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
       <div className="flex items-center justify-between">
         <div>
-          <h2 id="categories-heading" className="text-md md:text-2xl font-bold tracking-tight wineo-red sm:text-3xl">
+          <h2 id="categories-heading" className="text-md md:text-2xl nav-font-caps font-bold tracking-tight wineo-red sm:text-3xl">
               მოძებნეთ კატეგორიით
           </h2>
             <p className="mt-2 text-xs md:text-sm text-zinc-600">

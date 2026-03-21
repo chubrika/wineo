@@ -80,7 +80,7 @@ export async function Footer() {
             <div className="grid gap-8 grid-cols-2">
               {footerSections.map((section) => (
                 <nav key={section.title} aria-label={section.title}>
-                  <h2 className="text-sm font-semibold text-zinc-900">
+                  <h2 className="text-sm nav-font-caps font-semibold text-zinc-900">
                     {section.title}
                   </h2>
                   <ul className="mt-4 space-y-2">
@@ -99,7 +99,7 @@ export async function Footer() {
               ))}
 
               <nav aria-label="გვერდები">
-                <h2 className="text-sm font-semibold text-zinc-900">
+                <h2 className="text-sm nav-font-caps font-semibold text-zinc-900">
                   გვერდები
                 </h2>
                 <ul className="mt-4 space-y-2">

@@ -36,6 +36,8 @@ export interface Listing {
   /** Short excerpt for cards and meta description */
   excerpt: string;
   price: number;
+  discountedPrice?: number;
+  discountedPercent?: number;
   currency: string;
   /** For rent: price per day/week/month */
   priceUnit?: "day" | "week" | "month";

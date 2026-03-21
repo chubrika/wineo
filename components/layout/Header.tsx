@@ -13,7 +13,7 @@ import { HeaderSearchBar } from "./HeaderSearchBar";
 import { AccountNavContent } from "@/components/account/AccountNavContent";
 import { CategoriesModal } from "./CategoriesModal";
 import { HomeLogoLink } from "./HomeLogoLink";
-import { SlidersHorizontalIcon, Heart, LayoutGrid, ChevronDownIcon, Home, ShoppingBag, Clock, User, CirclePlus, Search } from "lucide-react";
+import { SlidersHorizontalIcon, Heart, LayoutGrid, ChevronDownIcon, Home, ShoppingBag, Clock, User, CirclePlus, Search, CircleUserRound } from "lucide-react";
 
 const SCROLL_THRESHOLD = 80; // min pixels scrolled before we change show/hide
 const SCROLL_TOP_SHOW = 10;
@@ -243,12 +243,14 @@ export function Header() {
                 <button
                   type="button"
                   onClick={() => setUserMenuOpen((o) => !o)}
-                  className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[var(--nav-link-active)] text-sm font-medium text-white transition-opacity hover:opacity-90"
+                  className="flex h-9 w-9 cursor-pointer shrink-0 items-center justify-center rounded-full bg-[var(--nav-link-active)] text-sm font-medium text-white transition-opacity hover:opacity-90"
                   aria-expanded={userMenuOpen}
                   aria-haspopup="true"
                   aria-label="User menu"
                 >
-                  {getUserInitials(user.firstName, user.lastName, user.email)}
+                  {user.avatar ? <Image src={user.avatar} alt="User avatar" width={36} height={36} className="rounded-full" /> : 
+                  <User className="h-5 w-5 shrink-0" />
+                  }
                 </button>
                 {userMenuOpen && (
                   <div
@@ -356,7 +358,7 @@ export function Header() {
         aria-hidden={!subheaderVisible}
       >
         <nav
-          className="nav-font-medium mx-auto flex h-12 max-w-7xl items-center justify-between gap-6 px-4 sm:px-6 lg:px-8"
+          className="nav-font-caps mx-auto flex h-12 max-w-7xl items-center justify-between gap-6 px-4 sm:px-6 lg:px-8"
           aria-label="Main navigation"
         >
           <div className="flex items-center gap-6">
@@ -364,7 +366,7 @@ export function Header() {
               <Link
                 key={href}
                 href={href}
-                className={`nav-link text-[20px] font-medium ${isActive(pathname, href) ? "nav-link-active" : ""}`}
+                className={`nav-link text-[16px] font-medium ${isActive(pathname, href) ? "nav-link-active" : ""}`}
                 aria-current={isActive(pathname, href) ? "page" : undefined}
               >
                 {label}
@@ -376,7 +378,7 @@ export function Header() {
               <Link
                 key={href}
                 href={href}
-                className={`nav-link text-[20px] font-medium ${isActive(pathname, href) ? "nav-link-active" : ""}`}
+                className={`nav-link text-[16px] font-medium ${isActive(pathname, href) ? "nav-link-active" : ""}`}
                 aria-current={isActive(pathname, href) ? "page" : undefined}
               >
                 {label}
@@ -389,7 +391,7 @@ export function Header() {
       {/* Mobile nav panel */}
       <div
         id="mobile-nav"
-        className={`nav-font-medium overflow-hidden transition-[height,opacity] duration-300 ease-out lg:hidden ${menuOpen ? "max-h-[480px] opacity-100" : "max-h-0 opacity-0"}`}
+        className={`nav-font-caps overflow-hidden transition-[height,opacity] duration-300 ease-out lg:hidden ${menuOpen ? "max-h-[480px] opacity-100" : "max-h-0 opacity-0"}`}
         aria-hidden={!menuOpen}
       >
        

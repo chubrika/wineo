@@ -17,11 +17,19 @@
   font-display: swap;
 }
 
+@font-face {
+  font-family: "Arial Caps";
+  src: url("/assets/fonts/bpg-arial-caps-webfont.woff") format("woff");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
 :root {
   --background: #ffffff;
   --foreground: #171717;
   --font-normal: "Firago", sans-serif;
   --font-medium: "GL Gordeziani", sans-serif;
+  --font-caps: "Arial Caps", sans-serif;
   /* Header nav link colors */
   --nav-link: #52525b; /* zinc-600 */
   --nav-link-hover: #18181b; /* zinc-900 */
@@ -51,7 +59,9 @@ body {
 .nav-font-medium {
   font-family: var(--font-medium);
 }
-
+.nav-font-caps {
+  font-family: var(--font-caps);
+}
 .nav-link {
   color: var(--nav-link);
   transition: color 0.2s;
