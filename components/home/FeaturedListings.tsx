@@ -8,20 +8,22 @@ export async function FeaturedListings() {
 
   return (
     <section
-      className="border-b border-zinc-200 bg-white py-14 sm:py-18"
+      className="border-b border-zinc-200 bg-white py-8 md:py-14 sm:py-18"
       aria-labelledby="featured-heading"
     >
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <h2 id="featured-heading" className="text-2xl font-bold tracking-tight wineo-red sm:text-3xl">
+        <h2 id="featured-heading" className="tex-md md:text-2xl font-bold tracking-tight wineo-red sm:text-3xl">
           რეკომენდირებული პროდუქტები
         </h2>
-        <ul className="mt-10 grid gap-6 grid-cols-2 lg:grid-cols-5">
-          {listings.map((listing) => (
-            <li key={listing.id}>
-              <FeaturedListingCard listing={listing} />
-            </li>
-          ))}
-        </ul>
+        <div className="w-full max-w-full overflow-x-auto pb-2 md:overflow-visible">
+          <ul className="mt-3 md:mt-10 flex gap-4 md:grid md:grid-cols-2 md:gap-6 lg:grid-cols-5">
+            {listings.map((listing) => (
+              <li key={listing.id} className="w-[230px] shrink-0 md:w-auto md:shrink">
+                <FeaturedListingCard listing={listing} />
+              </li>
+            ))}
+          </ul>
+        </div>
       </div>
     </section>
   );

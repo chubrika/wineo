@@ -29,9 +29,7 @@ export function RegionSection() {
       .then((list) => {
         if (cancelled) return;
         const ordered = [...(list as RegionCardItem[])];
-        console.log(ordered);
         const firstSix = ordered.sort((a, b) => (a.index ?? Number.MAX_SAFE_INTEGER) - (b.index ?? Number.MAX_SAFE_INTEGER)).slice(0, 5);
-        console.log(firstSix);
         setRegions(firstSix);
         if (firstSix[0]?.slug) setSelectedRegionSlug(firstSix[0].slug);
       })
@@ -56,16 +54,16 @@ export function RegionSection() {
 
   return (
     <section
-      className="border-b border-zinc-200 py-14 sm:py-18 bg-[#f5f6f8]"
+      className="border-b border-zinc-200 py-8 md:py-14 sm:py-18 bg-[#f5f6f8]"
       aria-labelledby="regions-heading"
     >
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <h2 id="regions-heading" className="text-2xl font-bold tracking-tight wineo-red sm:text-3xl">
+        <h2 id="regions-heading" className="text-md md:text-2xl font-bold tracking-tight wineo-red sm:text-3xl">
           რეგიონებით ძებნა
         </h2>
 
         {/* იყიდე / იქირავე toggle */}
-        <div className="mt-6 flex items-center gap-2" role="group" aria-label="Listing type">
+        <div className="mt-4 md:mt-6 flex items-center gap-2" role="group" aria-label="Listing type">
           <button
             type="button"
             onClick={() => setListingType("buy")}
@@ -96,7 +94,7 @@ export function RegionSection() {
           </p>
         )}
         {!loading && regions.length > 0 && selectedRegion && (
-          <div className="mt-8 grid gap-8 lg:grid-cols-2 lg:items-start">
+          <div className="mt-6 md:mt-8 grid gap-6 md:gap-8 lg:grid-cols-2 lg:items-start">
             <div className="relative bg-white p-3 rounded-lg border border-zinc-200 shadow-lg">
               <div
                 className="min-h-[360px] w-full bg-cover bg-center sm:min-h-[420px]"

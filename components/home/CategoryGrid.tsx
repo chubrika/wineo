@@ -21,14 +21,28 @@ export function CategoryGrid() {
   const [categoryLevelStack, setCategoryLevelStack] = useState<CategoryTreeNode[][]>([]);
   const [modalTitle, setModalTitle] = useState("");
   const [showAllCategories, setShowAllCategories] = useState(false);
+  const [isMobile, setIsMobile] = useState(
+    () => typeof window !== "undefined" && window.matchMedia("(max-width: 639px)").matches
+  );
   const categoryDropdownRefModal = useRef<HTMLDivElement>(null);
 
   const INITIAL_CATEGORIES_COUNT = 6;
 
   const categoryTree = useMemo(() => buildCategoryTree(categoriesApi), [categoriesApi]);
   const roots = categoryTree;
-  const visibleRoots = showAllCategories ? roots : roots.slice(0, INITIAL_CATEGORIES_COUNT);
-  const hasMoreCategories = roots.length > INITIAL_CATEGORIES_COUNT;
+  const visibleRoots = isMobile || showAllCategories ? roots : roots.slice(0, INITIAL_CATEGORIES_COUNT);
+  const hasMoreCategories = !isMobile && roots.length > INITIAL_CATEGORIES_COUNT;
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia("(max-width: 639px)");
+    const handleChange = (event: MediaQueryListEvent) => setIsMobile(event.matches);
+
+    mediaQuery.addEventListener("change", handleChange);
+
+    return () => {
+      mediaQuery.removeEventListener("change", handleChange);
+    };
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -76,16 +90,34 @@ export function CategoryGrid() {
 
   return (
     <section
-      className="border-b border-zinc-200 bg-[#f5f6f8] py-14 sm:py-18"
+      className="border-b border-zinc-200 bg-[#f5f6f8] py-8 md:py-14"
       aria-labelledby="categories-heading"
     >
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <h2 id="categories-heading" className="text-2xl font-bold tracking-tight wineo-red sm:text-3xl">
-          მოძებნეთ კატეგორიით
-        </h2>
-        <p className="mt-2 text-zinc-600">
-          მოძებნეთ აღჭურვილობები და მიწები კატეგორიით.
-        </p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 id="categories-heading" className="text-md md:text-2xl font-bold tracking-tight wineo-red sm:text-3xl">
+              მოძებნეთ კატეგორიით
+          </h2>
+            <p className="mt-2 text-xs md:text-sm text-zinc-600">
+              მოძებნეთ აღჭურვილობები და მიწები კატეგორიით.
+            </p>
+        </div>
+        {hasMoreCategories && (
+              <div className="flex justify-center hidden md:block">
+                <button
+                  type="button"
+                  onClick={() => setShowAllCategories((prev) => !prev)}
+                  className="flex items-center cursor-pointer justify-center wineo-red gap-2 px-5 py-2.5 text-sm font-medium text-zinc-700 transition"
+                >
+                  {showAllCategories ? "აკეცვა" : "ყველას ჩვენება"}
+                  {showAllCategories ? <ChevronUpIcon className="h-5 w-5 shrink-0 wineo-red" aria-hidden /> : <ChevronDownIcon className="h-5 w-5 shrink-0 wineo-red" aria-hidden />}
+                </button>
+              </div>
+            )}
+      </div>
+
+     
 
         {/* იყიდე / იქირავე toggle */}
         <div className="mt-6 flex items-center gap-2" role="group" aria-label="Listing type">
@@ -125,32 +157,23 @@ export function CategoryGrid() {
         )}
         {!loading && !error && roots.length > 0 && (
           <>
-            <ul className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <ul className="mt-8 flex gap-2 md:gap-3 overflow-x-auto pb-2 sm:grid sm:grid-cols-2 sm:gap-3 sm:overflow-visible sm:pb-0 lg:grid-cols-3">
               {visibleRoots.map((node) => (
-                <li key={node.id}>
+                <li key={node.id} className=" shrink-0 sm:min-w-0 sm:shrink">
                   <button
                     type="button"
                     onClick={() => handleCategoryClick(node)}
-                    className="flex w-full cursor-pointer border-l-3 border-l-[#8a052d] items-center justify-between rounded-xl border border-zinc-200 bg-zinc-50/50 px-5 py-4 text-left text-zinc-900 transition hover:border-zinc-300 hover:bg-zinc-100"
+                    className="group relative flex w-full cursor-pointer items-center justify-between gap-2 overflow-hidden rounded-full border border-zinc-200/90 bg-white px-4 py-2.5 text-left text-zinc-900 transition-all duration-200 hover:-translate-y-0.5 hover:border-[#8a052d]/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#8a052d]/40 focus-visible:ring-offset-2 sm:gap-4 sm:rounded-2xl sm:px-5 sm:py-4 sm:shadow-[0_2px_10px_rgba(24,24,27,0.04)] sm:hover:shadow-[0_10px_24px_rgba(138,5,45,0.12)]"
+                    aria-label={`${node.name} კატეგორია`}
                   >
-                    <span className="font-medium">{node.name}</span>
-                    <ChevronRightIcon className="h-5 w-5 shrink-0 text-zinc-400" aria-hidden />
+                    <span className="relative text-sm font-normal md:font-semibold tracking-tight text-zinc-700 sm:pl-2 sm:text-base">{node.name}</span>
+                    <span className="hidden h-8 w-8 shrink-0 items-center justify-center rounded-full bg-zinc-100 text-zinc-500 transition-colors group-hover:bg-[#8a052d]/10 group-hover:text-[#8a052d] sm:inline-flex">
+                      <ChevronRightIcon className="h-4 w-4" aria-hidden />
+                    </span>
                   </button>
                 </li>
               ))}
             </ul>
-            {hasMoreCategories && (
-              <div className="mt-4 flex justify-center">
-                <button
-                  type="button"
-                  onClick={() => setShowAllCategories((prev) => !prev)}
-                  className="rounded-md border flex items-center justify-center gap-2 cursor-pointer border-zinc-200 bg-white px-5 py-2.5 text-sm font-medium text-zinc-700 transition hover:border-zinc-300 hover:bg-zinc-50"
-                >
-                  {showAllCategories ? "აკეცვა" : "ყველას ჩვენება"}
-                  {showAllCategories ? <ChevronUpIcon className="h-5 w-5 shrink-0 text-zinc-400" aria-hidden /> : <ChevronDownIcon className="h-5 w-5 shrink-0 text-zinc-400" aria-hidden />}
-                </button>
-              </div>
-            )}
           </>
         )}
         {!loading && !error && roots.length === 0 && (

@@ -7,9 +7,17 @@ import { ScrollToTopButton } from "./ScrollToTopButton";
 import { HomeLogoLink } from "./HomeLogoLink";
 
 const socialLinks = [
-  { href: "https://www.facebook.com/wineo.ge", icon: Facebook, label: "Facebook" },
+  {
+    href: "https://www.facebook.com/wineo.ge",
+    icon: Facebook,
+    label: "Facebook",
+  },
   { href: "https://instagram.com", icon: Instagram, label: "Instagram" },
-  { href: "https://www.youtube.com/@georgianvineyard", icon: Youtube, label: "YouTube" },
+  {
+    href: "https://www.youtube.com/@georgianvineyard",
+    icon: Youtube,
+    label: "YouTube",
+  },
 ] as const;
 
 const footerSections = [
@@ -32,14 +40,22 @@ export async function Footer() {
       <div className="relative mx-auto max-w-7xl px-4 py-10 pb-20 md:pb-10 sm:px-6 lg:px-8">
         <div className="grid gap-10 md:grid-cols-12 md:items-start">
           <div className="md:col-span-5">
-            <HomeLogoLink className="inline-flex items-center text-base font-semibold tracking-tight text-zinc-900 hover:text-[var(--wineo-red)]">
-              <Image src="/logo.svg" alt="wineo.ge" width={100} height={100} priority />
+            <HomeLogoLink className="inline-flex items-center text-base font-semibold tracking-tight">
+              {/* <Image src="/logo.svg" alt="wineo.ge" width={100} height={100} priority /> */}
+              <div className="text-2xl font-semibold tracking-tight ">
+                <span className="wineo-red">W</span>
+                <span className="text-zinc-900">ineo.ge</span>
+              </div>
             </HomeLogoLink>
             <p className="mt-3 max-w-md text-sm leading-6 text-zinc-600">
-              იყიდე, გაყიდე, იქირავე ან გააქირავე. ყველაფერი მევენახეობაზე და მეღვინეობაზე.
+              იყიდე, გაყიდე, იქირავე ან გააქირავე. ყველაფერი მევენახეობაზე და
+              მეღვინეობაზე.
             </p>
 
-            <ul className="mt-5 flex flex-wrap items-center gap-3" aria-label="Social links">
+            <ul
+              className="mt-5 flex flex-wrap items-center gap-3"
+              aria-label="Social links"
+            >
               {socialLinks.map(({ href, icon: Icon, label }) => (
                 <li key={label}>
                   <Link
@@ -49,7 +65,11 @@ export async function Footer() {
                     className="inline-flex h-10 w-10 items-center justify-center rounded-full text-zinc-500 ring-1 ring-zinc-200 transition hover:text-[var(--wineo-red)] hover:ring-zinc-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--wineo-red)] focus-visible:ring-offset-2"
                   >
                     <span className="sr-only">{label}</span>
-                    <Icon className="h-5 w-5" strokeWidth={2} aria-hidden="true" />
+                    <Icon
+                      className="h-5 w-5"
+                      strokeWidth={2}
+                      aria-hidden="true"
+                    />
                   </Link>
                 </li>
               ))}
@@ -60,7 +80,9 @@ export async function Footer() {
             <div className="grid gap-8 grid-cols-2">
               {footerSections.map((section) => (
                 <nav key={section.title} aria-label={section.title}>
-                  <h2 className="text-sm font-semibold text-zinc-900">{section.title}</h2>
+                  <h2 className="text-sm font-semibold text-zinc-900">
+                    {section.title}
+                  </h2>
                   <ul className="mt-4 space-y-2">
                     {section.links.map((link) => (
                       <li key={link.href}>
@@ -77,7 +99,9 @@ export async function Footer() {
               ))}
 
               <nav aria-label="გვერდები">
-                <h2 className="text-sm font-semibold text-zinc-900">გვერდები</h2>
+                <h2 className="text-sm font-semibold text-zinc-900">
+                  გვერდები
+                </h2>
                 <ul className="mt-4 space-y-2">
                   {cmsPages.map((page) => (
                     <li key={page.id}>
@@ -96,7 +120,9 @@ export async function Footer() {
         </div>
 
         <div className="mt-10 border-t border-zinc-200 pt-6 md:pt-10">
-          <p className="text-sm text-zinc-500">© {year} {SITE_NAME}. ყველა უფლება დაცულია.</p>
+          <p className="text-sm text-zinc-500">
+            © {year} {SITE_NAME}. ყველა უფლება დაცულია.
+          </p>
         </div>
 
         <ScrollToTopButton className="absolute bottom-17 md:bottom-6 right-4 sm:right-6" />

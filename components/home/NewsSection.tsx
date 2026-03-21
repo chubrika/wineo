@@ -9,20 +9,20 @@ export async function NewsSection() {
 
   return (
     <section
-      className="border-b border-zinc-200 bg-zinc-50/50 py-14 sm:py-18"
+      className="border-b border-zinc-200 bg-zinc-50/50 py-8 md:py-14 sm:py-18"
       aria-labelledby="news-heading"
     >
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+        <div className="flex items-center justify-between">
           <div>
-            <h2 id="news-heading" className="text-2xl font-bold tracking-tight wineo-red sm:text-3xl">
+            <h2 id="news-heading" className="text-md md:text-2xl font-bold tracking-tight wineo-red sm:text-3xl">
               სიახლეები
             </h2>
           </div>
           {items.length > 0 && (
             <Link
               href="/news"
-              className="mt-4 shrink-0 text-sm font-medium wineo-red hover:underline sm:mt-0"
+              className="shrink-0 text-sm font-medium wineo-red hover:underline sm:mt-0"
             >
               ყველა სიახლე →
             </Link>
@@ -32,10 +32,14 @@ export async function NewsSection() {
         {items.length === 0 ? (
           <p className="mt-10 text-zinc-500">სიახლეები ჯერ არ არის.</p>
         ) : (
-          <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-            {items.map((item) => (
-              <NewsCard key={item.id ?? item._id} item={item} />
-            ))}
+          <div className="w-full max-w-full overflow-x-auto pb-2 md:overflow-visible">
+            <div className="mt-6 md:mt-10 flex gap-4 md:grid md:grid-cols-2 md:gap-6 lg:grid-cols-4">
+              {items.map((item) => (
+                <div key={item.id ?? item._id} className="w-[230px] shrink-0 md:w-auto md:shrink">
+                  <NewsCard item={item} />
+                </div>
+              ))}
+            </div>
           </div>
         )}
       </div>
