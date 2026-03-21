@@ -29,7 +29,13 @@ export function RegionSection() {
       .then((list) => {
         if (cancelled) return;
         const ordered = [...(list as RegionCardItem[])];
-        const firstSix = ordered.sort((a, b) => (a.index ?? Number.MAX_SAFE_INTEGER) - (b.index ?? Number.MAX_SAFE_INTEGER)).slice(0, 5);
+        const firstSix = ordered
+          .sort(
+            (a, b) =>
+              (a.index ?? Number.MAX_SAFE_INTEGER) -
+              (b.index ?? Number.MAX_SAFE_INTEGER),
+          )
+          .slice(0, 5);
         setRegions(firstSix);
         if (firstSix[0]?.slug) setSelectedRegionSlug(firstSix[0].slug);
       })
@@ -50,7 +56,8 @@ export function RegionSection() {
   const baseHref = listingType === "buy" ? "/buy" : "/rent";
   const featuredRegions = regions;
   const selectedRegion =
-    featuredRegions.find((region) => region.slug === selectedRegionSlug) ?? featuredRegions[0];
+    featuredRegions.find((region) => region.slug === selectedRegionSlug) ??
+    featuredRegions[0];
 
   return (
     <section
@@ -58,34 +65,43 @@ export function RegionSection() {
       aria-labelledby="regions-heading"
     >
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <h2 id="regions-heading" className="text-md md:text-2xl font-bold tracking-tight wineo-red sm:text-3xl">
-          რეგიონებით ძებნა
-        </h2>
+        <div className="flex flex-col md:flex-row items-start md:items-center justify-between">
+          <h2
+            id="regions-heading"
+            className="text-md md:text-2xl font-bold tracking-tight wineo-red sm:text-3xl"
+          >
+            რეგიონებით ძებნა
+          </h2>
 
-        {/* იყიდე / იქირავე toggle */}
-        <div className="mt-4 md:mt-6 flex items-center gap-2" role="group" aria-label="Listing type">
-          <button
-            type="button"
-            onClick={() => setListingType("buy")}
-            className={`rounded-lg px-4 py-2.5 text-sm font-medium transition ${
-              listingType === "buy"
-                ? "bg-[#8a052d] text-white"
-                : "bg-zinc-100 text-zinc-600 hover:bg-zinc-200"
-            }`}
+          {/* იყიდე / იქირავე toggle */}
+          <div
+            className="mt-4 md:mt-6 flex items-center gap-2"
+            role="group"
+            aria-label="Listing type"
           >
-            იყიდე
-          </button>
-          <button
-            type="button"
-            onClick={() => setListingType("rent")}
-            className={`rounded-lg px-4 py-2.5 text-sm font-medium transition ${
-              listingType === "rent"
-                ? "bg-[#8a052d] text-white"
-                : "bg-zinc-100 text-zinc-600 hover:bg-zinc-200"
-            }`}
-          >
-            იქირავე
-          </button>
+            <button
+              type="button"
+              onClick={() => setListingType("buy")}
+              className={`rounded-lg px-4 py-2.5 text-sm font-medium transition ${
+                listingType === "buy"
+                  ? "bg-[#8a052d] text-white"
+                  : "bg-zinc-100 text-zinc-600 hover:bg-zinc-200"
+              }`}
+            >
+              იყიდე
+            </button>
+            <button
+              type="button"
+              onClick={() => setListingType("rent")}
+              className={`rounded-lg px-4 py-2.5 text-sm font-medium transition ${
+                listingType === "rent"
+                  ? "bg-[#8a052d] text-white"
+                  : "bg-zinc-100 text-zinc-600 hover:bg-zinc-200"
+              }`}
+            >
+              იქირავე
+            </button>
+          </div>
         </div>
 
         {loading && (
@@ -98,7 +114,11 @@ export function RegionSection() {
             <div className="relative bg-white p-3 rounded-lg border border-zinc-200 shadow-lg">
               <div
                 className="min-h-[360px] w-full bg-cover bg-center sm:min-h-[420px]"
-                style={selectedRegion.image ? { backgroundImage: `url("${selectedRegion.image}")` } : undefined}
+                style={
+                  selectedRegion.image
+                    ? { backgroundImage: `url("${selectedRegion.image}")` }
+                    : undefined
+                }
                 aria-label={selectedRegion.label}
                 role="img"
               />
@@ -107,14 +127,17 @@ export function RegionSection() {
                   {selectedRegion.label}
                 </h3>
                 {selectedRegion.shortDesc ? (
-                  <p className="mt-2 text-xs italic text-zinc-600">&quot;{selectedRegion.shortDesc}&quot;</p>
+                  <p className="mt-2 text-xs italic text-zinc-600">
+                    &quot;{selectedRegion.shortDesc}&quot;
+                  </p>
                 ) : null}
               </div>
             </div>
 
             <div>
               <p className="text-zinc-700 text-sm whitespace-pre-line">
-                {selectedRegion.description || "აღწერა დროებით არ არის ხელმისაწვდომი."}
+                {selectedRegion.description ||
+                  "აღწერა დროებით არ არის ხელმისაწვდომი."}
               </p>
 
               <ul className="mt-6 space-y-3">
@@ -132,7 +155,10 @@ export function RegionSection() {
                         }`}
                       >
                         {region.largeTitle || region.label}
-                        <ChevronRightIcon className="h-5 w-5 shrink-0 text-zinc-400" aria-hidden />
+                        <ChevronRightIcon
+                          className="h-5 w-5 shrink-0 text-zinc-400"
+                          aria-hidden
+                        />
                       </button>
                     </li>
                   );
