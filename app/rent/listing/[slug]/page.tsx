@@ -93,7 +93,12 @@ export default async function RentListingPage({ params }: Props) {
           ? `${discountedPriceNum.toLocaleString("en-US", { maximumFractionDigits: 2 })} ₾`
           : `$${discountedPriceNum.toLocaleString("en-US", { maximumFractionDigits: 2 })}`
       : null;
-
+  const discountPercentLabel =
+    typeof listing.discountedPercent === "number" &&
+    Number.isFinite(listing.discountedPercent) &&
+    listing.discountedPercent > 0
+      ? Number(listing.discountedPercent.toFixed(2)).toString()
+      : null; 
   const productJsonLd = listingToProductJsonLd(listing, SITE_URL);
 
   const images =
@@ -180,9 +185,10 @@ export default async function RentListingPage({ params }: Props) {
         {/* Right: price + add to favorites — hidden on mobile (shown in fixed bar) */}
         <div className="hidden lg:col-span-3 lg:block">
           <div className="rounded-xl border border-zinc-200 bg-white p-6 md:sticky md:top-[72px]">
-            <div>
+            <div className="flex items-center gap-2">
               <p className="text-2xl font-semibold text-zinc-900">{discountedPrice ?? price}</p>
               {hasDiscount && <p className="text-sm text-zinc-500 line-through">{price}</p>}
+              {discountPercentLabel && <p className="text-xs bg-red-500 text-white rounded-full px-2 py-1">{discountPercentLabel}%</p>}
             </div>
 
             {listing.ownerPhone && (
@@ -209,6 +215,7 @@ export default async function RentListingPage({ params }: Props) {
         <div>
           <p className="text-lg font-semibold text-zinc-900">{discountedPrice ?? price}</p>
           {hasDiscount && <p className="text-xs text-zinc-500 line-through">{price}</p>}
+          {discountPercentLabel && <p className="text-xs bg-red-500 text-white rounded-full px-2 py-1">{discountPercentLabel}%</p>}
         </div>
         <div className="flex items-center gap-2">
         {listing.ownerPhone && (
