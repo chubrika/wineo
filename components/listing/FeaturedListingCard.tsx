@@ -51,9 +51,14 @@ export function FeaturedListingCard({ listing }: FeaturedListingCardProps) {
   const discountedLabel = hasDiscount
     ? formatListingPriceValue(listing.discountedPrice as number, listing)
     : null;
-
+  const discountPercentLabel =
+    typeof listing.discountedPercent === "number" &&
+    Number.isFinite(listing.discountedPercent) &&
+    listing.discountedPercent > 0
+      ? Number(listing.discountedPercent.toFixed(2)).toString()
+      : null; 
   return (
-    <article className="group relative overflow-hidden rounded-xl border border-zinc-200 bg-white hover:border-zinc-300">
+    <article className="group relative overflow-hidden bg-white">
       <div className="absolute right-5 top-5 z-10">
         <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-500 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-white">
           <svg className="h-3.5 w-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} aria-hidden>
@@ -68,7 +73,7 @@ export function FeaturedListingCard({ listing }: FeaturedListingCardProps) {
             alt={listing.imageAlt}
             width={1200}
             height={943}
-            className="object-cover rounded-md transition-transform group-hover:scale-105"
+            className="object-cover"
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           />
           <span className="absolute left-5 top-5 rounded-full bg-white/90 px-2.5 py-0.5 text-xs font-medium capitalize text-zinc-800">
@@ -76,21 +81,18 @@ export function FeaturedListingCard({ listing }: FeaturedListingCardProps) {
           </span>
         </div>
         <div className="p-4">
-          <h2 className="text-sm font-semibold text-zinc-900 line-clamp-2">
-            {listing.title}
-          </h2>
-          {listing.location && (
-            <p className="mt-1 text-xs text-zinc-500">{listing.location}</p>
-          )}
-          <div className="border-t border-zinc-200 mt-4"></div>
-          <div className="mt-4">
+          <div className="flex items-center gap-2 mt-2 mb-2">
             <p className="text-md font-semibold text-zinc-900">
               {discountedLabel ?? priceLabel}
             </p>
             {hasDiscount && (
-              <p className="text-xs text-zinc-500 line-through">{priceLabel}</p>
+              <p className="text-md text-zinc-500 line-through">{priceLabel}</p>
             )}
+            {discountPercentLabel && <p className="text-xs bg-red-500 text-white rounded-full px-2 py-1">{discountPercentLabel}%</p>}
           </div>
+          <h2 className="text-sm font-semibold text-zinc-900 line-clamp-2">
+            {listing.title}
+          </h2>
         </div>
       </Link>
     </article>
