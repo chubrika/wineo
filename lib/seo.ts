@@ -323,7 +323,12 @@ export function truncateForMeta(text: string, maxLength: number = 160): string {
 
 /** Format listing price for meta/snippet (buy: "1,500 ₾", rent: "1,500 ₾ - დღე"). */
 export function formatListingPriceForMeta(listing: Listing): string {
-  const value = Number(listing.price);
+  const hasDiscountedPrice =
+    typeof listing.discountedPrice === "number" &&
+    Number.isFinite(listing.discountedPrice) &&
+    listing.discountedPrice >= 0 &&
+    listing.discountedPrice < listing.price;
+  const value = hasDiscountedPrice ? Number(listing.discountedPrice) : Number(listing.price);
   const num = Number.isFinite(value) ? value : 0;
   const formatted = num.toLocaleString("en-US", { maximumFractionDigits: 0 });
   const currencySymbol = (listing.currency || "GEL").toUpperCase() === "GEL" ? "₾" : "$";

@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { getLatestListings } from "@/lib/listings";
 import { ListingCard } from "@/components/listing";
 export const metadata: Metadata = {
-  title: "All Listings",
+  title: "ყველა განცხადება",
   description: "Browse all winemaking equipment and vineyard listings. Buy or rent.",
 };
 

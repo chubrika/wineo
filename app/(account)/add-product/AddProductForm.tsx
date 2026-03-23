@@ -634,11 +634,8 @@ export function AddProductForm({
   /** Preview data for the listing card: thumbnail from first image, then form fields */
   const previewThumbnail =
     uploadedImages[0]?.preview ?? thumbnail?.trim() ?? "";
-  const previewPriceLabel = (() => {
+  const formatPreviewPriceValue = (value: number) => {
     const sym = currency === "GEL" ? "₾" : "$";
-    if (priceType === "negotiable") return "შეთანხმებით";
-    const value = price.trim() ? Number(price) : 0;
-    if (Number.isNaN(value)) return "—";
     const formatted = value.toLocaleString("en-US", { maximumFractionDigits: 0 });
     if (type === "rent" && rentPeriod) {
       const unitLabel =
@@ -654,7 +651,26 @@ export function AddProductForm({
       return `${formatted} ${sym} - ${unitLabel}`;
     }
     return `${formatted} ${sym}`;
-  })();
+  };
+  const previewPriceValue = price.trim() ? Number(price) : 0;
+  const previewDiscountedPriceValue =
+    discountedPrice.trim() !== "" ? Number(discountedPrice) : Number.NaN;
+  const previewHasDiscount =
+    priceType === "fixed" &&
+    !Number.isNaN(previewPriceValue) &&
+    previewPriceValue > 0 &&
+    !Number.isNaN(previewDiscountedPriceValue) &&
+    previewDiscountedPriceValue >= 0 &&
+    previewDiscountedPriceValue < previewPriceValue;
+  const previewPriceLabel =
+    priceType === "negotiable"
+      ? "შეთანხმებით"
+      : Number.isNaN(previewPriceValue)
+        ? "—"
+        : formatPreviewPriceValue(previewPriceValue);
+  const previewDiscountedPriceLabel = previewHasDiscount
+    ? formatPreviewPriceValue(previewDiscountedPriceValue)
+    : null;
   const previewLocation =
     [selectedRegion?.label, selectedCity?.label].filter(Boolean).join(", ") || null;
 
@@ -674,7 +690,9 @@ export function AddProductForm({
         <h2 className="text-sm font-semibold text-zinc-900 normal-font">ძირითადი ინფორმაცია</h2>
         <div className="mt-4 space-y-4">
           <div>
-            <label htmlFor="title" className={labelClass}>სათაური</label>
+            <label htmlFor="title" className={labelClass}>
+              სათაური <span className="text-red-500">*</span>
+            </label>
             <input
               id="title"
               type="text"
@@ -688,7 +706,9 @@ export function AddProductForm({
             />
           </div>
           <div>
-            <label htmlFor="description" className={labelClass}>აღწერა</label>
+            <label htmlFor="description" className={labelClass}>
+              აღწერა <span className="text-red-500">*</span>
+            </label>
             <SimpleEditor
               id="description"
               value={description}
@@ -699,7 +719,9 @@ export function AddProductForm({
             />
           </div>
           <div>
-            <label htmlFor="phone" className={labelClass}>საკონტაქტო ნომერი</label>
+            <label htmlFor="phone" className={labelClass}>
+              საკონტაქტო ნომერი <span className="text-red-500">*</span>
+            </label>
             <input
               id="phone"
               type="tel"
@@ -739,7 +761,9 @@ export function AddProductForm({
       <section className="rounded-xl border border-zinc-200 bg-white p-4">
         <h2 className="text-sm font-semibold text-zinc-900 normal-font">კატეგორია</h2>
         <div className="mt-4">
-          <label htmlFor="categoryId" className={labelClass}>კატეგორია</label>
+          <label htmlFor="categoryId" className={labelClass}>
+            კატეგორია <span className="text-red-500">*</span>
+          </label>
           <div ref={categoryDropdownRef} className="relative mt-1">
             <button
               type="button"
@@ -885,7 +909,9 @@ export function AddProductForm({
             <div className="grid gap-3 sm:grid-cols-2">
               <div className="flex items-end">
                 <div className="flex-1">
-              <label htmlFor="price" className={labelClass}>ფასი</label>
+              <label htmlFor="price" className={labelClass}>
+                საწყისი ფასი {priceType === "fixed" ? <span className="text-red-500">*</span> : null}
+              </label>
               <input
                 id="price"
                 type="number"
@@ -944,7 +970,7 @@ export function AddProductForm({
                 </div>
               </div>
               <div>
-                <label htmlFor="discountedPrice" className={labelClass}>ფასდაკლება</label>
+                <label htmlFor="discountedPrice" className={labelClass}>ფასდაკლებული ფასი</label>
                 <div className="flex items-end">
                   <input
                     id="discountedPrice"
@@ -966,7 +992,9 @@ export function AddProductForm({
           </div>
           {type === "rent" && (
             <div>
-              <label htmlFor="rentPeriod" className={labelClass}>ქირის პერიოდი</label>
+              <label htmlFor="rentPeriod" className={labelClass}>
+                ქირის პერიოდი <span className="text-red-500">*</span>
+              </label>
               <select
                 id="rentPeriod"
                 required={type === "rent"}
@@ -988,7 +1016,9 @@ export function AddProductForm({
         <h2 className="text-sm font-semibold text-zinc-900 normal-font">მდებარეობა</h2>
         <div className="mt-4 grid gap-4 sm:grid-cols-2">
           <div>
-            <label htmlFor="regionId" className={labelClass}>რეგიონი</label>
+            <label htmlFor="regionId" className={labelClass}>
+              რეგიონი <span className="text-red-500">*</span>
+            </label>
             <select
               id="regionId"
               required
@@ -1003,7 +1033,9 @@ export function AddProductForm({
             </select>
           </div>
           <div>
-            <label htmlFor="cityId" className={labelClass}>ქალაქი</label>
+            <label htmlFor="cityId" className={labelClass}>
+              ქალაქი <span className="text-red-500">*</span>
+            </label>
             <select
               id="cityId"
               required
@@ -1097,7 +1129,7 @@ export function AddProductForm({
         </div>
       </section> */}
 
-      <div className="flex gap-3 rounded-xl border border-zinc-200 bg-white p-4">
+      <div className="flex gap-3 justify-between text-sm rounded-xl border border-zinc-200 bg-white p-4">
         <button
           type="button"
           onClick={() => router.back()}
@@ -1110,13 +1142,13 @@ export function AddProductForm({
           disabled={submitting}
           className="rounded-lg bg-[var(--nav-link-active)] px-4 py-2.5 font-medium text-white hover:opacity-90 disabled:opacity-60"
         >
-          {submitting ? "შენახვა…" : productId ? "ცვლილებების შენახვა" : "განცხადების დამატება"}
+          {submitting ? "შენახვა…" : productId ? "შენახვა" : "გამოქვეყნება"}
         </button>
       </div>
       </form>
 
     {/* Dynamic listing preview — updates as you fill the form and choose photos */}
-    <div className="w-[300px] shrink-0 sticky top-4 self-start hidden md:block">
+    <div className="w-[300px] shrink-0 sticky top-20 self-start hidden md:block">
       <article
         className={`overflow-hidden rounded-xl border bg-white ${
           promotionType === "highlighted"
@@ -1169,10 +1201,21 @@ export function AddProductForm({
           )}
           <div className="border-t border-zinc-200 mt-4" />
           <div className="mt-3 flex justify-between items-center">
-            <p className="text-md font-medium text-zinc-900">{previewPriceLabel}</p>
+            <div className="flex items-center gap-2">
+              <p className="text-md font-medium text-zinc-900">
+                {previewDiscountedPriceLabel ?? previewPriceLabel}
+              </p>
+              {previewHasDiscount && (
+                <p className="text-xs text-zinc-500 line-through">{previewPriceLabel}</p>
+              )}
+            </div>
+            {discountedPercent && <p className="text-xs bg-red-500 text-white rounded-full px-2 py-1">{discountedPercent}%</p>}
           </div>
         </div>
       </article>
+      <div className="text-[13px] text-zinc-700 mt-5">
+            <span>შეავსეთ ყველა სავალდებულო ველი რომელიც მონიშნულია <span className="text-red-500">*</span>-ით</span>
+      </div>
     </div>
   </div>
   );
