@@ -359,7 +359,7 @@ export async function getProducts(params?: GetProductsParams): Promise<ApiProduc
   if (params?.skip != null) search.set("skip", String(params.skip));
   if (params?.priceMin != null) search.set("priceMin", String(params.priceMin));
   if (params?.priceMax != null) search.set("priceMax", String(params.priceMax));
-  if (params?.regionSlug) search.set("regionSlug", params.regionSlug);
+  if (params?.regionSlug) search.set("region", params.regionSlug);
   if (params?.attributeFilters && typeof params.attributeFilters === "object") {
     for (const [key, value] of Object.entries(params.attributeFilters)) {
       if (!key || value === undefined) continue;

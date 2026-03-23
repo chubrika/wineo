@@ -593,7 +593,7 @@ export function AddProductForm({
       currency,
       priceType,
       ...(type === "rent" && rentPeriod ? { rentPeriod } : {}),
-      location: { region: selectedRegion.label, city: selectedCity.label },
+      location: { region: selectedRegion.slug, city: selectedCity.label },
       ...(isEditMode
         ? {
             ...(existingUrls.length > 0 ? { images: existingUrls, thumbnail: existingUrls[0] } : {}),
@@ -636,7 +636,7 @@ export function AddProductForm({
     uploadedImages[0]?.preview ?? thumbnail?.trim() ?? "";
   const formatPreviewPriceValue = (value: number) => {
     const sym = currency === "GEL" ? "₾" : "$";
-    const formatted = value.toLocaleString("en-US", { maximumFractionDigits: 0 });
+    const formatted = value.toLocaleString("en-US", { maximumFractionDigits: 2 });
     if (type === "rent" && rentPeriod) {
       const unitLabel =
         rentPeriod === "hour"

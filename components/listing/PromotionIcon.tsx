@@ -18,7 +18,7 @@ export function PromotionIcon({ type }: { type?: PromotionType | null }) {
   }
 
   if (type === "homepageTop") {
-    return <Home className={iconClass} aria-hidden />;
+    return "VIP";
   }
 
   return null;

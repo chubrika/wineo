@@ -9,5 +9,5 @@ export const SORT_OPTIONS: SortOptionConfig[] = [
   { value: "newest", label: "უახლესი" },
   { value: "price_asc", label: "ფასი ზრდადობით" },
   { value: "price_desc", label: "ფასი კლებადობით" },
-  { value: "featured", label: "რეკომენდირული" },
+  { value: "featured", label: "რეკომენდირებული" },
 ];

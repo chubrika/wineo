@@ -96,13 +96,9 @@ export function ListingCard({ listing }: ListingCardProps) {
           <span className="absolute left-5 bottom-5 rounded-full bg-white/90 px-2.5 py-0.5 text-xs font-medium capitalize text-zinc-800">
             {listing.type === "buy" ? "იყიდე" : "იქირავე"}
           </span>
-          {discountPercentLabel != null ? (
-            <span className="absolute left-5 top-5 z-10 inline-flex items-center rounded-full bg-red-600 px-2.5 py-0.5 text-xs font-semibold uppercase tracking-wide text-white">
-              -{discountPercentLabel}%
-            </span>
-          ) : listing.promotionType && listing.promotionType !== "none" ? (
+          {listing.promotionType && listing.promotionType !== "none" ? (
             <span
-              className={`absolute left-5 top-5 z-10 inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-semibold uppercase tracking-wide text-white ${
+              className={`absolute left-5 top-5 z-10 inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-normal uppercase tracking-wide text-white ${
                 listing.promotionType === "homepageTop"
                   ? "bg-purple-600"
                   : listing.promotionType === "featured"
@@ -111,7 +107,15 @@ export function ListingCard({ listing }: ListingCardProps) {
               }`}
             >
               <PromotionIcon type={listing.promotionType} />
-              {listing.promotionType === "homepageTop" ? "VIP" : null}
+            </span>
+          ) : null}
+          {discountPercentLabel != null ? (
+            <span
+              className={`absolute top-5 z-10 inline-flex items-center rounded-full bg-red-600 px-2.5 py-0.5 text-xs font-semibold uppercase tracking-wide text-white ${
+                listing.promotionType && listing.promotionType !== "none" ? "left-16" : "left-5"
+              }`}
+            >
+              -{discountPercentLabel}%
             </span>
           ) : null}
           {listing.specifications && listing.specifications?.condition && (

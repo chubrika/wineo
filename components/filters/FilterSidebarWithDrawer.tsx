@@ -13,7 +13,7 @@ export function FilterSidebarWithDrawer({
 
   return (
     <>
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[16rem_1fr] lg:gap-8">
+      <div className="grid grid-cols-1 gap-2 lg:grid-cols-[16rem_1fr] lg:gap-4">
         {/* Desktop: sticky sidebar */}
         <aside className="hidden lg:block lg:w-64 lg:shrink-0">
           <div className="sticky top-24">

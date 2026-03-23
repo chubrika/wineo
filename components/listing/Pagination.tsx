@@ -39,31 +39,33 @@ export function Pagination({ total, pageSize, state }: PaginationProps) {
       {prevPage ? (
         <Link
           href={`${pathname}${baseQuery(prevPage)}`}
-          className="rounded-lg border border-zinc-200 bg-white px-4 py-2 text-sm font-medium text-zinc-700 shadow-sm transition-colors hover:bg-zinc-50"
+          className="inline-flex items-center rounded-xl border border-zinc-200 bg-white px-4 py-2 text-sm font-medium text-zinc-700 shadow-sm transition-all hover:-translate-y-0.5 hover:border-zinc-300 hover:bg-zinc-50 focus:outline-none focus:ring-2 focus:ring-zinc-300"
         >
-          Previous
+          წინა
         </Link>
       ) : (
-        <span className="rounded-lg border border-zinc-100 bg-zinc-50 px-4 py-2 text-sm text-zinc-400">
-          Previous
+        <span className="inline-flex cursor-not-allowed items-center rounded-xl border border-zinc-100 bg-zinc-50 px-4 py-2 text-sm font-medium text-zinc-400">
+          წინა
         </span>
       )}
 
-      <span className="px-2 text-sm text-zinc-600">
-        Page <span className="font-medium">{currentPage}</span> of{" "}
-        <span className="font-medium">{totalPages}</span>
+      <span className="inline-flex items-center gap-2 rounded-full border border-zinc-200 bg-white px-3 py-1.5 text-sm text-zinc-600 shadow-sm">
+        <span className="text-xs uppercase tracking-wide text-zinc-500">გვერდი</span>
+        <span className="font-semibold text-zinc-900">{currentPage}</span>
+        <span className="text-zinc-400">/</span>
+        <span className="font-medium text-zinc-700">{totalPages}</span>
       </span>
 
       {nextPage ? (
         <Link
           href={`${pathname}${baseQuery(nextPage)}`}
-          className="rounded-lg border border-zinc-200 bg-white px-4 py-2 text-sm font-medium text-zinc-700 shadow-sm transition-colors hover:bg-zinc-50"
+          className="inline-flex items-center rounded-xl border border-zinc-200 bg-white px-4 py-2 text-sm font-medium text-zinc-700 shadow-sm transition-all hover:-translate-y-0.5 hover:border-zinc-300 hover:bg-zinc-50 focus:outline-none focus:ring-2 focus:ring-zinc-300"
         >
-          Next
+          შემდეგი
         </Link>
       ) : (
-        <span className="rounded-lg border border-zinc-100 bg-zinc-50 px-4 py-2 text-sm text-zinc-400">
-          Next
+        <span className="inline-flex cursor-not-allowed items-center rounded-xl border border-zinc-100 bg-zinc-50 px-4 py-2 text-sm font-medium text-zinc-400">
+          შემდეგი
         </span>
       )}
     </nav>

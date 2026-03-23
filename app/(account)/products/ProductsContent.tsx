@@ -2,6 +2,8 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
+import { ChevronDown, CirclePlus, Sparkles, Star } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLoginModal } from "@/contexts/LoginModalContext";
 import { getMyProducts, deleteProduct, type ApiProduct } from "@/lib/api";
@@ -11,9 +13,14 @@ function listingHref(p: ApiProduct): string {
   return `${base}/listing/${p.slug}`;
 }
 
-function formatPrice(p: ApiProduct): string {
+function productImageUrl(p: ApiProduct): string {
+  const firstImage = Array.isArray(p.images) ? p.images[0] : undefined;
+  return p.thumbnail || firstImage || "/wine.png";
+}
+
+function formatPriceValue(p: ApiProduct, amount: number): string {
   const sym = p.currency === "GEL" ? "₾" : "$";
-  const value = p.price.toLocaleString("en-US", { maximumFractionDigits: 0 });
+  const value = amount.toLocaleString("en-US", { maximumFractionDigits: 2 });
   if (p.type === "rent" && p.rentPeriod) {
     const unit =
       p.rentPeriod === "day"
@@ -28,6 +35,10 @@ function formatPrice(p: ApiProduct): string {
     return `${sym}${value}/${unit}`;
   }
   return `${sym}${value}`;
+}
+
+function hasValidDiscount(p: ApiProduct): boolean {
+  return typeof p.discountedPrice === "number" && p.discountedPrice >= 0 && p.discountedPrice < p.price;
 }
 
 function statusLabel(s?: string): string {
@@ -46,7 +57,7 @@ function promotionTypeLabel(type?: string): string {
   const map: Record<string, string> = {
     highlighted: "გამოკვეთილი",
     featured: "რეკომენდირებული",
-    homepageTop: "TOP",
+    homepageTop: "",
   };
   return map[type] ?? type;
 }
@@ -99,25 +110,13 @@ function PromotionIcon({ type }: { type?: string }) {
   const className = "h-4 w-4 shrink-0";
   if (!type || type === "none") return null;
   if (type === "highlighted") {
-    return (
-      <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} aria-hidden>
-        <path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z" />
-      </svg>
-    );
+    return <Sparkles className={className} aria-hidden />;
   }
   if (type === "featured") {
-    return (
-      <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} aria-hidden>
-        <path strokeLinecap="round" strokeLinejoin="round" d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z" />
-      </svg>
-    );
+    return <Star className={className} aria-hidden />;
   }
   if (type === "homepageTop") {
-    return (
-      <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} aria-hidden>
-        <path strokeLinecap="round" strokeLinejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-      </svg>
-    );
+    return 'VIP';
   }
   return null;
 }
@@ -129,6 +128,7 @@ export function ProductsContent() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [expandedProductId, setExpandedProductId] = useState<string | null>(null);
 
   useEffect(() => {
     if (!user) {
@@ -211,7 +211,7 @@ export function ProductsContent() {
     <div className="rounded-xl border border-zinc-200 bg-white p-6 sm:p-8">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <h1 className="text-md md:text-lg nav-font-caps font-bold tracking-tight wineo-red">
-          განცხადებები
+         ჩემი განცხადებები
         </h1>
 
         <div className="flex flex-wrap items-center gap-2">
@@ -231,8 +231,9 @@ export function ProductsContent() {
         </div>
         <Link
           href="/add-product"
-          className="inline-flex shrink-0 items-center justify-center rounded-lg bg-[var(--nav-link-active)] px-4 py-2.5 text-sm font-medium text-white hover:opacity-90"
+          className="flex items-center max-w-[190px] cursor-pointer gap-2 rounded-lg border border-zinc-300 bg-[#8a052d2e] px-3 py-2 text-sm font-medium transition-colors hover:bg-[#8a052d5c] text-[var(--wineo-red)] focus:outline-none"
         >
+          <CirclePlus className="h-5 w-5 shrink-0" />
           ახალი განცხადება
         </Link>
       </div>
@@ -246,7 +247,132 @@ export function ProductsContent() {
           .
         </p>
       ) : (
-        <div className="mt-6 overflow-x-auto">
+        <>
+        <div className="mt-6 space-y-3 md:hidden">
+          {products.map((p) => {
+            const isExpanded = expandedProductId === p.id;
+            return (
+              <div key={p.id} className="rounded-lg border border-zinc-200 bg-white">
+                <div className="flex items-start gap-2 p-3">
+                  <Link
+                    href={listingHref(p)}
+                    className="relative mt-0.5 h-12 w-12 shrink-0 overflow-hidden rounded-md border border-zinc-200 bg-zinc-100"
+                    aria-label={`${p.title} ფოტო`}
+                  >
+                    <Image
+                      src={productImageUrl(p)}
+                      alt={p.title}
+                      fill
+                      sizes="48px"
+                      className="object-cover"
+                    />
+                  </Link>
+                  <div className="min-w-0 flex-1">
+                    <Link
+                      href={listingHref(p)}
+                      className="line-clamp-2 text-sm font-medium text-zinc-900 hover:text-[var(--nav-link-active)]"
+                    >
+                      {p.title}
+                    </Link>
+                    <div className="mt-1 text-sm text-zinc-900">
+                      {hasValidDiscount(p) ? (
+                        <div className="flex flex-col leading-tight">
+                          <span className="text-xs text-zinc-500 line-through">
+                            {formatPriceValue(p, p.price)}
+                          </span>
+                          <span className="font-medium text-[var(--nav-link-active)]">
+                            {formatPriceValue(p, p.discountedPrice as number)}
+                          </span>
+                        </div>
+                      ) : (
+                        formatPriceValue(p, p.price)
+                      )}
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <Link
+                      href={`/products/${p.id}/edit`}
+                      className="rounded p-1.5 text-zinc-500 hover:bg-zinc-100 hover:text-zinc-900"
+                      title="რედაქტირება"
+                      aria-label="რედაქტირება"
+                    >
+                      <EditIcon />
+                    </Link>
+                    <button
+                      type="button"
+                      onClick={() => handleDelete(p)}
+                      disabled={deletingId === p.id}
+                      className="rounded p-1.5 text-zinc-500 hover:bg-red-50 hover:text-red-600 disabled:opacity-50"
+                      title="წაშლა"
+                      aria-label="წაშლა"
+                    >
+                      <DeleteIcon />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setExpandedProductId((prev) => (prev === p.id ? null : p.id))}
+                      className="rounded p-1.5 text-zinc-500 hover:bg-zinc-100 hover:text-zinc-900"
+                      aria-label={isExpanded ? "დეტალების დამალვა" : "დეტალების ჩვენება"}
+                      aria-expanded={isExpanded}
+                    >
+                      <ChevronDown
+                        className={`h-4 w-4 transition-transform ${isExpanded ? "rotate-180" : ""}`}
+                        aria-hidden
+                      />
+                    </button>
+                  </div>
+                </div>
+
+                {isExpanded ? (
+                  <div className="grid grid-cols-2 gap-2 border-t border-zinc-200 px-3 py-2 text-xs">
+                    <div>
+                      <span className="text-zinc-500">ტიპი: </span>
+                      <span className="text-zinc-800">{p.type === "sell" ? "იყიდება" : "ქირავდება"}</span>
+                    </div>
+                    <div>
+                      <span className="text-zinc-500">კატეგორია: </span>
+                      <span className="text-zinc-800">{p.category?.name ?? "—"}</span>
+                    </div>
+                    <div>
+                      <span className="text-zinc-500">მდებარეობა: </span>
+                      <span className="text-zinc-800">{p.location ? `${p.location.city}` : "—"}</span>
+                    </div>
+                    <div>
+                      <span className="text-zinc-500">სტატუსი: </span>
+                      <span className="text-zinc-800">{statusLabel(p.status)}</span>
+                    </div>
+                    <div className="col-span-2 flex items-center gap-2">
+                      <span className="text-zinc-500">პრომოუშენი:</span>
+                      {p.promotionType && p.promotionType !== "none" ? (
+                        <span
+                          className={`inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-xs font-medium ${
+                            p.promotionType === "highlighted"
+                              ? "bg-yellow-100 text-yellow-800"
+                              : p.promotionType === "featured"
+                                ? "bg-amber-100 text-amber-800"
+                                : p.promotionType === "homepageTop"
+                                  ? "bg-purple-50 text-purple-700"
+                                  : "bg-zinc-100 text-zinc-700"
+                          }`}
+                        >
+                          <PromotionIcon type={p.promotionType} />
+                        </span>
+                      ) : (
+                        <span className="text-zinc-800">—</span>
+                      )}
+                    </div>
+                    <div className="col-span-2 pt-1">
+                      <Link href={listingHref(p)} className="text-sm text-[var(--nav-link-active)] hover:underline">
+                        ნახვა
+                      </Link>
+                    </div>
+                  </div>
+                ) : null}
+              </div>
+            );
+          })}
+        </div>
+        <div className="mt-6 hidden overflow-x-auto md:block">
           <table className="min-w-full divide-y divide-zinc-200 text-left text-sm">
             <thead>
               <tr>
@@ -256,14 +382,8 @@ export function ProductsContent() {
                 <th scope="col" className="hidden py-3 pr-4 font-medium text-zinc-900 sm:table-cell">
                   ტიპი
                 </th>
-                <th scope="col" className="hidden py-3 pr-4 font-medium text-zinc-900 md:table-cell">
-                  კატეგორია
-                </th>
                 <th scope="col" className="py-3 pr-4 font-medium text-zinc-900">
                   ფასი
-                </th>
-                <th scope="col" className="hidden py-3 pr-4 font-medium text-zinc-900 md:table-cell">
-                  მდებარეობა
                 </th>
                 <th scope="col" className="py-3 pr-4 font-medium text-zinc-900">
                   სტატუსი
@@ -282,24 +402,36 @@ export function ProductsContent() {
                   <td className="py-3 pr-4">
                     <Link
                       href={listingHref(p)}
-                      className="font-medium text-zinc-900 hover:text-[var(--nav-link-active)]"
+                      className="flex items-center gap-3 font-medium text-zinc-900 hover:text-[var(--nav-link-active)]"
                     >
-                      {p.title}
+                      <span className="relative h-11 w-11 shrink-0 overflow-hidden rounded-md border border-zinc-200 bg-zinc-100">
+                        <Image
+                          src={productImageUrl(p)}
+                          alt={p.title}
+                          fill
+                          sizes="44px"
+                          className="object-cover"
+                        />
+                      </span>
+                      <span className="line-clamp-2">{p.title}</span>
                     </Link>
                   </td>
                   <td className="hidden py-3 pr-4 text-zinc-600 sm:table-cell">
                     {p.type === "sell" ? "იყიდება" : "ქირავდება"}
                   </td>
-                  <td className="hidden py-3 pr-4 text-zinc-600 md:table-cell">
-                    {p.category?.name ?? "—"}
-                  </td>
                   <td className="py-3 pr-4 text-zinc-900">
-                    {formatPrice(p)}
-                  </td>
-                  <td className="hidden py-3 pr-4 text-zinc-600 md:table-cell">
-                    {p.location
-                      ? `${p.location.region}, ${p.location.city}`
-                      : "—"}
+                    {hasValidDiscount(p) ? (
+                      <div className="flex flex-col leading-tight">
+                        <span className="text-xs text-zinc-500 line-through">
+                          {formatPriceValue(p, p.price)}
+                        </span>
+                        <span className="font-medium text-[var(--nav-link-active)]">
+                          {formatPriceValue(p, p.discountedPrice as number)}
+                        </span>
+                      </div>
+                    ) : (
+                      formatPriceValue(p, p.price)
+                    )}
                   </td>
                   <td className="py-3 pr-4">
                     <span
@@ -368,6 +500,7 @@ export function ProductsContent() {
             </tbody>
           </table>
         </div>
+        </>
       )}
     </div>
   );

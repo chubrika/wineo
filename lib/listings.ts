@@ -51,6 +51,10 @@ export function mapApiProductToListing(api: ApiProduct): Listing {
     categorySlug: api.category?.slug,
     // For cards we only need city; keep a simple string.
     location: api.location?.city || undefined,
+    regionSlug:
+      typeof api.location?.region === "string" && api.location.region.trim()
+        ? (api.location.region.trim().toLowerCase() as Listing["regionSlug"])
+        : undefined,
     ownerName: api.ownerName,
     ownerType: api.ownerType,
     ownerPhone: api.ownerPhone,
@@ -215,6 +219,7 @@ export async function searchListings(
       skip: 0,
       ...(type && { type: type === "buy" ? "sell" : "rent" }),
       ...(categorySlug && { categorySlug }),
+      ...(regionSlug && { regionSlug }),
       ...(attributeFilters && Object.keys(attributeFilters).length > 0 && { attributeFilters }),
     });
     let result = list.map(mapApiProductToListing);
@@ -227,8 +232,10 @@ export async function searchListings(
     }
     if (regionSlug) {
       const slugLower = regionSlug.toLowerCase();
-      result = result.filter((l) =>
-        l.location?.toLowerCase().includes(slugLower)
+      result = result.filter(
+        (l) =>
+          l.regionSlug?.toLowerCase() === slugLower ||
+          l.location?.toLowerCase().includes(slugLower)
       );
     }
     if (priceMin != null) {

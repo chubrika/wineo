@@ -58,7 +58,7 @@ export default async function BuyPage({ searchParams }: PageProps) {
       categoryTree={categoryTree}
       regions={regionsRes}
     >
-      <div className="space-y-6">
+      <div className="space-y-2">
         <ListingToolbar
           total={total}
           state={state}
