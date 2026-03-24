@@ -72,8 +72,8 @@ export default async function BuyListingPage({ params }: Props) {
     discountedPriceNum < safePrice;
   const isGEL = (listing.currency || "USD").toUpperCase() === "GEL";
   const price = isGEL
-    ? `${safePrice.toLocaleString("en-US", { maximumFractionDigits: 0 })} ₾`
-    : `$${safePrice.toLocaleString("en-US", { maximumFractionDigits: 0 })}`;
+    ? `${safePrice.toLocaleString("en-US", { maximumFractionDigits: 2 })} ₾`
+    : `$${safePrice.toLocaleString("en-US", { maximumFractionDigits: 2 })}`;
   const discountedPrice = hasDiscount
     ? isGEL
       ? `${discountedPriceNum.toLocaleString("en-US", { maximumFractionDigits: 2 })} ₾`
@@ -198,7 +198,7 @@ export default async function BuyListingPage({ params }: Props) {
       </div>
 
       {/* Mobile: fixed bottom bar with price, call, wishlist */}
-      <div className="fixed bottom-[58px] left-0 right-0 z-40 flex justify-between items-center gap-3 border-t border-zinc-200 bg-white px-4 py-2 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] md:hidden">
+      <div className="fixed bottom-[54px] left-0 right-0 z-40 flex justify-between items-center gap-3 border-t border-zinc-200 bg-white px-4 py-2 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] md:hidden">
         <div className="flex items-center gap-2">
           <p className="text-lg font-semibold text-zinc-900">{discountedPrice ?? price}</p>
           {hasDiscount && <p className="text-xs text-zinc-500 line-through">{price}</p>}

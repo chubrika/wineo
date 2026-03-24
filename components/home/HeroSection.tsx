@@ -145,14 +145,14 @@ export function HeroSection() {
       className="bg-white pt-0 md:pt-5"
       aria-label="Hero"
     >
-     <div className="relative overflow-visible rounded-none md:rounded-md z-10 min-h-[350px] mx-auto max-w-7xl bg-zinc-100 text-zinc-900 md:min-h-[300px] border-b border-zinc-200">
+     <div className="relative overflow-visible rounded-none md:rounded-md z-11 min-h-[350px] mx-auto max-w-7xl bg-zinc-100 text-zinc-900 md:min-h-[300px] border-b border-zinc-200">
        {/* Hero slider: full-bleed background + slides (title, subtitle, CTA per slide) */}
        <div className="absolute inset-0 overflow-hidden rounded-none md:rounded-md">
         <HeroSlider />
       </div>
 
       {/* Search bar overlaid at bottom */}
-      <div ref={searchSectionRef} className="absolute bottom-0 md:bottom-[-60px] left-0 right-0 z-10 px-4 pb-6 sm:px-6 lg:px-8">
+      <div ref={searchSectionRef} className="absolute bottom-0 md:bottom-[-60px] left-0 right-0 z-11 px-4 pb-6 sm:px-6 lg:px-8">
         <div className="mx-auto p-4 max-w-[850px] rounded-md bg-white/80 md:bg-white shadow-lg">
           <button
             type="button"
@@ -381,17 +381,17 @@ export function HeroSection() {
       {/* Filters modal */}
       {filtersModalOpen && (
         <div
-          className="fixed inset-0 z-[60] flex items-end justify-center bg-black/50 p-4 sm:items-center sm:p-0"
+          className="fixed inset-0 z-[60] flex justify-center bg-black/50 p-4 items-center sm:p-0"
           aria-modal="true"
           role="dialog"
           aria-labelledby="filters-modal-title"
           onClick={closeFiltersModal}
         >
           <div
-            className="w-full max-w-lg max-h-[calc(100vh-5rem)] overflow-auto rounded-t-2xl bg-white shadow-xl sm:max-h-[90vh] sm:rounded-2xl"
+            className="w-full max-w-lg max-h-[calc(100vh-5rem)] overflow-auto  bg-white shadow-xl sm:max-h-[90vh] rounded-2xl"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="sticky top-0 z-10 flex items-center justify-between border-b border-zinc-200 bg-white px-4 py-3">
+            <div className="sticky top-0 z-11 flex items-center justify-between border-b border-zinc-200 bg-white px-4 py-3">
               <h2 id="filters-modal-title" className="text-lg font-semibold text-zinc-900">
                 ფილტრები
               </h2>

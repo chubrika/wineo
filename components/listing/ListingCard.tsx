@@ -8,7 +8,6 @@ import { useWishlist } from "@/contexts/WishlistContext";
 import { Heart } from "lucide-react";
 
 function formatPrice(listing: Listing): string {
-  console.log(listing);
   const currencySymbol = listing.currency === "GEL" ? "₾" : "$";
   const value = listing.price.toLocaleString("en-US", {
     maximumFractionDigits: 2,
