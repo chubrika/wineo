@@ -8,10 +8,10 @@ export async function FeaturedListings() {
 
   return (
     <section
-      className="border-b border-zinc-200 bg-white py-8 md:py-14 sm:py-18"
+      className="border-b border-zinc-200 bg-white py-8 md:py-14 sm:py-18 px-4 md:px-0"
       aria-labelledby="featured-heading"
     >
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-7xl">
         <h2 id="featured-heading" className="tex-md md:text-2xl nav-font-caps font-bold tracking-tight wineo-red sm:text-3xl">
           რეკომენდირებული პროდუქტები
         </h2>

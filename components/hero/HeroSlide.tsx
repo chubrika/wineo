@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import type { ApiHeroSlide } from "@/lib/api";
 
 export type HeroSlideProps = {
@@ -18,7 +19,7 @@ export function HeroSlideContent({ slide }: HeroSlideProps) {
   const hasMobileImage = Boolean(slide.mobileImage?.trim());
 
   return (
-    <div className="relative flex min-h-[320px] h-full w-full flex-col justify-start md:justify-center px-4 py-12 text-center md:min-h-[420px] md:py-16">
+    <div className="relative flex min-h-[320px] h-full w-full flex-col justify-start md:justify-center px-4 py-12 text-center md:min-h-[300px] md:py-16">
       {/* Background: picture for responsive + lazy */}
       <div className="absolute inset-0 overflow-hidden">
         {(desktopImage || mobileImage) && (
@@ -29,12 +30,12 @@ export function HeroSlideContent({ slide }: HeroSlideProps) {
                 srcSet={mobileImage}
               />
             )}
-            <img
+            <Image
               src={desktopImage || mobileImage}
               alt={slide.title}
+              fill
               className="absolute inset-0 h-full w-full object-cover"
               loading="lazy"
-              decoding="async"
               sizes="100vw"
             />
           </picture>
@@ -48,9 +49,9 @@ export function HeroSlideContent({ slide }: HeroSlideProps) {
       {/* Content */}
       <div className="relative z-10 mx-auto max-w-2xl">
         {slide.title && (
-          <h1 className="text-xl font-bold tracking-tight text-white drop-shadow-sm sm:text-3xl md:text-4xl lg:text-5xl">
+          <span className="text-lg font-bold tracking-tight text-white drop-shadow-sm sm:text-3xl">
             {slide.title}
-          </h1>
+          </span>
         )}
         {slide.subtitle && (
           <p className="mt-3 text-sm text-white/95 sm:text-base md:mt-4 md:text-lg lg:text-xl">

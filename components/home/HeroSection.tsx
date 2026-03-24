@@ -27,7 +27,7 @@ export function HeroSection() {
   const regionDropdownRef = useRef<HTMLDivElement>(null);
   const regionDropdownRefModal = useRef<HTMLDivElement>(null);
   const searchSectionRef = useRef<HTMLDivElement>(null);
-  const { isOpen: filtersModalOpen, closeFiltersModal } = useFiltersModal();
+  const { isOpen: filtersModalOpen, openFiltersModal, closeFiltersModal } = useFiltersModal();
 
   const categoryTree = useMemo(() => buildCategoryTree(categoriesApi), [categoriesApi]);
 
@@ -142,20 +142,29 @@ export function HeroSection() {
 
   return (
     <section
-      className="relative z-10 min-h-[520px] bg-zinc-100 text-zinc-900 md:min-h-[580px] border-b border-zinc-200"
+      className="bg-white pt-0 md:pt-5"
       aria-label="Hero"
     >
-      {/* Hero slider: full-bleed background + slides (title, subtitle, CTA per slide) */}
-      <div className="absolute inset-0 overflow-hidden">
+     <div className="relative overflow-visible rounded-none md:rounded-md z-10 min-h-[350px] mx-auto max-w-7xl bg-zinc-100 text-zinc-900 md:min-h-[300px] border-b border-zinc-200">
+       {/* Hero slider: full-bleed background + slides (title, subtitle, CTA per slide) */}
+       <div className="absolute inset-0 overflow-hidden rounded-none md:rounded-md">
         <HeroSlider />
       </div>
 
       {/* Search bar overlaid at bottom */}
       <div ref={searchSectionRef} className="absolute bottom-0 md:bottom-[-60px] left-0 right-0 z-10 px-4 pb-6 sm:px-6 lg:px-8">
-        <div className="mx-auto  p-4 max-w-[850px] rounded-md border border-zinc-200 bg-white shadow-lg">
+        <div className="mx-auto p-4 max-w-[850px] rounded-md bg-white/80 md:bg-white shadow-lg">
+          <button
+            type="button"
+            onClick={openFiltersModal}
+            className="md:hidden min-h-[40px] w-full rounded-md cursor-pointer wineo-green-bg px-5 py-2.5 text-sm font-normal text-white transition hover:bg-[#6d0423] flex items-center justify-center"
+          >
+            <FilterIcon className="h-4 w-4 shrink-0 mr-2" />
+            დეტალური ძებნა
+          </button>
         <form
             onSubmit={handleSubmit}
-            className="flex flex-col gap-3 h-full justify-between  sm:flex-row sm:flex-wrap sm:items-end sm:gap-4"
+            className="hidden md:flex flex-col gap-3 h-full justify-between sm:flex-row sm:flex-wrap sm:items-end sm:gap-4"
             role="search"
           >
             <div className="flex items-center justify-between md:justify-start gap-2" role="group" aria-label="Listing type">
@@ -558,6 +567,7 @@ export function HeroSection() {
           </div>
         </div>
       )}
+     </div>
     </section>
   );
 }

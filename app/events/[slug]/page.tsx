@@ -131,7 +131,7 @@ export default async function EventDetailPage({ params }: Props) {
     ev.price != null ? `${ev.price} ${ev.currency || ""}`.trim() : null;
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6 lg:px-8">
+    <div className="mx-auto max-w-7xl py-8 px-4 md:px-0">
       <JsonLd data={jsonLd} />
 
       <Link

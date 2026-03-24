@@ -1,6 +1,6 @@
 "use client";
 
-import { Sparkles, Star, Home } from "lucide-react";
+import { Sparkles, Star } from "lucide-react";
 import type { PromotionType } from "@/types/listing";
 
 const iconClass = "h-3 w-3 shrink-0";

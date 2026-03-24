@@ -114,7 +114,7 @@ export default async function BuyListingPage({ params }: Props) {
       : [];
 
   return (
-    <div className="mx-auto max-w-6xl bg-white px-4 py-8 sm:px-6 lg:px-8">
+    <div className="mx-auto max-w-7xl bg-white px-4 py-8 sm:px-6 lg:px-8">
       <JsonLd data={productJsonLd} />
       <nav className="mb-6 text-sm text-zinc-500" aria-label="Breadcrumb">
         <Link href="/buy" className="hover:text-zinc-700">

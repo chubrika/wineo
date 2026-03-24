@@ -16,7 +16,7 @@ export default async function NewsPage() {
   const { items, total } = await getNewsList({ limit: 50 });
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6 lg:px-8">
+    <div className="mx-auto max-w-7xl py-8 px-4 md:px-0">
       <h1 className="text-3xl font-bold tracking-tight text-zinc-900">
         სიახლეები
       </h1>

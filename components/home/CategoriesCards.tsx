@@ -119,8 +119,8 @@ export function CategoriesCards() {
   if (withIcons.length === 0) return null;
 
   return (
-    <section className="bg-white pb-0 pt-10 md:pt-20">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+    <section className="bg-white pb-0 pt-10 md:pt-20 px-4 md:px-0">
+      <div className="mx-auto max-w-7xl">
         <div className="grid grid-cols-2 gap-2 md:gap-4 sm:grid-cols-3 lg:grid-cols-6">
           {withIcons.map((category) => (
             <CategoryCard

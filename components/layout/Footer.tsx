@@ -2,7 +2,6 @@ import Link from "next/link";
 import { Facebook, Instagram, Youtube } from "lucide-react";
 import { SITE_NAME } from "@/constants/site";
 import { getPages } from "@/lib/api";
-import Image from "next/image";
 import { ScrollToTopButton } from "./ScrollToTopButton";
 import { HomeLogoLink } from "./HomeLogoLink";
 
@@ -37,7 +36,7 @@ export async function Footer() {
 
   return (
     <footer className="border-t border-zinc-200 bg-zinc-50">
-      <div className="relative mx-auto max-w-7xl px-4 py-10 pb-20 md:pb-10 sm:px-6 lg:px-8">
+      <div className="relative mx-auto max-w-7xl py-10 pb-20 md:pb-10 px-4 md:px-0">
         <div className="grid gap-10 md:grid-cols-12 md:items-start">
           <div className="md:col-span-5">
             <HomeLogoLink className="inline-flex items-center text-base font-semibold tracking-tight">

@@ -90,10 +90,10 @@ export function CategoryGrid() {
 
   return (
     <section
-      className="border-b border-zinc-200 bg-[#f5f6f8] py-8 md:py-14"
+      className="border-b border-zinc-200 bg-[#f5f6f8] py-8 md:py-14 px-4 md:px-0"
       aria-labelledby="categories-heading"
     >
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-7xl">
       <div className="flex items-center justify-between">
         <div>
           <h2 id="categories-heading" className="text-md md:text-2xl nav-font-caps font-bold tracking-tight wineo-red sm:text-3xl">

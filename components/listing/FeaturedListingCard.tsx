@@ -67,7 +67,7 @@ export function FeaturedListingCard({ listing }: FeaturedListingCardProps) {
         </span>
       </div>
       <Link href={href} className="block">
-        <div className="relative p-3 rounded-md aspect-[14/11] w-full overflow-hidden">
+        <div className="relative aspect-[14/11] w-full overflow-hidden">
           <Image
             src={listing.imageUrl}
             alt={listing.imageAlt}
@@ -80,7 +80,7 @@ export function FeaturedListingCard({ listing }: FeaturedListingCardProps) {
             {listing.type === "buy" ? "იყიდე" : "იქირავე"}
           </span>
         </div>
-        <div className="p-4">
+        <div className="px-0 py-2">
           <div className="flex items-center gap-2 mt-2 mb-2">
             <p className="text-md font-semibold text-zinc-900">
               {discountedLabel ?? priceLabel}

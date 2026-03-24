@@ -104,7 +104,7 @@ export default async function EventsPage({
   };
 
   return (
-    <div className="mx-auto w-full max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+    <div className="mx-auto w-full max-w-7xl py-8 px-4 md:px-0">
       <div className="mb-6">
         <h1 className="text-3xl font-semibold tracking-tight text-zinc-900">ღონისძიებები</h1>
         <p className="mt-2 max-w-2xl text-sm text-zinc-600">

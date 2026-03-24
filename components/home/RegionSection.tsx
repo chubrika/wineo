@@ -61,10 +61,10 @@ export function RegionSection() {
 
   return (
     <section
-      className="border-b border-zinc-200 py-8 md:py-14 sm:py-18 bg-[#f5f6f8]"
+      className="border-b border-zinc-200 py-8 md:py-14 sm:py-18 bg-[#f5f6f8] px-4 md:px-0"
       aria-labelledby="regions-heading"
     >
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-7xl">
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between">
           <h2
             id="regions-heading"
@@ -122,7 +122,7 @@ export function RegionSection() {
                 aria-label={selectedRegion.label}
                 role="img"
               />
-              <div className="absolute bottom-[-20px] right-[-20px] max-w-[50%] rounded-sm bg-white/95 p-4 shadow-lg backdrop-blur sm:p-5">
+              <div className="absolute bottom-[-20px] right-0 max-w-full md:right-[-20px] max-w-[100%] md:max-w-[50%] rounded-sm bg-white/95 p-4 shadow-lg backdrop-blur sm:p-5">
                 <h3 className="text-base font-semibold text-zinc-900 sm:text-lg">
                   {selectedRegion.label}
                 </h3>

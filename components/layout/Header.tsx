@@ -63,7 +63,7 @@ function getUserDisplayName(firstName: string, lastName: string, email: string) 
 }
 
 function MobileBottomNavIcon({ icon, active }: { icon: string; active: boolean }) {
-  const baseClass = "w-6 h-6 shrink-0";
+  const baseClass = "w-5 h-5 shrink-0";
   const className =
     icon === "add"
       ? `${baseClass} text-[var(--wineo-red)]`
@@ -192,7 +192,7 @@ export function Header() {
   return (
     <>
     <header className="sticky top-0 z-50 border-b border-zinc-200 bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/80">
-      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-3 px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-3 px-4 md:px-0">
         <HomeLogoLink
           className="shrink-0 text-xl font-semibold tracking-tight text-zinc-900"
           onClick={() => setMenuOpen(false)}
@@ -358,7 +358,7 @@ export function Header() {
         aria-hidden={!subheaderVisible}
       >
         <nav
-          className="nav-font-caps mx-auto flex h-12 max-w-7xl items-center justify-between gap-6 px-4 sm:px-6 lg:px-8"
+          className="nav-font-caps mx-auto flex h-12 max-w-7xl items-center justify-between gap-6"
           aria-label="Main navigation"
         >
           <div className="flex items-center gap-6">
@@ -451,69 +451,69 @@ export function Header() {
 
     {/* Mobile bottom navigation */}
     <nav
-      className="fixed bottom-0 left-0 right-0 z-50 flex items-center justify-around border-t border-zinc-200 bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/95 pb-[env(safe-area-inset-bottom)] lg:hidden"
+      className="fixed inset-x-0 overflow-x-hidden bottom-0 z-50 flex w-full max-w-full items-center border-t border-zinc-200 bg-white/95 px-1 pb-[env(safe-area-inset-bottom)] backdrop-blur supports-[backdrop-filter]:bg-white/95 lg:hidden"
       aria-label="Mobile bottom navigation"
     >
         {pathname !== "/" && (
       <Link
         href="/"
         onClick={() => setMenuOpen(false)}
-        className={`flex flex-col items-center gap-0.5 py-2 px-2 min-w-0 flex-1 ${isActive(pathname, "/") ? "nav-link-active" : "text-zinc-600"}`}
+        className={`flex min-w-0 basis-0 flex-1 flex-col items-center gap-0 py-1.5 px-1 ${isActive(pathname, "/") ? "nav-link-active" : "text-zinc-600"}`}
         aria-current={pathname === "/" ? "page" : undefined}
       >
         <MobileBottomNavIcon icon="home" active={pathname === "/"} />
-        <span className="text-[10px] font-medium truncate w-full text-center">მთავარი</span>
+        <span className="w-full truncate text-center text-[9px] font-medium leading-tight">მთავარი</span>
       </Link>
       )}
       {pathname === "/" && (
         <button
           type="button"
           onClick={openFiltersModal}
-          className="flex flex-col items-center gap-0.5 py-2 px-2 min-w-0 flex-1 text-zinc-600"
-          aria-label="ფილტრები"
+          className="flex min-w-0 basis-0 flex-1 flex-col items-center gap-0 py-1.5 px-1 text-zinc-600"
+          aria-label="ფილტრი"
         >
           <MobileBottomNavIcon icon="filters" active={false} />
-          <span className="text-[10px] font-medium truncate w-full text-center">ფილტრები</span>
+          <span className="w-full truncate text-center text-[9px] font-medium leading-tight">ფილტრი</span>
         </button>
       )}
       <Link
         href="/buy"
         onClick={() => setMenuOpen(false)}
-        className={`flex flex-col items-center gap-0.5 py-2 px-2 min-w-0 flex-1 ${isActive(pathname, "/buy") ? "nav-link-active" : "text-zinc-600"}`}
+        className={`flex min-w-0 basis-0 flex-1 flex-col items-center gap-0 py-1.5 px-1 ${isActive(pathname, "/buy") ? "nav-link-active" : "text-zinc-600"}`}
         aria-current={isActive(pathname, "/buy") ? "page" : undefined}
       >
         <MobileBottomNavIcon icon="buy" active={isActive(pathname, "/buy")} />
-        <span className="text-[10px] font-medium truncate w-full text-center">იყიდე</span>
+        <span className="w-full truncate text-center text-[9px] font-medium leading-tight">იყიდე</span>
       </Link>
       <Link
         href="/add-product"
         onClick={() => setMenuOpen(false)}
-        className={`flex flex-col items-center gap-0.5 py-2 px-2 min-w-0 flex-1 ${isActive(pathname, "/add-product") ? "nav-link-active" : "text-zinc-600"}`}
+        className={`flex min-w-0 basis-0 flex-1 flex-col items-center gap-0 py-1.5 px-1 ${isActive(pathname, "/add-product") ? "nav-link-active" : "text-zinc-600"}`}
         aria-current={isActive(pathname, "/add-product") ? "page" : undefined}
       >
         <MobileBottomNavIcon icon="add" active={isActive(pathname, "/add-product")} />
-        <span className="text-[10px] font-medium truncate w-full text-center wineo-red">დამატება</span>
+        <span className="w-full truncate text-center text-[9px] font-medium leading-tight wineo-red">დამატება</span>
       </Link>
       <Link
         href="/rent"
         onClick={() => setMenuOpen(false)}
-        className={`flex flex-col items-center gap-0.5 py-2 px-2 min-w-0 flex-1 ${isActive(pathname, "/rent") ? "nav-link-active" : "text-zinc-600"}`}
+        className={`flex min-w-0 basis-0 flex-1 flex-col items-center gap-0 py-1.5 px-1 ${isActive(pathname, "/rent") ? "nav-link-active" : "text-zinc-600"}`}
         aria-current={isActive(pathname, "/rent") ? "page" : undefined}
       >
         <MobileBottomNavIcon icon="rent" active={isActive(pathname, "/rent")} />
-        <span className="text-[10px] font-medium truncate w-full text-center">იქირავე</span>
+        <span className="w-full truncate text-center text-[9px] font-medium leading-tight">იქირავე</span>
       </Link>
    
       {!loading && user ? (
           <button
             type="button"
             onClick={() => setAccountDrawerOpen(true)}
-            className={`flex flex-col items-center gap-0.5 py-2 px-2 min-w-0 flex-1 text-zinc-600`}
+            className="flex min-w-0 basis-0 flex-1 flex-col items-center gap-0 py-1 px-0.5 text-zinc-600"
             aria-label="ანგარიში"
             aria-expanded={accountDrawerOpen}
           >
             <MobileBottomNavIcon icon="account" active={false} />
-            <span className="text-[10px] font-medium truncate w-full text-center">ანგარიში</span>
+            <span className="w-full truncate text-center text-[9px] font-medium leading-tight">ანგარიში</span>
           </button>
         ) : (
           <button
@@ -522,11 +522,11 @@ export function Header() {
               openLoginModal();
               setMenuOpen(false);
             }}
-            className={`flex flex-col items-center gap-0.5 py-2 px-2 min-w-0 flex-1 text-zinc-600`}
+            className="flex min-w-0 basis-0 flex-1 flex-col items-center gap-0 py-1 px-0.5 text-zinc-600"
             aria-label="შესვლა"
           >
             <MobileBottomNavIcon icon="account" active={false} />
-            <span className="text-[10px] font-medium truncate w-full text-center">ანგარიში</span>
+            <span className="w-full truncate text-center text-[9px] font-medium leading-tight">ანგარიში</span>
           </button>
         )}
     </nav>

@@ -13,10 +13,10 @@ export async function BuyRentSection() {
 
   return (
     <section
-      className="border-b border-zinc-200 bg-white py-10"
+      className="border-b border-zinc-200 bg-white py-10 px-4 md:px-0"
       aria-labelledby="buy-rent-heading"
     >
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-7xl">
         <div className="mt-10 grid gap-12">
           {/* Buy */}
           <div className="min-w-0">

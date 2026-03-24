@@ -16,10 +16,10 @@ const STEPS = [
 export function HowItWorks() {
   return (
     <section
-      className="border-b border-zinc-200 bg-zinc-50/50 py-14 sm:py-18"
+      className="border-b border-zinc-200 bg-zinc-50/50 py-14 sm:py-18 px-4 md:px-0"
       aria-labelledby="how-it-works-heading"
     >
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-7xl">
         <h2 id="how-it-works-heading" className="text-md md:text-2xl nav-font-caps font-bold tracking-tight wineo-red sm:text-3xl">
           როგორ მუშაობს
         </h2>

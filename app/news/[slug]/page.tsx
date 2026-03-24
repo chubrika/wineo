@@ -67,7 +67,7 @@ export default async function NewsDetailPage({ params }: Props) {
     .slice(0, 3);
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6 lg:px-8">
+    <div className="mx-auto max-w-7xl py-8 px-4 md:px-0">
       <JsonLd data={articleJsonLd} />
       <div className="grid gap-8 lg:grid-cols-[1fr_360px]">
         {/* Left: full article */}
