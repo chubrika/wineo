@@ -4,7 +4,7 @@ import type { Listing } from "@/types/listing";
 
 function formatPrice(listing: Listing): string {
   const currencySymbol = listing.currency === "GEL" ? "₾" : "$";
-  const value = listing.price.toLocaleString("en-US", { maximumFractionDigits: 0 });
+  const value = listing.price.toLocaleString("en-US", { maximumFractionDigits:  2});
   if (listing.type === "rent" && listing.priceUnit) {
     const unitLabel =
       listing.priceUnit === "day"
