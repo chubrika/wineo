@@ -275,9 +275,15 @@ export function AddProductForm({
     Record<string, string | string[] | number | boolean>
   >({});
 
+  const requiredCategoryType = type === "rent" ? "rent" : "buy";
+  const categoriesForType = useMemo(
+    () => categories.filter((c) => c.active && Array.isArray(c.types) && c.types.includes(requiredCategoryType)),
+    [categories, requiredCategoryType]
+  );
+
   const categoryTree = useMemo(
-    () => buildCategoryTree(categories),
-    [categories]
+    () => buildCategoryTree(categoriesForType),
+    [categoriesForType]
   );
 
   const [categoryDropdownOpen, setCategoryDropdownOpen] = useState(false);
@@ -522,6 +528,15 @@ export function AddProductForm({
     if (isEditMode && initialCityId && !cityId) setCityId(initialCityId);
   }, [isEditMode, initialCityId, cityId]);
 
+  useEffect(() => {
+    if (!categoryId) return;
+    // If user switched listing type, clear an incompatible selected category.
+    const cat = categories.find((c) => c.id === categoryId);
+    if (!cat) return;
+    const ok = Array.isArray(cat.types) && cat.types.includes(requiredCategoryType);
+    if (!ok) setCategoryId("");
+  }, [requiredCategoryType, categoryId, categories]);
+
   if (authLoading) {
     return <p className="text-zinc-500">იტვირთება...</p>;
   }
@@ -534,7 +549,7 @@ export function AddProductForm({
     );
   }
 
-  const selectedCategory = categoryId ? categories.find((c) => c.id === categoryId) : null;
+  const selectedCategory = categoryId ? categoriesForType.find((c) => c.id === categoryId) : null;
   const selectedRegion = regionId ? regions.find((r) => r.id === regionId) : null;
   const selectedCity = cityId ? cities.find((c) => c.id === cityId) : null;
 
@@ -850,7 +865,7 @@ export function AddProductForm({
               className={`${fieldErrors.categoryId ? inputClassError : inputClass} flex w-full items-center justify-between text-left cursor-pointer`}
             >
               <span className={selectedCategory ? "text-zinc-900" : "text-zinc-500"}>
-                {selectedCategory ? selectedCategory.name : "— აირჩიეთ კატეგორია —"}
+                {selectedCategory ? selectedCategory.name : "ყველა"}
               </span>
               <svg
                 className={`h-4 w-4 shrink-0 text-zinc-500 transition-transform ${categoryDropdownOpen ? "rotate-180" : ""}`}
