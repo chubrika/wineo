@@ -35,7 +35,7 @@ export const dynamicParams = true;
 
 export async function generateStaticParams() {
   try {
-    const list = await getCategories();
+    const list = await getCategories({ type: "rent" });
     const slugs = list.filter((c) => c.active).map((c) => ({ categorySlug: c.slug }));
     // Return at least one param so build-time validation passes when API is empty or fails.
     return slugs.length > 0 ? slugs : [{ categorySlug: "_" }];
@@ -104,7 +104,7 @@ export default async function RentCategoryPage({
   const state = parseListingSearchParams(type, resolved, categorySlug);
 
   const [categoriesRes, categoryBySlug, regionsRes, { items, total }] = await Promise.all([
-    getCategories(),
+    getCategories({ type }),
     getCategoryBySlug(categorySlug),
     getRegions(),
     searchListings({

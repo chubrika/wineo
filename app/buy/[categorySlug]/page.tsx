@@ -35,7 +35,7 @@ export const dynamicParams = true;
 
 export async function generateStaticParams() {
   try {
-    const list = await getCategories();
+    const list = await getCategories({ type: "buy" });
     const slugs = list.filter((c) => c.active).map((c) => ({ categorySlug: c.slug }));
     return slugs.length > 0 ? slugs : [{ categorySlug: "_" }];
   } catch {
@@ -99,7 +99,7 @@ export default async function BuyCategoryPage({
   const state = parseListingSearchParams(type, resolved, categorySlug);
 
   const [categoriesRes, categoryBySlug, regionsRes, { items, total }] = await Promise.all([
-    getCategories(),
+    getCategories({ type }),
     getCategoryBySlug(categorySlug),
     getRegions(),
     searchListings({

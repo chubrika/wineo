@@ -25,6 +25,22 @@ export function CategoriesModal({ open, onClose, initialRootSlug }: CategoriesMo
   const [selectedRoot, setSelectedRoot] = useState<CategoryTreeNode | null>(null);
   const [listingType, setListingType] = useState<ListingType>("buy");
 
+  const typesBySlug = useMemo(() => {
+    const map = new Map<string, Array<"buy" | "rent">>();
+    for (const c of categoriesApi) {
+      map.set(c.slug, c.types);
+    }
+    return map;
+  }, [categoriesApi]);
+
+  const allowedTypes = useMemo(() => {
+    if (!selectedRoot) return null;
+    return typesBySlug.get(selectedRoot.slug) ?? null;
+  }, [selectedRoot, typesBySlug]);
+
+  const allowBuy = allowedTypes ? allowedTypes.includes("buy") : true;
+  const allowRent = allowedTypes ? allowedTypes.includes("rent") : true;
+
   const roots = useMemo(() => buildCategoryTree(categoriesApi), [categoriesApi]);
   const children = selectedRoot?.children ?? [];
   const hideRootsList = Boolean(initialRootSlug);
@@ -62,6 +78,16 @@ export function CategoriesModal({ open, onClose, initialRootSlug }: CategoriesMo
       cancelled = true;
     };
   }, [open]);
+
+  useEffect(() => {
+    if (!open) return;
+    if (!allowedTypes || allowedTypes.length === 0) return;
+    // If current toggle is not supported by selected root, switch to first allowed.
+    if (!allowedTypes.includes(listingType)) {
+      const next = allowedTypes[0] ?? "buy";
+      queueMicrotask(() => setListingType(next));
+    }
+  }, [open, allowedTypes, listingType]);
 
   useEffect(() => {
     if (!open) return;
@@ -142,28 +168,32 @@ export function CategoriesModal({ open, onClose, initialRootSlug }: CategoriesMo
             </button>
           </div>
           <div className="mt-2 flex items-center gap-2" role="group" aria-label="Listing type">
-            <button
-              type="button"
-              onClick={() => setListingType("buy")}
-              className={`rounded-lg cursor-pointer px-3 py-1.5 text-sm font-medium transition ${
-                listingType === "buy"
-                  ? "bg-[#8a052d] text-white"
-                  : "bg-zinc-100 text-zinc-600 hover:bg-zinc-200"
-              }`}
-            >
-              იყიდე
-            </button>
-            <button
-              type="button"
-              onClick={() => setListingType("rent")}
-              className={`rounded-lg cursor-pointer px-3 py-1.5 text-sm font-medium transition ${
-                listingType === "rent"
-                  ? "bg-[#8a052d] text-white"
-                  : "bg-zinc-100 text-zinc-600 hover:bg-zinc-200"
-              }`}
-            >
-              იქირავე
-            </button>
+            {allowBuy ? (
+              <button
+                type="button"
+                onClick={() => setListingType("buy")}
+                className={`rounded-lg cursor-pointer px-3 py-1.5 text-sm font-medium transition ${
+                  listingType === "buy"
+                    ? "bg-[#8a052d] text-white"
+                    : "bg-zinc-100 text-zinc-600 hover:bg-zinc-200"
+                }`}
+              >
+                იყიდე
+              </button>
+            ) : null}
+            {allowRent ? (
+              <button
+                type="button"
+                onClick={() => setListingType("rent")}
+                className={`rounded-lg cursor-pointer px-3 py-1.5 text-sm font-medium transition ${
+                  listingType === "rent"
+                    ? "bg-[#8a052d] text-white"
+                    : "bg-zinc-100 text-zinc-600 hover:bg-zinc-200"
+                }`}
+              >
+                იქირავე
+              </button>
+            ) : null}
           </div>
         </div>
 

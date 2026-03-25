@@ -34,7 +34,7 @@ export default async function BuyPage({ searchParams }: PageProps) {
   const state = parseListingSearchParams(type, resolved);
 
   const [categoriesRes, regionsRes, { items, total }] = await Promise.all([
-    getCategories(),
+    getCategories({ type }),
     getRegions(),
     searchListings({
       type,

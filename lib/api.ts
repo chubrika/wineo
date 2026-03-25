@@ -37,6 +37,7 @@ export type VerifyEmailResponse = { message: string; user: AuthUser; token?: str
 /** Category from backend GET /categories */
 export type ApiCategory = {
   id: string;
+  types: Array<'buy' | 'rent'>;
   name: string;
   slug: string;
   description: string;
@@ -187,8 +188,18 @@ export async function updateMe(
 /**
  * GET /categories. Use roots=1 for top-level categories only.
  */
-export async function getCategories(params?: { roots?: boolean }): Promise<ApiCategory[]> {
-  const search = params?.roots ? "?roots=1" : "";
+export async function getCategories(params?: {
+  roots?: boolean;
+  /** Single type filter (matches categories whose types include this value). */
+  type?: 'buy' | 'rent';
+  /** Require categories to include all of these types (e.g. ['buy','rent'] for "both"). */
+  types?: Array<'buy' | 'rent'>;
+}): Promise<ApiCategory[]> {
+  const qs = new URLSearchParams();
+  if (params?.roots) qs.set("roots", "1");
+  if (params?.type) qs.set("type", params.type);
+  if (params?.types && params.types.length > 0) qs.set("types", params.types.join(","));
+  const search = qs.toString() ? `?${qs.toString()}` : "";
   const res = await fetch(`${API_BASE}/categories${search}`, { cache: "no-store" });
   return handleRes<ApiCategory[]>(res);
 }

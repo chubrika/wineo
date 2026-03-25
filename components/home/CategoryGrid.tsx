@@ -29,7 +29,15 @@ export function CategoryGrid() {
   const INITIAL_CATEGORIES_COUNT = 6;
 
   const categoryTree = useMemo(() => buildCategoryTree(categoriesApi), [categoriesApi]);
-  const roots = categoryTree;
+  const roots = useMemo(() => {
+    const filtered = categoryTree.filter((node) => {
+      const cat = categoriesApi.find((c) => c.slug === node.slug);
+      if (!cat?.active) return false;
+      return Array.isArray(cat.types) ? cat.types.includes(listingType) : true;
+    });
+    return filtered;
+  }, [categoryTree, categoriesApi, listingType]);
+
   const visibleRoots = isMobile || showAllCategories ? roots : roots.slice(0, INITIAL_CATEGORIES_COUNT);
   const hasMoreCategories = !isMobile && roots.length > INITIAL_CATEGORIES_COUNT;
 
