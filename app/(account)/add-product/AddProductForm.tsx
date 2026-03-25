@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLoginModal } from "@/contexts/LoginModalContext";
+import { FancySelect } from "@/components/ui";
 import {
   createProduct,
   updateProduct,
@@ -75,11 +76,11 @@ function parseDecimal(raw: string): number {
 }
 
 /** Promotion options with price and duration for display */
-const PROMOTION_OPTIONS = [
-  { type: "highlighted" as const, label: "გამოკვეთილი", labelClass: "text-yellow-400", desc: "შენი განცხადება უფრო თვალსაჩინო გახდება", price: "9₾", duration: "7 დღე" },
-  { type: "featured" as const, label: "რეკომენდირებული", labelClass: "text-amber-600", desc: "გამოჩნდება რეკომენდირებულ განცხადებებში", price: "19₾", duration: "7 დღე" },
-  { type: "homepageTop" as const, label: "TOP", labelClass: "text-purple-600", desc: "ჩანს მთავარ გვერდის ზედა ბლოკში", price: "39₾", duration: "7 დღე" },
-];
+// const PROMOTION_OPTIONS = [
+//   { type: "highlighted" as const, label: "გამოკვეთილი", labelClass: "text-yellow-400", desc: "შენი განცხადება უფრო თვალსაჩინო გახდება", price: "9₾", duration: "7 დღე" },
+//   { type: "featured" as const, label: "რეკომენდირებული", labelClass: "text-amber-600", desc: "გამოჩნდება რეკომენდირებულ განცხადებებში", price: "19₾", duration: "7 დღე" },
+//   { type: "homepageTop" as const, label: "TOP", labelClass: "text-purple-600", desc: "ჩანს მთავარ გვერდის ზედა ბლოკში", price: "39₾", duration: "7 დღე" },
+// ];
 const LISTING_TYPES = [
   { value: "sell" as const, label: "იყიდება" },
   { value: "rent" as const, label: "ქირავდება" },
@@ -109,11 +110,13 @@ function AddProductFilterControl({
   valueSingle,
   valueMulti,
   onChange,
+  hasError,
 }: {
   filter: ApiFilter;
   valueSingle: string | number | boolean;
   valueMulti: string[];
   onChange: (value: string | string[] | number | boolean) => void;
+  hasError?: boolean;
 }) {
   const label = filter.unit ? `${filter.name} (${filter.unit})` : filter.name;
   const id = `add-filter-${filter.id}`;
@@ -127,9 +130,12 @@ function AddProductFilterControl({
       onChange(next);
     };
     return (
-      <div className="space-y-2">
-        <span className="block text-sm font-medium text-zinc-900">{label}</span>
-        <div className="space-y-2">
+      <div id={id} className="space-y-2">
+        <span className="block text-sm font-medium text-zinc-900">
+          {label}
+          {filter.isRequired ? <span className="text-red-500"> *</span> : null}
+        </span>
+        <div className={`space-y-2 ${hasError ? "rounded-lg border border-red-500/70 bg-red-50/30 p-3" : ""}`}>
           {filter.options.map((opt) => {
             const optId = `${id}-${opt.replace(/\s+/g, "-")}`;
             const checked = selectedSet.has(opt);
@@ -159,6 +165,7 @@ function AddProductFilterControl({
       <div className="space-y-2">
         <label htmlFor={id} className="block text-sm font-medium text-zinc-900">
           {label}
+          {filter.isRequired ? <span className="text-red-500"> *</span> : null}
         </label>
         <input
           id={id}
@@ -168,7 +175,7 @@ function AddProductFilterControl({
             onChange(filter.type === "number" ? (e.target.value === "" ? "" : Number(e.target.value)) : e.target.value)
           }
           placeholder={filter.type === "number" ? "0" : ""}
-          className={inputClass}
+          className={hasError ? inputClassError : inputClass}
         />
       </div>
     );
@@ -177,7 +184,7 @@ function AddProductFilterControl({
   if (filter.type === "checkbox") {
     const checked = valueSingle === true || valueSingle === "true" || valueSingle === "1";
     return (
-      <div className="flex gap-2 items-center">
+      <div id={id} className={`flex gap-2 items-center rounded-lg ${hasError ? "border border-red-500/70 bg-red-50/30 p-3" : ""}`}>
         <input
           id={id}
           type="checkbox"
@@ -187,6 +194,7 @@ function AddProductFilterControl({
         />
         <label htmlFor={id} className="text-sm font-medium text-zinc-900">
           {label}
+          {filter.isRequired ? <span className="text-red-500"> *</span> : null}
         </label>
       </div>
     );
@@ -198,6 +206,7 @@ function AddProductFilterControl({
       <div className="space-y-2">
         <label htmlFor={id} className="block text-sm font-medium text-zinc-900">
           {label}
+          {filter.isRequired ? <span className="text-red-500"> *</span> : null}
         </label>
         <input
           id={id}
@@ -205,7 +214,7 @@ function AddProductFilterControl({
           value={raw}
           onChange={(e) => onChange(e.target.value)}
           placeholder="მაგ. 0-100"
-          className={inputClass}
+          className={hasError ? inputClassError : inputClass}
         />
       </div>
     );
@@ -216,6 +225,8 @@ function AddProductFilterControl({
 
 const inputClass =
   "mt-1 block w-full rounded-lg border border-[1px] border-zinc-300 px-3 py-2 text-zinc-900 focus:border-[var(--nav-link-active)] focus:outline-none  focus:ring-[var(--nav-link-active)]";
+const inputClassError =
+  "mt-1 block w-full rounded-lg border border-[1px] border-red-500 px-3 py-2 text-zinc-900 focus:border-red-500 focus:outline-none focus:ring-red-500";
 
 export function AddProductForm({
   productId,
@@ -237,6 +248,7 @@ export function AddProductForm({
   const [loadingCities, setLoadingCities] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
 
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -317,6 +329,19 @@ export function AddProductForm({
     const percent = ((basePrice - salePrice) / basePrice) * 100;
     return String(Math.round(percent * 100) / 100);
   }, [price, discountedPrice, priceType]);
+
+  const scrollToField = useCallback((key: string) => {
+    const el =
+      document.getElementById(key) ??
+      document.getElementById(
+        key.startsWith("filter:") ? `add-filter-${key.slice("filter:".length)}` : key
+      );
+    if (!el) return;
+    el.scrollIntoView({ behavior: "smooth", block: "center" });
+    if (el instanceof HTMLInputElement || el instanceof HTMLSelectElement || el instanceof HTMLTextAreaElement) {
+      el.focus();
+    }
+  }, []);
 
   const openCategoryDropdown = () => {
     setCategoryLevelStack([categoryTree]);
@@ -516,43 +541,29 @@ export function AddProductForm({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
-    if (!selectedCategory) {
-      setError("კატეგორიის არჩევა სავალდებულოა");
-      return;
-    }
-    if (!selectedRegion || !selectedCity) {
-      setError("რეგიონი და ქალაქი სავალდებულოა");
-      return;
-    }
-    if (type === "rent" && !rentPeriod) {
-      setError("ქირის პერიოდი სავალდებულოა");
-      return;
-    }
-    const requiredFilter = categoryFilters.find(
-      (f) => f.isRequired && (dynamicFilterValues[f.id] === undefined || dynamicFilterValues[f.id] === "" || (Array.isArray(dynamicFilterValues[f.id]) && (dynamicFilterValues[f.id] as string[]).length === 0))
-    );
-    if (requiredFilter) {
-      setError(`სავალდებულო მახასიათებელი: ${requiredFilter.name}`);
-      return;
-    }
-    if (!description.trim()) {
-      setError("აღწერა სავალდებულოა");
-      return;
-    }
-    if (!phone.trim()) {
-      setError("საკონტაქტო ნომერი სავალდებულოა");
-      return;
-    }
+    setFieldErrors({});
+
+    const nextFieldErrors: Record<string, string> = {};
+    const setFieldError = (key: string, message: string) => {
+      if (!nextFieldErrors[key]) nextFieldErrors[key] = message;
+    };
+
+    if (!title.trim()) setFieldError("title", "სათაური სავალდებულოა");
+    if (!selectedCategory) setFieldError("categoryId", "კატეგორიის არჩევა სავალდებულოა");
+    if (!selectedRegion) setFieldError("regionId", "რეგიონი სავალდებულოა");
+    if (!selectedCity) setFieldError("cityId", "ქალაქი სავალდებულოა");
+    if (type === "rent" && !rentPeriod) setFieldError("rentPeriod", "ქირის პერიოდი სავალდებულოა");
+    if (!description.trim()) setFieldError("description", "აღწერა სავალდებულოა");
+    if (!phone.trim()) setFieldError("phone", "საკონტაქტო ნომერი სავალდებულოა");
+
     const tempImageKeys = getTempImageKeys(uploadedImages);
     const existingUrls = getExistingImageUrls(uploadedImages);
     if (!isEditMode && tempImageKeys.length === 0 && existingUrls.length === 0) {
-      setError("დაამატეთ მინიმუმ ერთი სურათი");
-      return;
+      setFieldError("images", "დაამატეთ მინიმუმ ერთი სურათი");
     }
     const priceNum = priceType === "negotiable" ? 0 : parseDecimal(price);
     if (priceType === "fixed" && (Number.isNaN(priceNum) || priceNum < 0)) {
-      setError("შეიყვანეთ სწორი ფასი");
-      return;
+      setFieldError("price", "შეიყვანეთ სწორი ფასი");
     }
     const discountedPriceNum =
       priceType === "fixed" && discountedPrice.trim() !== ""
@@ -562,11 +573,37 @@ export function AddProductForm({
       discountedPriceNum != null &&
       (Number.isNaN(discountedPriceNum) || discountedPriceNum < 0 || discountedPriceNum >= priceNum)
     ) {
-      setError("ფასდაკლებული ფასი უნდა იყოს ძირითად ფასზე ნაკლები");
+      setFieldError("discountedPrice", "ფასდაკლებული ფასი უნდა იყოს ძირითად ფასზე ნაკლები");
+    }
+
+    const requiredFiltersMissing = categoryFilters.filter((f) => {
+      if (!f.isRequired) return false;
+      const v = dynamicFilterValues[f.id];
+      if (v === undefined || v === null) return true;
+      if (typeof v === "string" && v.trim() === "") return true;
+      if (Array.isArray(v) && v.length === 0) return true;
+      return false;
+    });
+    if (requiredFiltersMissing.length > 0) {
+      for (const f of requiredFiltersMissing) {
+        setFieldError(`filter:${f.id}`, `სავალდებულო მახასიათებელი: ${f.name}`);
+      }
+    }
+
+    if (Object.keys(nextFieldErrors).length > 0) {
+      setFieldErrors(nextFieldErrors);
+      setError(Object.values(nextFieldErrors)[0] ?? "");
+      const firstKey = Object.keys(nextFieldErrors)[0];
+      if (firstKey) requestAnimationFrame(() => scrollToField(firstKey));
       return;
     }
 
-  
+    // Type narrowing for payload construction (should be guaranteed by validation above).
+    if (!selectedCategory || !selectedRegion || !selectedCity) {
+      setError("შეავსეთ სავალდებულო ველები");
+      return;
+    }
+
     const attributes = categoryFilters
       .map((f) => {
         const v = dynamicFilterValues[f.id];
@@ -630,6 +667,12 @@ export function AddProductForm({
   };
 
   const labelClass = "block text-sm font-medium text-zinc-700";
+  const fieldErrorText = (key: string) =>
+    fieldErrors[key] ? (
+      <p className="mt-1 text-xs text-red-600" role="alert">
+        {fieldErrors[key]}
+      </p>
+    ) : null;
 
   /** Preview data for the listing card: thumbnail from first image, then form fields */
   const previewThumbnail =
@@ -676,7 +719,7 @@ export function AddProductForm({
 
   return (
   <div className="flex gap-4">
-      <form onSubmit={handleSubmit} className="space-y-6 w-full">
+      <form onSubmit={handleSubmit} noValidate className="space-y-6 w-full">
       {error && (
         <div
           className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800"
@@ -700,23 +743,45 @@ export function AddProductForm({
               minLength={2}
               maxLength={200}
               value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              className={inputClass}
+              onChange={(e) => {
+                setTitle(e.target.value);
+                if (fieldErrors.title) {
+                  setFieldErrors((prev) => {
+                    const next = { ...prev };
+                    delete next.title;
+                    return next;
+                  });
+                }
+              }}
+              className={fieldErrors.title ? inputClassError : inputClass}
               placeholder="მაგ. ყურძნის პრესი"
             />
+            {fieldErrorText("title")}
           </div>
           <div>
             <label htmlFor="description" className={labelClass}>
               აღწერა <span className="text-red-500">*</span>
             </label>
-            <SimpleEditor
-              id="description"
-              value={description}
-              onChange={setDescription}
-              placeholder="აღწერა სავალდებულოა"
-              className="mt-1 block w-full"
-              minHeight="8rem"
-            />
+            <div className={fieldErrors.description ? "mt-1 rounded-lg border border-red-500 p-1" : "mt-1"}>
+              <SimpleEditor
+                id="description"
+                value={description}
+                onChange={(v) => {
+                  setDescription(v);
+                  if (fieldErrors.description) {
+                    setFieldErrors((prev) => {
+                      const next = { ...prev };
+                      delete next.description;
+                      return next;
+                    });
+                  }
+                }}
+                placeholder="აღწერა სავალდებულოა"
+                className="block w-full"
+                minHeight="8rem"
+              />
+            </div>
+            {fieldErrorText("description")}
           </div>
           <div>
             <label htmlFor="phone" className={labelClass}>
@@ -727,10 +792,20 @@ export function AddProductForm({
               type="tel"
               required
               value={phone}
-              onChange={(e) => setPhone(e.target.value)}
-              className={inputClass}
+              onChange={(e) => {
+                setPhone(e.target.value);
+                if (fieldErrors.phone) {
+                  setFieldErrors((prev) => {
+                    const next = { ...prev };
+                    delete next.phone;
+                    return next;
+                  });
+                }
+              }}
+              className={fieldErrors.phone ? inputClassError : inputClass}
               placeholder="მაგ. +995 555 123 456"
             />
+            {fieldErrorText("phone")}
             <p className="mt-1 text-xs text-zinc-500">შეინახება თქვენს ანგარიშზე და გამოჩნდება განცხადებაზე</p>
           </div>
           <div>
@@ -772,7 +847,7 @@ export function AddProductForm({
               aria-haspopup="listbox"
               aria-expanded={categoryDropdownOpen}
               aria-label="აირჩიეთ კატეგორია"
-              className={`${inputClass} flex w-full items-center justify-between text-left cursor-pointer`}
+              className={`${fieldErrors.categoryId ? inputClassError : inputClass} flex w-full items-center justify-between text-left cursor-pointer`}
             >
               <span className={selectedCategory ? "text-zinc-900" : "text-zinc-500"}>
                 {selectedCategory ? selectedCategory.name : "— აირჩიეთ კატეგორია —"}
@@ -788,6 +863,7 @@ export function AddProductForm({
                 <path d="M6 9l6 6 6-6" />
               </svg>
             </button>
+            {fieldErrorText("categoryId")}
             {categoryDropdownOpen && (
               <div
                 role="listbox"
@@ -872,6 +948,7 @@ export function AddProductForm({
                           : []
                     }
                     onChange={(value) => setDynamicFilter(filter.id, value)}
+                    hasError={Boolean(fieldErrors[`filter:${filter.id}`])}
                   />
                 ))}
               </div>
@@ -918,11 +995,21 @@ export function AddProductForm({
                 step="0.01"
                 min={0}
                 value={price}
-                onChange={(e) => setPrice(normalizeDecimalInput(e.target.value))}
+                onChange={(e) => {
+                  setPrice(normalizeDecimalInput(e.target.value));
+                  if (fieldErrors.price) {
+                    setFieldErrors((prev) => {
+                      const next = { ...prev };
+                      delete next.price;
+                      return next;
+                    });
+                  }
+                }}
                 disabled={priceType === "negotiable"}
-                className="mt-1 block w-full rounded-l-lg rounded-r-none border border-zinc-300 border-r-0 px-3 py-2 text-zinc-900 focus:border-[var(--nav-link-active)] focus:outline-none focus:ring-[var(--nav-link-active)]"
+                className={`mt-1 block w-full rounded-l-lg rounded-r-none border ${fieldErrors.price ? "border-red-500 focus:border-red-500 focus:ring-red-500" : "border-zinc-300 focus:border-[var(--nav-link-active)] focus:ring-[var(--nav-link-active)]"} border-r-0 px-3 py-2 text-zinc-900 focus:outline-none`}
                 placeholder="0"
               />
+              {fieldErrorText("price")}
                 </div>
                 <div className="relative min-w-[100px]" ref={currencyDropdownRef}>
                   <button
@@ -978,11 +1065,21 @@ export function AddProductForm({
                     step="0.01"
                     min={0}
                     value={discountedPrice}
-                    onChange={(e) => setDiscountedPrice(normalizeDecimalInput(e.target.value))}
+                    onChange={(e) => {
+                      setDiscountedPrice(normalizeDecimalInput(e.target.value));
+                      if (fieldErrors.discountedPrice) {
+                        setFieldErrors((prev) => {
+                          const next = { ...prev };
+                          delete next.discountedPrice;
+                          return next;
+                        });
+                      }
+                    }}
                     disabled={priceType === "negotiable"}
-                    className="mt-1 block w-full rounded-l-lg rounded-r-none border border-zinc-300 border-r-0 px-3 py-2 text-zinc-900 focus:border-[var(--nav-link-active)] focus:outline-none focus:ring-[var(--nav-link-active)]"
+                    className={`mt-1 block w-full rounded-l-lg rounded-r-none border ${fieldErrors.discountedPrice ? "border-red-500 focus:border-red-500 focus:ring-red-500" : "border-zinc-300 focus:border-[var(--nav-link-active)] focus:ring-[var(--nav-link-active)]"} border-r-0 px-3 py-2 text-zinc-900 focus:outline-none`}
                     placeholder="0"
                   />
+                  {fieldErrorText("discountedPrice")}
                   <div className="mt-1 flex h-[42px] min-w-[78px] items-center justify-center rounded-l-none rounded-r-lg border border-zinc-300 bg-zinc-100 px-3 py-2 text-sm font-medium text-zinc-600">
                     {discountedPercent || "0"}%
                   </div>
@@ -999,14 +1096,24 @@ export function AddProductForm({
                 id="rentPeriod"
                 required={type === "rent"}
                 value={rentPeriod}
-                onChange={(e) => setRentPeriod(e.target.value as typeof rentPeriod)}
-                className={inputClass}
+                onChange={(e) => {
+                  setRentPeriod(e.target.value as typeof rentPeriod);
+                  if (fieldErrors.rentPeriod) {
+                    setFieldErrors((prev) => {
+                      const next = { ...prev };
+                      delete next.rentPeriod;
+                      return next;
+                    });
+                  }
+                }}
+                className={fieldErrors.rentPeriod ? inputClassError : inputClass}
               >
                 <option value="">— აირჩიეთ —</option>
                 {RENT_PERIODS.map((r) => (
                   <option key={r.value} value={r.value}>{r.label}</option>
                 ))}
               </select>
+              {fieldErrorText("rentPeriod")}
             </div>
           )}
         </div>
@@ -1019,37 +1126,58 @@ export function AddProductForm({
             <label htmlFor="regionId" className={labelClass}>
               რეგიონი <span className="text-red-500">*</span>
             </label>
-            <select
+            <FancySelect
               id="regionId"
-              required
               value={regionId}
-              onChange={(e) => setRegionId(e.target.value)}
-              className={inputClass}
-            >
-              <option value="">— აირჩიეთ რეგიონი —</option>
-              {regions.map((r) => (
-                <option key={r.id} value={r.id}>{r.label}</option>
-              ))}
-            </select>
+              onValueChange={(next) => {
+                setRegionId(next);
+                if (fieldErrors.regionId) {
+                  setFieldErrors((prev) => {
+                    const n = { ...prev };
+                    delete n.regionId;
+                    return n;
+                  });
+                }
+              }}
+              options={regions.map((r) => ({ value: r.id, label: r.label }))}
+              placeholder="ყველა"
+              hasError={Boolean(fieldErrors.regionId)}
+              buttonClassName={fieldErrors.regionId ? inputClassError : inputClass}
+            />
+            {fieldErrorText("regionId")}
+            {regionId && (
+              <input type="hidden" name="regionId" value={regionId} readOnly aria-hidden />
+            )}
           </div>
           <div>
             <label htmlFor="cityId" className={labelClass}>
               ქალაქი <span className="text-red-500">*</span>
             </label>
-            <select
+            <FancySelect
               id="cityId"
-              required
               value={cityId}
-              onChange={(e) => setCityId(e.target.value)}
-              disabled={!regionId || loadingCities}
-              className={inputClass}
-            >
-              <option value="">— აირჩიეთ ქალაქი —</option>
-              {cities.map((c) => (
-                <option key={c.id} value={c.id}>{c.label}</option>
-              ))}
-            </select>
+              onValueChange={(next) => {
+                setCityId(next);
+                if (fieldErrors.cityId) {
+                  setFieldErrors((prev) => {
+                    const n = { ...prev };
+                    delete n.cityId;
+                    return n;
+                  });
+                }
+              }}
+              options={cities.map((c) => ({ value: c.id, label: c.label }))}
+              placeholder="ყველა"
+              disabled={!regionId}
+              loading={loadingCities}
+              hasError={Boolean(fieldErrors.cityId)}
+              buttonClassName={fieldErrors.cityId ? inputClassError : inputClass}
+            />
+            {fieldErrorText("cityId")}
             {loadingCities && <p className="mt-1 text-xs text-zinc-500">იტვირთება...</p>}
+            {cityId && (
+              <input type="hidden" name="cityId" value={cityId} readOnly aria-hidden />
+            )}
           </div>
         </div>
       </section>
@@ -1078,12 +1206,24 @@ export function AddProductForm({
           <h2 className="text-sm font-semibold text-zinc-900 normal-font">სურათები</h2>
         <div className="mt-4 space-y-4">
           <label className={labelClass}>სურათების ატვირთვა</label>
-          <ProductImageUpload
-            token={token!}
-            value={uploadedImages}
-            onChange={setUploadedImages}
-            disabled={submitting}
-          />
+          <div className={fieldErrors.images ? "rounded-lg border border-red-500 p-2" : ""}>
+            <ProductImageUpload
+              token={token!}
+              value={uploadedImages}
+              onChange={(imgs) => {
+                setUploadedImages(imgs);
+                if (fieldErrors.images) {
+                  setFieldErrors((prev) => {
+                    const next = { ...prev };
+                    delete next.images;
+                    return next;
+                  });
+                }
+              }}
+              disabled={submitting}
+            />
+          </div>
+          {fieldErrorText("images")}
           {!isEditMode && getTempImageKeys(uploadedImages).length === 0 && getExistingImageUrls(uploadedImages).length === 0 && (
             <p className="text-xs text-zinc-500"> დაამატეთ მინიმუმ ერთი სურათი.</p>
           )}
@@ -1140,7 +1280,7 @@ export function AddProductForm({
         <button
           type="submit"
           disabled={submitting}
-          className="rounded-lg bg-[var(--nav-link-active)] px-4 py-2.5 font-medium text-white hover:opacity-90 disabled:opacity-60"
+          className="rounded-lg bg-[var(--nav-link-active)] cursor-pointer px-4 py-2.5 font-medium text-white hover:opacity-90 disabled:opacity-60"
         >
           {submitting ? "შენახვა…" : productId ? "შენახვა" : "გამოქვეყნება"}
         </button>
