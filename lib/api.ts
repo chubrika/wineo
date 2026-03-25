@@ -44,6 +44,8 @@ export type ApiCategory = {
   iconColor?: string;
   iconBg?: string;
   active: boolean;
+  /** Manual ordering within same parent (lower first). */
+  index: number;
   parentId: string | null;
   level: number;
   path: string[];

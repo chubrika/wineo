@@ -13,7 +13,7 @@ import { HeaderSearchBar } from "./HeaderSearchBar";
 import { AccountNavContent } from "@/components/account/AccountNavContent";
 import { CategoriesModal } from "./CategoriesModal";
 import { HomeLogoLink } from "./HomeLogoLink";
-import { SlidersHorizontalIcon, Heart, LayoutGrid, ChevronDownIcon, Home, ShoppingBag, Clock, User, CirclePlus, Search, CircleUserRound } from "lucide-react";
+import { SlidersHorizontalIcon, Heart, LayoutGrid, ChevronDownIcon, Home, ShoppingBag, Clock, User, CirclePlus, Search } from "lucide-react";
 
 const SCROLL_THRESHOLD = 80; // min pixels scrolled before we change show/hide
 const SCROLL_TOP_SHOW = 10;
@@ -47,14 +47,6 @@ function MenuIcon({ open }: { open: boolean }) {
       />
     </span>
   );
-}
-
-function getUserInitials(firstName: string, lastName: string, email: string) {
-  if (firstName && lastName) {
-    return `${firstName[0]}${lastName[0]}`.toUpperCase();
-  }
-  if (email?.length >= 2) return email.slice(0, 2).toUpperCase();
-  return "?";
 }
 
 function getUserDisplayName(firstName: string, lastName: string, email: string) {
@@ -366,7 +358,7 @@ export function Header() {
               <Link
                 key={href}
                 href={href}
-                className={`nav-link text-[16px] font-medium ${isActive(pathname, href) ? "nav-link-active" : ""}`}
+                className={`nav-link text-[14px] font-semibold ${isActive(pathname, href) ? "nav-link-active" : ""}`}
                 aria-current={isActive(pathname, href) ? "page" : undefined}
               >
                 {label}
@@ -378,7 +370,7 @@ export function Header() {
               <Link
                 key={href}
                 href={href}
-                className={`nav-link text-[16px] font-medium ${isActive(pathname, href) ? "nav-link-active" : ""}`}
+                className={`nav-link text-[14px] font-semibold ${isActive(pathname, href) ? "nav-link-active" : ""}`}
                 aria-current={isActive(pathname, href) ? "page" : undefined}
               >
                 {label}
@@ -391,61 +383,62 @@ export function Header() {
       {/* Mobile nav panel */}
       <div
         id="mobile-nav"
-        className={`nav-font-caps overflow-hidden transition-[height,opacity] duration-300 ease-out lg:hidden ${menuOpen ? "max-h-[480px] opacity-100" : "max-h-0 opacity-0"}`}
+        className={`nav-font-caps grid overflow-hidden transition-[grid-template-rows,opacity] duration-300 ease-out lg:hidden ${
+          menuOpen ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
+        }`}
         aria-hidden={!menuOpen}
       >
-       
-        <nav
-          className="border-t border-zinc-200 bg-white px-4 py-4 sm:px-6"
-          aria-label="Main navigation"
-        >
-          <ul className="flex flex-col gap-1">
-            {navLinks.map(({ href, label }) => (
-              <li key={href}>
-                <Link
-                  href={href}
-                  onClick={() => setMenuOpen(false)}
-                  className={`block rounded-lg px-3 py-1 text-[18px] font-medium transition-colors ${isActive(pathname, href) ? "nav-link-active bg-zinc-100" : "nav-link hover:bg-zinc-50"}`}
-                  aria-current={isActive(pathname, href) ? "page" : undefined}
-                >
-                  {label}
-                </Link>
-              </li>
-            ))}
-            {!loading &&
-              (user ? (
-                <li className="border-t border-zinc-200 pt-2 mt-2">
-                  {/* <span className="block px-3 py-2 text-sm font-medium text-zinc-900">
-                    {getUserDisplayName(user.firstName, user.lastName, user.email)}
-                  </span>
-                  <span className="block px-3 pb-2 text-xs text-zinc-500">{user.email}</span> */}
-                  <button
-                    type="button"
-                    onClick={() => {
-                      logout();
-                      setMenuOpen(false);
-                    }}
-                    className="block w-full rounded-lg px-3 py-3 text-left text-[18px] font-medium nav-link hover:bg-zinc-50"
+        <div className="min-h-0 overflow-hidden">
+          <nav
+            className="border-t border-zinc-200 bg-white px-4 py-4 sm:px-6"
+            aria-label="Main navigation"
+          >
+            <ul className="flex flex-col gap-1">
+              {navLinks.map(({ href, label }) => (
+                <li key={href}>
+                  <Link
+                    href={href}
+                    onClick={() => setMenuOpen(false)}
+                    className={`block rounded-lg px-3 py-1 text-[16px] font-semibold transition-colors ${
+                      isActive(pathname, href) ? "nav-link-active bg-zinc-100" : "nav-link hover:bg-zinc-50"
+                    }`}
+                    aria-current={isActive(pathname, href) ? "page" : undefined}
                   >
-                    გასვლა
-                  </button>
-                </li>
-              ) : (
-                <li>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      openLoginModal();
-                      setMenuOpen(false);
-                    }}
-                    className="block w-full rounded-lg px-3 py-3 text-left text-[18px] font-medium nav-link hover:bg-zinc-50"
-                  >
-                    შესვლა
-                  </button>
+                    {label}
+                  </Link>
                 </li>
               ))}
-          </ul>
-        </nav>
+              {!loading &&
+                (user ? (
+                  <li className="mt-2 border-t border-zinc-200 pt-2">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        logout();
+                        setMenuOpen(false);
+                      }}
+                      className="block w-full rounded-lg px-3 py-3 text-left text-[16px] font-semibold nav-link hover:bg-zinc-50"
+                    >
+                      გასვლა
+                    </button>
+                  </li>
+                ) : (
+                  <li>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        openLoginModal();
+                        setMenuOpen(false);
+                      }}
+                      className="block w-full rounded-lg px-3 py-3 text-left text-[16px] font-semibold nav-link hover:bg-zinc-50"
+                    >
+                      შესვლა
+                    </button>
+                  </li>
+                ))}
+            </ul>
+          </nav>
+        </div>
       </div>
     </header>
 
