@@ -27,6 +27,23 @@ export function CategoriesModal({ open, onClose, initialRootSlug }: CategoriesMo
 
   const roots = useMemo(() => buildCategoryTree(categoriesApi), [categoriesApi]);
   const children = selectedRoot?.children ?? [];
+  const hideRootsList = Boolean(initialRootSlug);
+
+  function findRootBySlug(rootNodes: CategoryTreeNode[], slug: string): CategoryTreeNode | null {
+    const normalized = slug.trim().toLowerCase();
+    if (!normalized) return null;
+
+    for (const root of rootNodes) {
+      if (root.slug.toLowerCase() === normalized) return root;
+      const stack = [...(root.children ?? [])];
+      while (stack.length) {
+        const node = stack.pop()!;
+        if (node.slug.toLowerCase() === normalized) return root;
+        if (node.children?.length) stack.push(...node.children);
+      }
+    }
+    return null;
+  }
 
   useEffect(() => {
     if (!open) return;
@@ -48,19 +65,37 @@ export function CategoriesModal({ open, onClose, initialRootSlug }: CategoriesMo
 
   useEffect(() => {
     if (!open) return;
-    setListingType(pathname.startsWith("/rent") ? "rent" : "buy");
+    let cancelled = false;
+    queueMicrotask(() => {
+      if (cancelled) return;
+      setListingType(pathname.startsWith("/rent") ? "rent" : "buy");
+    });
 
     // When opening without a pre-selection, reset immediately.
-    if (!initialRootSlug) setSelectedRoot(null);
+    if (!initialRootSlug) {
+      queueMicrotask(() => {
+        if (cancelled) return;
+        setSelectedRoot(null);
+      });
+    }
+    return () => {
+      cancelled = true;
+    };
   }, [open, pathname, initialRootSlug]);
 
   useEffect(() => {
     if (!open) return;
     if (!initialRootSlug) return;
 
-    const normalized = initialRootSlug.trim().toLowerCase();
-    const found = roots.find((n) => n.slug.toLowerCase() === normalized) ?? null;
-    setSelectedRoot(found);
+    const foundRoot = findRootBySlug(roots, initialRootSlug);
+    let cancelled = false;
+    queueMicrotask(() => {
+      if (cancelled) return;
+      setSelectedRoot(foundRoot);
+    });
+    return () => {
+      cancelled = true;
+    };
   }, [open, initialRootSlug, roots]);
 
   function handleRootClick(node: CategoryTreeNode) {
@@ -134,41 +169,49 @@ export function CategoriesModal({ open, onClose, initialRootSlug }: CategoriesMo
 
         <div className="flex min-h-0 flex-1 flex-col sm:flex-row">
           {/* Left: root categories */}
-          <div className="w-full shrink-0 border-b border-zinc-200 bg-zinc-50/80 max-sm:max-h-[40dvh] max-sm:overflow-auto sm:w-56 sm:border-b-0 sm:border-r sm:border-zinc-200">
-            {loading ? (
-              <p className="p-4 text-sm text-zinc-500">იტვირთება...</p>
-            ) : roots.length === 0 ? (
-              <p className="p-4 text-sm text-zinc-500">კატეგორიები ვერ მოიძებნა.</p>
-            ) : (
-              <ul className="flex flex-col py-2">
-                {roots.map((node) => (
-                  <li key={node.id}>
-                    <button
-                      type="button"
-                      onClick={() => handleRootClick(node)}
-                      className={`flex w-full cursor-pointer items-center justify-between gap-2 px-4 py-2.5 text-left text-sm transition ${
-                        selectedRoot?.id === node.id
-                          ? "bg-white text-[var(--wineo-red)] font-medium shadow-sm"
-                          : "text-zinc-700 hover:bg-white/80 hover:text-zinc-900"
-                      }`}
-                    >
-                      <span className="truncate">{node.name}</span>
-                      {node.children.length > 0 && (
-                        <ChevronRightIcon className="h-4 w-4 shrink-0 text-zinc-400" aria-hidden />
-                      )}
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
+          {hideRootsList ? null : (
+            <div className="w-full shrink-0 border-b border-zinc-200 bg-zinc-50/80 max-sm:max-h-[40dvh] max-sm:overflow-auto sm:w-56 sm:border-b-0 sm:border-r sm:border-zinc-200">
+              {loading ? (
+                <p className="p-4 text-sm text-zinc-500">იტვირთება...</p>
+              ) : roots.length === 0 ? (
+                <p className="p-4 text-sm text-zinc-500">კატეგორიები ვერ მოიძებნა.</p>
+              ) : (
+                <ul className="flex flex-col py-2">
+                  {roots.map((node) => (
+                    <li key={node.id}>
+                      <button
+                        type="button"
+                        onClick={() => handleRootClick(node)}
+                        className={`flex w-full cursor-pointer items-center justify-between gap-2 px-4 py-2.5 text-left text-sm transition ${
+                          selectedRoot?.id === node.id
+                            ? "bg-white text-[var(--wineo-red)] font-medium shadow-sm"
+                            : "text-zinc-700 hover:bg-white/80 hover:text-zinc-900"
+                        }`}
+                      >
+                        <span className="truncate">{node.name}</span>
+                        {node.children.length > 0 && (
+                          <ChevronRightIcon className="h-4 w-4 shrink-0 text-zinc-400" aria-hidden />
+                        )}
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          )}
 
           {/* Right: children of selected root */}
           <div className="flex-1 overflow-auto bg-white p-3 sm:p-4">
             {!selectedRoot ? (
-              <p className="py-8 text-center text-sm text-zinc-500">
-                დააკლიკეთ კატეგორიაზე ქვეკატეგორიების სანახავად
-              </p>
+              loading ? (
+                <p className="py-8 text-center text-sm text-zinc-500">იტვირთება...</p>
+              ) : hideRootsList ? (
+                <p className="py-8 text-center text-sm text-zinc-500">კატეგორია ვერ მოიძებნა.</p>
+              ) : (
+                <p className="py-8 text-center text-sm text-zinc-500">
+                  დააკლიკეთ კატეგორიაზე ქვეკატეგორიების სანახავად
+                </p>
+              )
             ) : children.length === 0 ? (
               <div className="py-8">
                 <p className="text-center text-sm text-zinc-500">ქვეკატეგორიები არ არის.</p>

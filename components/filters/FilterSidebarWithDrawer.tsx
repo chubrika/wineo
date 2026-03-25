@@ -50,22 +50,6 @@ export function FilterSidebarWithDrawer({
           {...props}
           onClearFilters={() => setDrawerOpen(false)}
         />
-        <div className="mt-6 flex gap-2">
-          <button
-            type="button"
-            onClick={() => setDrawerOpen(false)}
-            className="w-full rounded-lg bg-zinc-900 px-4 py-3 text-sm font-medium text-white hover:bg-zinc-800"
-          >
-            ჩასმა
-          </button>
-          <button
-            type="button"
-            onClick={() => setDrawerOpen(false)}
-            className="w-full rounded-lg border border-zinc-200 px-4 py-3 text-sm font-medium text-zinc-700 hover:bg-zinc-50"
-          >
-            გაუქმება
-          </button>
-        </div>
       </FilterDrawer>
     </>
   );

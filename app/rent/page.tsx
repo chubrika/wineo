@@ -66,7 +66,7 @@ export default async function RentPage({ searchParams }: PageProps) {
         />
         <ListingGrid
           listings={items}
-          emptyMessage="No equipment for rent at the moment. Check back soon."
+          emptyMessage="ამ ეტაპზე გასაქირავებელი პროდუქცია არ არის დამატებული. შეამოწმეთ მოგვიანებით."
         />
         <Pagination
           total={total}

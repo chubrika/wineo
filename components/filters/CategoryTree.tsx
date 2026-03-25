@@ -142,7 +142,7 @@ export function CategoryTree({ type, tree, currentSlug }: CategoryTreeProps) {
         />
       </button>
       {isOpen && (
-        <div className="space-y-0">
+        <div className="space-y-0 max-h-[300px] overflow-y-auto">
           <div className="border-b border-zinc-100">
             <Link
               href={basePath}
