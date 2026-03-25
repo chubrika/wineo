@@ -125,7 +125,7 @@ export function CategoryTree({ type, tree, currentSlug }: CategoryTreeProps) {
   const pathname = usePathname();
   const basePath = listingBasePath(type);
   const isAllActive = !currentSlug && pathname === basePath;
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(true);
 
   return (
     <nav aria-label="Categories" className="space-y-0.5">
