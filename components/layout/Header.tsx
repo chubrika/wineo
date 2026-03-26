@@ -189,7 +189,7 @@ export function Header() {
           className="shrink-0 text-xl font-semibold tracking-tight text-zinc-900"
           onClick={() => setMenuOpen(false)}
         >
-          <Image src="/logo.svg" alt="wineo.ge" width={100} height={100} priority />
+          <Image src="/logo.svg" alt="wineo.ge" width={100} height={100} priority unoptimized />
         </HomeLogoLink>
 
         {/* Search — before nav */}
@@ -240,7 +240,7 @@ export function Header() {
                   aria-haspopup="true"
                   aria-label="User menu"
                 >
-                  {user.avatar ? <Image src={user.avatar} alt="User avatar" width={36} height={36} className="rounded-full" /> : 
+                  {user.avatar ? <Image src={user.avatar} alt="User avatar" width={36} height={36} className="rounded-full" unoptimized /> : 
                   <User className="h-5 w-5 shrink-0" />
                   }
                 </button>

@@ -91,6 +91,7 @@ export default async function NewsDetailPage({ params }: Props) {
                 className="object-cover"
                 priority
                 sizes="(max-width: 1024px) 100vw, 66vw"
+                unoptimized
               />
             </div>
           ) : (

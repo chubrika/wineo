@@ -108,6 +108,7 @@ export function ListingImageGallery({ images, alt, mainClass = "aspect-[4/3]", c
           className="object-cover"
           priority={currentIndex === 0}
           sizes="(max-width: 768px) 100vw, 400px"
+          unoptimized
         />
         {condition && (
           <span
@@ -188,7 +189,7 @@ export function ListingImageGallery({ images, alt, mainClass = "aspect-[4/3]", c
                   i === currentIndex ? "border-zinc-900 ring-1 ring-zinc-900" : "border-zinc-200 hover:border-zinc-400"
                 }`}
               >
-                <Image src={url} alt={`${alt} ${i + 1}`} fill className="object-cover" sizes="56px" />
+                <Image src={url} alt={`${alt} ${i + 1}`} fill className="object-cover" sizes="56px" unoptimized />
               </button>
             ))}
           </div>
@@ -230,6 +231,7 @@ export function ListingImageGallery({ images, alt, mainClass = "aspect-[4/3]", c
               fill
               className="object-contain"
               sizes="90vw"
+              unoptimized
             />
           </div>
           {hasMultiple && (

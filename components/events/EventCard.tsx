@@ -32,6 +32,7 @@ export function EventCard({ event }: { event: ApiEvent }) {
             className="object-cover transition-transform duration-300 group-hover:scale-[1.02]"
             sizes="(max-width: 1024px) 100vw, 560px"
             loading="lazy"
+            unoptimized
           />
         ) : (
           <div className="absolute inset-0 flex items-center justify-center text-sm text-zinc-500">

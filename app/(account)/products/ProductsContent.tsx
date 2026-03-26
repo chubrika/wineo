@@ -264,6 +264,7 @@ export function ProductsContent() {
                       alt={p.title}
                       fill
                       sizes="48px"
+                      unoptimized
                       className="object-cover"
                     />
                   </Link>
@@ -411,6 +412,7 @@ export function ProductsContent() {
                           fill
                           sizes="44px"
                           className="object-cover"
+                          unoptimized
                         />
                       </span>
                       <span className="line-clamp-2">{p.title}</span>

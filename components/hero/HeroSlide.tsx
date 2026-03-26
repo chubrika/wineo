@@ -37,6 +37,7 @@ export function HeroSlideContent({ slide }: HeroSlideProps) {
               className="absolute inset-0 h-full w-full object-cover"
               loading="lazy"
               sizes="100vw"
+              unoptimized
             />
           </picture>
         )}

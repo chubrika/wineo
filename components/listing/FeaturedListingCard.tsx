@@ -75,6 +75,7 @@ export function FeaturedListingCard({ listing }: FeaturedListingCardProps) {
             height={943}
             className="object-cover"
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+            unoptimized
           />
           <span className="absolute left-5 top-5 rounded-full bg-white/90 px-2.5 py-0.5 text-xs font-medium capitalize text-zinc-800">
             {listing.type === "buy" ? "იყიდე" : "იქირავე"}

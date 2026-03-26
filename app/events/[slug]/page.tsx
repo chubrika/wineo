@@ -155,6 +155,7 @@ export default async function EventDetailPage({ params }: Props) {
                 className="object-cover"
                 priority
                 sizes="(max-width: 1024px) 100vw, 66vw"
+                unoptimized
               />
             </div>
           ) : (

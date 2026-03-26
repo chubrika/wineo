@@ -36,6 +36,7 @@ export function NewsCard({ item, expandFull = false, href, compact = true }: New
             fill
             className="object-cover"
             sizes={compact ? "200px" : "(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"}
+            unoptimized
           />
         </div>
       ) : (
