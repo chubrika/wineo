@@ -17,6 +17,9 @@ export type AuthUser = {
   phone?: string;
   userType?: 'physical' | 'business';
   avatar?: string;
+  picture?: string;
+  provider?: string;
+  authProviders?: string[];
 };
 
 export type RegisterBody = {
@@ -105,6 +108,7 @@ export async function login(body: LoginBody): Promise<AuthResponse> {
 export async function getMe(token?: string): Promise<MeResponse> {
   const res = await fetch(`${API_BASE}/auth/me`, {
     credentials: "include",
+    cache: "no-store",
     ...(token ? { headers: { Authorization: `Bearer ${token}` } } : {}),
   });
   return handleRes<MeResponse>(res);
@@ -154,6 +158,15 @@ export async function logout(): Promise<void> {
   });
   if (!res.ok) return;
   await res.json().catch(() => ({}));
+}
+
+/** DELETE /auth/google/link — remove Google from the current account (requires password login or linked local). */
+export async function unlinkGoogle(): Promise<MeResponse> {
+  const res = await fetch(`${API_BASE}/auth/google/link`, {
+    method: "DELETE",
+    credentials: "include",
+  });
+  return handleRes<MeResponse>(res);
 }
 
 /** Body for PATCH /auth/me */
@@ -460,16 +473,18 @@ export type CreateProductPayload = {
  * POST /products — create a product (listing). Requires auth token.
  */
 export async function createProduct(
-  token: string,
+  token: string | null | undefined,
   payload: CreateProductPayload
 ): Promise<ApiProduct> {
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+  };
+  if (token) headers.Authorization = `Bearer ${token}`;
+
   const res = await fetch(`${API_BASE}/products`, {
     method: "POST",
     credentials: "include",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
-    },
+    headers,
     body: JSON.stringify(payload),
   });
   return handleRes<ApiProduct>(res);
@@ -492,17 +507,19 @@ export async function getProductById(id: string): Promise<ApiProduct | null> {
  * PUT /products/:id — update a product. Requires auth token.
  */
 export async function updateProduct(
-  token: string,
+  token: string | null | undefined,
   id: string,
   payload: Partial<CreateProductPayload>
 ): Promise<ApiProduct> {
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+  };
+  if (token) headers.Authorization = `Bearer ${token}`;
+
   const res = await fetch(`${API_BASE}/products/${encodeURIComponent(id)}`, {
     method: "PUT",
     credentials: "include",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
-    },
+    headers,
     body: JSON.stringify(payload),
   });
   return handleRes<ApiProduct>(res);
@@ -525,37 +542,37 @@ export async function deleteProduct(token: string | null | undefined, id: string
 
 /** Wishlist API (auth required). */
 
-export async function getWishlist(token: string): Promise<ApiProduct[]> {
+export async function getWishlist(token?: string | null): Promise<ApiProduct[]> {
   const res = await fetch(`${API_BASE}/wishlist`, {
     cache: "no-store",
     credentials: "include",
-    headers: { Authorization: `Bearer ${token}` },
+    ...(token ? { headers: { Authorization: `Bearer ${token}` } } : {}),
   });
   return handleRes<ApiProduct[]>(res);
 }
 
 /** Add product to wishlist. Returns { count }. */
 export async function addToWishlist(
-  token: string,
+  token: string | null | undefined,
   productId: string
 ): Promise<{ count: number }> {
   const res = await fetch(`${API_BASE}/wishlist/${encodeURIComponent(productId)}`, {
     method: "POST",
     credentials: "include",
-    headers: { Authorization: `Bearer ${token}` },
+    ...(token ? { headers: { Authorization: `Bearer ${token}` } } : {}),
   });
   return handleRes<{ count: number }>(res);
 }
 
 /** Remove product from wishlist. Returns { count }. */
 export async function removeFromWishlist(
-  token: string,
+  token: string | null | undefined,
   productId: string
 ): Promise<{ count: number }> {
   const res = await fetch(`${API_BASE}/wishlist/${encodeURIComponent(productId)}`, {
     method: "DELETE",
     credentials: "include",
-    headers: { Authorization: `Bearer ${token}` },
+    ...(token ? { headers: { Authorization: `Bearer ${token}` } } : {}),
   });
   return handleRes<{ count: number }>(res);
 }
@@ -570,16 +587,18 @@ export type PresignUploadResponse = {
  * count: 1–20. Returns uploads array (key + uploadUrl). First image = thumbnail.
  */
 export async function getPresignedUploadUrls(
-  token: string,
+  token: string | null | undefined,
   count: number
 ): Promise<PresignUploadResponse> {
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+  };
+  if (token) headers.Authorization = `Bearer ${token}`;
+
   const res = await fetch(`${API_BASE}/products/upload/presign`, {
     method: "POST",
     credentials: "include",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
-    },
+    headers,
     body: JSON.stringify({ count: Math.min(20, Math.max(1, count)) }),
   });
   return handleRes<PresignUploadResponse>(res);

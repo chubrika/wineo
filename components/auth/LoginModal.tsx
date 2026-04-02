@@ -9,6 +9,34 @@ import { XIcon, Eye, EyeOff, ArrowLeftIcon } from "lucide-react";
 
 type Tab = "login" | "register";
 
+const floatingInputClassName =
+  "peer block w-full rounded-lg border border-zinc-300 bg-white px-3 pt-5 pb-2 text-zinc-900 shadow-sm transition placeholder:text-transparent focus:border-[var(--nav-link-active)] focus:outline-none focus:ring-1 focus:ring-[var(--nav-link-active)]";
+
+const floatingLabelClassName =
+  "pointer-events-none absolute left-3 top-2 z-10 origin-left bg-white px-1 text-xs font-medium text-zinc-600 transition-all duration-200 peer-placeholder-shown:top-1/2 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:bg-transparent peer-placeholder-shown:px-0 peer-placeholder-shown:text-sm peer-placeholder-shown:font-normal peer-placeholder-shown:text-zinc-500 peer-focus:top-2 peer-focus:translate-y-0 peer-focus:bg-white peer-focus:px-1 peer-focus:text-xs peer-focus:font-medium peer-focus:text-[var(--nav-link-active)]";
+
+type FloatingInputProps = React.InputHTMLAttributes<HTMLInputElement> & {
+  label: string;
+  trailing?: React.ReactNode;
+};
+
+function FloatingInput({ label, trailing, className = "", id, placeholder = " ", ...props }: FloatingInputProps) {
+  return (
+    <div className="relative">
+      <input
+        {...props}
+        id={id}
+        placeholder={placeholder}
+        className={`${floatingInputClassName}${trailing ? " pr-10" : ""}${className ? ` ${className}` : ""}`}
+      />
+      <label htmlFor={id} className={floatingLabelClassName}>
+        {label}
+      </label>
+      {trailing}
+    </div>
+  );
+}
+
 export function LoginModal() {
   const router = useRouter();
   const { login, register } = useAuth();
@@ -204,8 +232,8 @@ export function LoginModal() {
       >
         <div className="flex h-full w-full flex-col bg-white">
           <div className="flex shrink-0 items-center justify-between border-b border-zinc-200 px-4 py-3 md:px-6">
-            <h2 className="text-lg font-semibold tracking-tight text-zinc-900 medium-font">
-              {showResetView ? "პაროლის აღდგენა" : tab === "login" ? "შესვლა" : "რეგისტრაცია"}
+            <h2 className="text-lg font-semibold tracking-tight text-zinc-900 nav-font-caps">
+              {showResetView ? "პაროლის აღდგენა" : tab === "register" ? "რეგისტრაცია" : "შესვლა"}
             </h2>
             <button
               type="button"
@@ -231,27 +259,23 @@ export function LoginModal() {
                   </div>
                 )}
                 <div>
-                  
-                <button
-                  type="button"
-                  onClick={handleBackFromReset}
-                  className="w-full mb-4 text-sm text-zinc-600 hover:text-zinc-900 cursor-pointer"
-                >
-                 <span className="flex items-center gap-2"> 
-                  <ArrowLeftIcon className="h-4 w-4" /> უკან</span>
-                </button>
-                  <label htmlFor="modal-reset-email" className="block text-sm font-medium text-zinc-700">
-                    ელფოსტა
-                  </label>
-                  <input
+                  <button
+                    type="button"
+                    onClick={handleBackFromReset}
+                    className="mb-4 w-full cursor-pointer text-sm text-zinc-600 hover:text-zinc-900"
+                  >
+                    <span className="flex items-center gap-2">
+                      <ArrowLeftIcon className="h-4 w-4" /> უკან
+                    </span>
+                  </button>
+                  <FloatingInput
                     id="modal-reset-email"
                     type="email"
                     autoComplete="email"
                     required
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="mt-1 block w-full rounded-lg border border-zinc-300 px-3 py-2 text-zinc-900 shadow-sm focus:border-[var(--nav-link-active)] focus:outline-none focus:ring-1 focus:ring-[var(--nav-link-active)]"
-                    placeholder="example@mail.com"
+                    label="ელფოსტა"
                   />
                 </div>
                 <button
@@ -264,33 +288,7 @@ export function LoginModal() {
               </form>
             ) : (
               <>
-            {/* Tabs */}
-            <div className="flex border-b border-zinc-200">
-              <button
-                type="button"
-                onClick={() => switchTab("login")}
-                className={`min-w-0 flex-1 cursor-pointer border-b-2 pb-3 text-sm font-medium transition-colors -mb-px ${
-                  tab === "login"
-                    ? "border-[var(--nav-link-active)] text-zinc-900"
-                    : "border-transparent text-zinc-500 hover:text-zinc-700"
-                }`}
-              >
-                შესვლა
-              </button>
-              <button
-                type="button"
-                onClick={() => switchTab("register")}
-                className={`min-w-0 cursor-pointer flex-1 border-b-2 pb-3 text-sm font-medium transition-colors -mb-px ${
-                  tab === "register"
-                    ? "border-[var(--nav-link-active)] text-zinc-900"
-                    : "border-transparent text-zinc-500 hover:text-zinc-700"
-                }`}
-              >
-                რეგისტრაცია
-              </button>
-            </div>
-
-            <form onSubmit={handleSubmit} className="mt-6 space-y-5">
+            <form onSubmit={handleSubmit} className="mt-2 space-y-5">
               {registerSuccess && (
                 <div className="rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-800" role="alert">
                   {registerSuccess}
@@ -349,48 +347,38 @@ export function LoginModal() {
                   {userType === "physical" ? (
                     <>
                       <div>
-                        <label htmlFor="modal-firstName" className="block text-sm font-medium text-zinc-700">
-                          სახელი
-                        </label>
-                        <input
+                        <FloatingInput
                           id="modal-firstName"
                           type="text"
                           autoComplete="given-name"
                           required={userType === "physical"}
                           value={firstName}
                           onChange={(e) => setFirstName(e.target.value)}
-                          className="mt-1 block w-full rounded-lg border border-zinc-300 px-3 py-2 text-zinc-900 shadow-sm focus:border-[var(--nav-link-active)] focus:outline-none focus:ring-1 focus:ring-[var(--nav-link-active)]"
+                          label="სახელი"
                         />
                       </div>
                       <div>
-                        <label htmlFor="modal-lastName" className="block text-sm font-medium text-zinc-700">
-                          გვარი
-                        </label>
-                        <input
+                        <FloatingInput
                           id="modal-lastName"
                           type="text"
                           autoComplete="family-name"
                           required={userType === "physical"}
                           value={lastName}
                           onChange={(e) => setLastName(e.target.value)}
-                          className="mt-1 block w-full rounded-lg border border-zinc-300 px-3 py-2 text-zinc-900 shadow-sm focus:border-[var(--nav-link-active)] focus:outline-none focus:ring-1 focus:ring-[var(--nav-link-active)]"
+                          label="გვარი"
                         />
                       </div>
                     </>
                   ) : (
                     <div>
-                      <label htmlFor="modal-businessName" className="block text-sm font-medium text-zinc-700">
-                        საბიზნესო სახელი
-                      </label>
-                      <input
+                      <FloatingInput
                         id="modal-businessName"
                         type="text"
                         autoComplete="organization"
                         required={userType === "business"}
                         value={businessName}
                         onChange={(e) => setBusinessName(e.target.value)}
-                        className="mt-1 block w-full rounded-lg border border-zinc-300 px-3 py-2 text-zinc-900 shadow-sm focus:border-[var(--nav-link-active)] focus:outline-none focus:ring-1 focus:ring-[var(--nav-link-active)]"
-                        placeholder="მაგ. შპს ვაზის მეურნეობა"
+                        label="საბიზნესო სახელი"
                       />
                     </div>
                   )}
@@ -398,96 +386,145 @@ export function LoginModal() {
               )}
 
               <div>
-                <label htmlFor="modal-email" className="block text-sm font-medium text-zinc-700">
-                  ელფოსტა
-                </label>
-                <input
+                <FloatingInput
                   id="modal-email"
                   type="email"
                   autoComplete="email"
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="mt-1 block w-full rounded-lg border border-zinc-300 px-3 py-2 text-zinc-900 shadow-sm focus:border-[var(--nav-link-active)] focus:outline-none focus:ring-1 focus:ring-[var(--nav-link-active)]"
+                  label="ელფოსტა"
                 />
               </div>
 
               <div>
-                <label htmlFor="modal-password" className="block text-sm font-medium text-zinc-700">
-                  პაროლი
-                </label>
-                <div className="relative mt-1">
-                  <input
-                    id="modal-password"
-                    type={showPassword ? "text" : "password"}
-                    autoComplete={tab === "login" ? "current-password" : "new-password"}
-                    required
-                    minLength={tab === "register" ? 6 : undefined}
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="block w-full rounded-lg border border-zinc-300 px-3 py-2 pr-10 text-zinc-900 shadow-sm focus:border-[var(--nav-link-active)] focus:outline-none focus:ring-1 focus:ring-[var(--nav-link-active)]"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword((p) => !p)}
-                    className="absolute right-2 top-1/2 -translate-y-1/2 rounded p-1.5 text-zinc-500 transition-colors hover:bg-zinc-100 hover:text-zinc-700"
-                    aria-label={showPassword ? "პაროლის დამალვა" : "პაროლის ჩვენება"}
-                    tabIndex={-1}
-                  >
-                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                  </button>
-                </div>
-                {tab === "register" && <p className="mt-1 text-xs text-zinc-500">მინიმუმ 6 სიმბოლო</p>}
-                {tab === "login" && (
-                  <p className="pt-4">
+                <FloatingInput
+                  id="modal-password"
+                  type={showPassword ? "text" : "password"}
+                  autoComplete={tab === "login" ? "current-password" : "new-password"}
+                  required
+                  minLength={tab === "register" ? 6 : undefined}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  label="პაროლი"
+                  trailing={
                     <button
                       type="button"
-                      onClick={() => setShowResetView(true)}
-                      className="text-sm text-[var(--nav-link-active)] cursor-pointer"
+                      onClick={() => setShowPassword((p) => !p)}
+                      className="absolute right-2 top-1/2 -translate-y-1/2 rounded p-1.5 text-zinc-500 transition-colors hover:bg-zinc-100 hover:text-zinc-700"
+                      aria-label={showPassword ? "პაროლის დამალვა" : "პაროლის ჩვენება"}
+                      tabIndex={-1}
                     >
-                      პაროლის აღდგენა
+                      {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                     </button>
-                  </p>
+                  }
+                />
+                {tab === "register" && <p className="mt-1 text-xs text-zinc-500">მინიმუმ 6 სიმბოლო</p>}
+                {tab === "login" && (
+                  <div>
+                    <p className="pt-4">
+                      <span className="mr-3 text-sm text-black/60">დაგავიწყდა პაროლი? </span>
+                      <button
+                        type="button"
+                        onClick={() => setShowResetView(true)}
+                        className="cursor-pointer text-sm text-[var(--nav-link-active)]"
+                      >
+                        პაროლის აღდგენა
+                      </button>
+                    </p>
+                    <p className="mt-3">
+                      <span className="mr-3 text-sm text-black/60">პირველად დებ განცხადებას? </span>
+                      <button
+                        type="button"
+                        onClick={() => switchTab("register")}
+                        className="cursor-pointer text-sm text-[var(--nav-link-active)]"
+                      >
+                        დარეგისტრირდი
+                      </button>
+                    </p>
+                  </div>
                 )}
               </div>
 
               {tab === "register" && (
                 <div>
-                  <label htmlFor="modal-repeatPassword" className="block text-sm font-medium text-zinc-700">
-                    გაიმეორეთ პაროლი
-                  </label>
-                  <div className="relative mt-1">
-                    <input
-                      id="modal-repeatPassword"
-                      type={showRepeatPassword ? "text" : "password"}
-                      autoComplete="new-password"
-                      required
-                      minLength={6}
-                      value={repeatPassword}
-                      onChange={(e) => setRepeatPassword(e.target.value)}
-                      className="block w-full rounded-lg border border-zinc-300 px-3 py-2 pr-10 text-zinc-900 shadow-sm focus:border-[var(--nav-link-active)] focus:outline-none focus:ring-1 focus:ring-[var(--nav-link-active)]"
-                    />
+                  <FloatingInput
+                    id="modal-repeatPassword"
+                    type={showRepeatPassword ? "text" : "password"}
+                    autoComplete="new-password"
+                    required
+                    minLength={6}
+                    value={repeatPassword}
+                    onChange={(e) => setRepeatPassword(e.target.value)}
+                    label="გაიმეორეთ პაროლი"
+                    trailing={
+                      <button
+                        type="button"
+                        onClick={() => setShowRepeatPassword((p) => !p)}
+                        className="absolute right-2 top-1/2 -translate-y-1/2 rounded p-1.5 text-zinc-500 transition-colors hover:bg-zinc-100 hover:text-zinc-700"
+                        aria-label={showRepeatPassword ? "პაროლის დამალვა" : "პაროლის ჩვენება"}
+                        tabIndex={-1}
+                      >
+                        {showRepeatPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      </button>
+                    }
+                  />
+
+                  <p className="pt-4">
+                    <span className="mr-3 text-sm text-black/60">უკვე გაქვს ანგარიში? </span>
                     <button
                       type="button"
-                      onClick={() => setShowRepeatPassword((p) => !p)}
-                      className="absolute right-2 top-1/2 -translate-y-1/2 rounded p-1.5 text-zinc-500 transition-colors hover:bg-zinc-100 hover:text-zinc-700"
-                      aria-label={showRepeatPassword ? "პაროლის დამალვა" : "პაროლის ჩვენება"}
-                      tabIndex={-1}
+                      onClick={() => switchTab("login")}
+                      className="cursor-pointer text-sm text-[var(--nav-link-active)]"
                     >
-                      {showRepeatPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      შესვლა
                     </button>
-                  </div>
+                  </p>
                 </div>
               )}
 
               <button
                 type="submit"
                 disabled={submitting}
-                className="w-full rounded-lg bg-[var(--nav-link-active)] px-4 py-2.5 font-medium text-white transition-colors hover:opacity-90 disabled:opacity-60"
+                className="w-full rounded-lg cursor-pointer bg-[var(--nav-link-active)] px-4 py-2.5 font-medium text-white transition-colors hover:opacity-90 disabled:opacity-60"
               >
                 {submitting ? "იწვევს..." : tab === "login" ? "შესვლა" : "რეგისტრაცია"}
               </button>
             </form>
+
+            
+            <div className="mt-6 space-y-3">
+              <div className="relative flex items-center gap-2 mb-5">
+                <span className="h-px flex-1 bg-zinc-200" />
+                <span className="text-xs text-zinc-500">ან</span>
+                <span className="h-px flex-1 bg-zinc-200" />
+              </div>
+              <a
+                href="/auth/google"
+                className="flex w-full items-center justify-center gap-2 rounded-lg border border-zinc-300 bg-white px-4 py-2.5 text-sm font-medium text-zinc-800 shadow-sm transition-colors hover:bg-zinc-50"
+              >
+                <svg className="h-5 w-5 shrink-0" viewBox="0 0 24 24" aria-hidden>
+                  <path
+                    fill="#4285F4"
+                    d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+                  />
+                  <path
+                    fill="#34A853"
+                    d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+                  />
+                  <path
+                    fill="#FBBC05"
+                    d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
+                  />
+                  <path
+                    fill="#EA4335"
+                    d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
+                  />
+                </svg>
+                Google-ით გაგრძელება
+              </a>
+              
+            </div>
               </>
             )}
           </div>

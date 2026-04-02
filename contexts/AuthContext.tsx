@@ -29,7 +29,8 @@ type AuthContextValue = AuthState & {
     data: { firstName: string; lastName: string } | { businessName: string }
   ) => Promise<RegisterResult>;
   logout: () => void;
-  setSession: (user: AuthUser, token: string) => void;
+  /** Pass token after email/password login; pass null when session is cookie-only (e.g. Google OAuth). */
+  setSession: (user: AuthUser, token: string | null) => void;
   updateProfile: (data: {
     phone?: string;
     firstName?: string;
@@ -42,7 +43,7 @@ const AuthContext = createContext<AuthContextValue | null>(null);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(null);
-  const [token, setToken] = useState<string | null>(() => getStoredToken());
+  const [token, setToken] = useState<string | null>(() => getStoredToken() ?? null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -84,8 +85,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     []
   );
 
-  const setSession = useCallback((u: AuthUser, t: string) => {
-    setStoredToken(t);
+  const setSession = useCallback((u: AuthUser, t: string | null) => {
+    if (t) setStoredToken(t);
+    else clearStoredToken();
     setToken(t);
     setUser(u);
   }, []);

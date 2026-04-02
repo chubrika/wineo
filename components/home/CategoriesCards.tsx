@@ -77,9 +77,9 @@ function CategoryCard({
       onFocus={() => setIsHovered(true)}
       onBlur={() => setIsHovered(false)}
     >
-      <div className="rounded-2xl bg-[#f5f6f8] hover:bg-[#fff] transition-colors duration-300 p-5 flex flex-col items-center justify-start">
+      <div className="rounded-2xl bg-none sm:bg-[#f5f6f8] hover:bg-[#fff] transition-colors duration-300 p-0 md:p-5 flex flex-col items-center justify-start">
         <div
-          className="w-20 h-20 rounded-xl flex items-center justify-center transition-colors duration-300"
+          className="w-15 h-15 sm:w-20 sm:h-20 rounded-xl flex items-center justify-center transition-colors duration-300"
           style={{ backgroundColor: squareBg }}
         >
           {resolveCategoryIcon({ icon: category.icon ?? "", iconColor: currentIconColor })}
@@ -121,7 +121,7 @@ export function CategoriesCards() {
   return (
     <section className="bg-white pb-0 pt-10 md:pt-20 px-4 md:px-0">
       <div className="mx-auto max-w-7xl">
-        <div className="grid grid-cols-2 gap-2 md:gap-4 sm:grid-cols-3 lg:grid-cols-6">
+        <div className="grid grid-cols-3 gap-2 md:gap-4 sm:grid-cols-3 lg:grid-cols-6">
           {withIcons.map((category) => (
             <CategoryCard
               key={category.id}

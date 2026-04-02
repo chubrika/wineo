@@ -2,18 +2,20 @@
 
 import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
+import { unlinkGoogle } from "@/lib/api";
 
 const inputClass =
   "mt-1 block w-full rounded-lg border border-zinc-300 px-3 py-2 text-zinc-900 shadow-sm focus:border-[var(--nav-link-active)] focus:outline-none focus:ring-1 focus:ring-[var(--nav-link-active)]";
 const labelClass = "block text-sm font-medium text-zinc-700";
 
 export function ProfileContent() {
-  const { user, loading, updateProfile } = useAuth();
+  const { user, loading, updateProfile, setSession, token } = useAuth();
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [businessName, setBusinessName] = useState("");
   const [phone, setPhone] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [unlinking, setUnlinking] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
 
@@ -67,6 +69,23 @@ export function ProfileContent() {
       setSubmitting(false);
     }
   };
+
+  const handleUnlinkGoogle = async () => {
+    setError("");
+    setUnlinking(true);
+    try {
+      const { user: u } = await unlinkGoogle();
+      setSession(u, token ?? null);
+      setSuccess(true);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "შეცდომა");
+    } finally {
+      setUnlinking(false);
+    }
+  };
+
+  const hasGoogle =
+    Boolean(user?.authProviders?.includes("google")) || user?.provider === "google";
 
   if (loading) {
     return (
@@ -172,6 +191,7 @@ export function ProfileContent() {
           ელფოსტის შეცვლა მოგვიანებით იქნება შესაძლებელი.
         </p>
       </div>
+
       <div>
         <label htmlFor="profile-phone" className={labelClass}>
           საკონტაქტო ნომერი

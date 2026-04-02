@@ -16,7 +16,7 @@ export type UploadedImage = {
 };
 
 type ProductImageUploadProps = {
-  token: string;
+  token?: string | null;
   value: UploadedImage[];
   onChange: (uploads: UploadedImage[]) => void;
   disabled?: boolean;
@@ -65,7 +65,7 @@ export function ProductImageUpload({
 
   const uploadFiles = useCallback(
     async (files: File[]) => {
-      if (!token || files.length === 0) return;
+      if (files.length === 0) return;
       setUploadError(null);
       const current = [...value];
       const startIndex = current.length;

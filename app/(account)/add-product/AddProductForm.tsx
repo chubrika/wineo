@@ -540,7 +540,7 @@ export function AddProductForm({
   if (authLoading) {
     return <p className="text-zinc-500">იტვირთება...</p>;
   }
-  if (!user || !token) {
+  if (!user) {
     return (
       <p className="text-zinc-600">
         განცხადების დასამატებლად გაიარეთ{" "}
@@ -1223,7 +1223,7 @@ export function AddProductForm({
           <label className={labelClass}>სურათების ატვირთვა</label>
           <div className={fieldErrors.images ? "rounded-lg border border-red-500 p-2" : ""}>
             <ProductImageUpload
-              token={token!}
+              token={token}
               value={uploadedImages}
               onChange={(imgs) => {
                 setUploadedImages(imgs);

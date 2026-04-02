@@ -40,7 +40,7 @@ export function WishlistProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(false);
 
   const fetchWishlist = useCallback(async () => {
-    if (!token || !user) {
+    if (!user) {
       setItems([]);
       return;
     }
@@ -56,7 +56,7 @@ export function WishlistProvider({ children }: { children: ReactNode }) {
   }, [token, user]);
 
   useEffect(() => {
-    if (user && token) {
+    if (user) {
       fetchWishlist();
     } else {
       setItems([]);
@@ -70,7 +70,7 @@ export function WishlistProvider({ children }: { children: ReactNode }) {
 
   const toggleWishlist = useCallback(
     async (productId: string) => {
-      if (!user || !token) {
+      if (!user) {
         openLoginModal();
         return;
       }
