@@ -3,6 +3,7 @@
 import { Suspense, useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
+import { useAuth } from "@/contexts/AuthContext";
 
 const errorMessages: Record<string, string> = {
   provider_denied: "Google-ში შესვლა გაუქმდა.",
@@ -21,6 +22,7 @@ const errorMessages: Record<string, string> = {
 function GoogleCallbackInner() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { user, loading } = useAuth();
   const [message, setMessage] = useState("Loading...");
 
   useEffect(() => {
@@ -32,6 +34,22 @@ function GoogleCallbackInner() {
       return;
     }
 
+    const success = searchParams.get("success");
+    if (success === "1") {
+      if (loading) {
+        setMessage("Finishing Google sign-in...");
+        return;
+      }
+
+      if (user) {
+        router.replace("/");
+        return;
+      }
+
+      setMessage("Google sign-in finished, but the browser session could not be restored. Please try again.");
+      return;
+    }
+
     const err = searchParams.get("error");
     if (!err) {
       router.replace("/");
@@ -39,7 +57,7 @@ function GoogleCallbackInner() {
     }
 
     setMessage(errorMessages[err] || errorMessages.oauth_failed);
-  }, [router, searchParams]);
+  }, [loading, router, searchParams, user]);
 
   return (
     <div className="mx-auto flex min-h-[50vh] max-w-md flex-col items-center justify-center gap-4 px-4 text-center">

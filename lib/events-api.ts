@@ -1,6 +1,11 @@
 import { API_BASE } from "@/lib/api";
 import type { ApiEvent, ApiEventsCalendarResponse, ApiEventsListResponse } from "@/types/event";
 
+const nativeFetch: typeof globalThis.fetch = (...args) => globalThis.fetch(...args);
+
+const fetch: typeof globalThis.fetch = (input, init) =>
+  nativeFetch(input, { ...init, credentials: "include" });
+
 export function toYmd(date: Date): string {
   const y = date.getFullYear();
   const m = String(date.getMonth() + 1).padStart(2, "0");

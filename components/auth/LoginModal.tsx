@@ -207,7 +207,7 @@ export function LoginModal() {
 
   return (
     <div
-      className="fixed inset-0 z-[100] flex items-end justify-end"
+      className="fixed inset-0 z-[100] flex justify-end items-center px-2 md:pr-5"
       role="dialog"
       aria-modal="true"
       aria-label={tab === "login" ? "შესვლა" : "რეგისტრაცია"}
@@ -224,9 +224,9 @@ export function LoginModal() {
       {/* Panel: slide from bottom on mobile, from right on desktop */}
       <div
         className={`
-          relative z-10 flex h-[85vh] w-full max-h-[90vh] flex-col rounded-t-2xl border-t border-zinc-200 bg-white shadow-xl
+          relative overflow-hidden z-10 flex h-[85vh] w-full max-h-[90vh] flex-col rounded-2xl border-t border-zinc-200 bg-white shadow-xl
           transition-transform duration-300 ease-out
-          md:h-full md:max-h-none md:w-full md:max-w-md md:rounded-none md:border-t-0 md:border-l md:translate-y-0
+          md:h-[90vh] md:max-h-[90vh] md:w-full md:max-w-md  md:border-t-0 md:border-l md:translate-y-0
           ${isVisible ? "translate-y-0 md:translate-x-0" : "translate-y-full md:translate-x-full"}
         `}
       >

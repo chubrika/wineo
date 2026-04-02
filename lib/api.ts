@@ -1,11 +1,35 @@
 /**
- * API base: relative "/api" in the browser (same-origin, middleware proxies);
- * absolute BACKEND_URL + "/api" on the server (Node fetch requires absolute URL).
+ * API base:
+ * - Server: always uses the absolute backend URL.
+ * - Browser on localhost: use Next.js `/api` rewrites to avoid local CORS regressions.
+ * - Browser in production: call the backend origin directly so cross-domain cookies work.
  */
+function normalizeBackendUrl(value: string | undefined): string {
+  return (value || "http://localhost:4000").trim().replace(/\/$/, "");
+}
+
+function isLocalhostBackendUrl(value: string): boolean {
+  return /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/i.test(value);
+}
+
+const SERVER_BACKEND_URL = normalizeBackendUrl(
+  process.env.BACKEND_URL || process.env.NEXT_PUBLIC_BACKEND_URL
+);
+const PUBLIC_BACKEND_URL = normalizeBackendUrl(process.env.NEXT_PUBLIC_BACKEND_URL);
+const BROWSER_API_BASE = isLocalhostBackendUrl(PUBLIC_BACKEND_URL)
+  ? "/api"
+  : `${PUBLIC_BACKEND_URL}/api`;
+
 export const API_BASE =
   typeof window === "undefined"
-    ? `${(process.env.BACKEND_URL || "http://localhost:4000").replace(/\/$/, "")}/api`
-    : "/api";
+    ? `${SERVER_BACKEND_URL}/api`
+    : BROWSER_API_BASE;
+
+const nativeFetch: typeof globalThis.fetch = (...args) => globalThis.fetch(...args);
+
+// Cross-domain auth depends on browser requests always carrying the backend cookie.
+const fetch: typeof globalThis.fetch = (input, init) =>
+  nativeFetch(input, { ...init, credentials: "include" });
 
 export type AuthUser = {
   id: string;
@@ -63,7 +87,7 @@ const AUTH_OPTS: RequestInit = {
 };
 
 /**
- * Example: PATCH/DELETE with cookie-based auth (same-origin via Next.js proxy).
+ * Example: PATCH/DELETE with cookie-based auth against the backend origin.
  *
  * await fetch(`${API_BASE}/auth/me`, {
  *   method: "PATCH",
