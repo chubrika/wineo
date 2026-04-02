@@ -240,7 +240,7 @@ export function Header() {
                   aria-haspopup="true"
                   aria-label="User menu"
                 >
-                  {user.picture ? <Image src={user.picture} alt="User avatar" width={36} height={36} className="rounded-full" unoptimized /> : 
+                  {user.picture ? <Image src={user.picture} alt="User picture" width={36} height={36} className="rounded-full" unoptimized /> : 
                   <User className="h-5 w-5 shrink-0" />
                   }
                 </button>
