@@ -5,17 +5,17 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 
 const errorMessages: Record<string, string> = {
-  provider_denied: "Google sign-in was cancelled.",
-  bad_state: "Could not verify the Google sign-in request. Please try again.",
-  not_configured: "Google sign-in is not configured.",
-  db_not_connected: "The server is not connected to the database.",
-  invalid_request: "Google sign-in returned an invalid request.",
-  no_access_token: "Google did not return an access token.",
-  invalid_google_profile: "Google did not return a valid user profile.",
-  link_email_mismatch: "The Google email does not match the current account.",
-  google_in_use: "This Google account is already linked to another user.",
-  account_conflict: "This email is already linked to a different Google account.",
-  oauth_failed: "Google sign-in failed. Please try again.",
+  provider_denied: "Google-ში შესვლა გაუქმდა.",
+  bad_state: "Google-ში შესვლის მოთხოვნის დადასტურება ვერ მოხერხდა. გთხოვთ, სცადოთ ხელახლა.",
+  not_configured: "Google-ში შესვლა კონფიგურირებული არ არის.",
+  db_not_connected: "სერვერი არ არის დაკავშირებული მონაცემთა ბაზასთან.",
+  invalid_request: "Google-ში შესვლამ არასწორი მოთხოვნა დააბრუნა.",
+  no_access_token: "Google-მა წვდომის ტოკენი არ დააბრუნა.",
+  invalid_google_profile: "Google-მა არ დააბრუნა სწორი მომხმარებლის პროფილი.",
+  link_email_mismatch: "Google-ის ელ. ფოსტა არ ემთხვევა მიმდინარე ანგარიშს.",
+  google_in_use: "ეს Google ანგარიში უკვე დაკავშირებულია სხვა მომხმარებელთან.",
+  account_conflict: "ეს ელ. ფოსტა უკვე დაკავშირებულია სხვა Google ანგარიშთან.",
+  oauth_failed: "Google-ში შესვლა ვერ მოხერხდა. გთხოვთ, სცადოთ ხელახლა..",
 };
 
 function GoogleCallbackInner() {
