@@ -57,7 +57,7 @@ export async function middleware(request: NextRequest) {
       {
         error: "API proxy misconfiguration",
         message:
-          "Set BACKEND_URL in Vercel to your public API URL (e.g. https://your-api.onrender.com).",
+          "Set BACKEND_URL in Vercel to your public API URL (e.g. https://api.wineo.ge).",
       },
       { status: 503 }
     );
