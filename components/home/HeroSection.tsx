@@ -425,13 +425,12 @@ export function HeroSection() {
                   </button>
                 </div>
                 <div ref={categoryDropdownRefModal} className="relative">
-                  <label className="mb-1 block text-sm font-medium text-zinc-700">კატეგორია</label>
                   <button
                     type="button"
                     onClick={openCategoryDropdown}
                     aria-haspopup="listbox"
                     aria-expanded={categoryDropdownOpen}
-                    className="min-h-[40px] flex w-full items-center justify-between rounded-lg bg-white px-3 py-2.5 text-left"
+                    className="min-h-[40px] flex w-full items-center border border-zinc-300 justify-between rounded-lg bg-white px-3 py-2.5 text-left"
                   >
                     <div className="flex flex-col items-start">
                       <span className="text-[11px] leading-4 text-zinc-500 normal-font">კატეგორიები</span>
@@ -479,7 +478,6 @@ export function HeroSection() {
                   <input type="hidden" name="category" value={category} readOnly aria-hidden />
                 </div>
                 <div>
-                  <label className="mb-1 block text-sm font-medium text-zinc-700">რეგიონი</label>
                   <div ref={regionDropdownRefModal} className="relative">
                     <button
                       type="button"
@@ -487,7 +485,7 @@ export function HeroSection() {
                       aria-haspopup="listbox"
                       aria-expanded={regionDropdownOpen}
                       aria-label="რეგიონი"
-                      className="min-h-[40px] flex w-full items-center justify-between rounded-lg bg-white px-3 py-2.5 text-left"
+                      className="min-h-[40px] flex w-full items-center justify-between border border-zinc-300 rounded-lg bg-white px-3 py-2.5 text-left"
                     >
                       <div className="flex flex-col items-start">
                         <span className="text-[11px] leading-4 text-zinc-500 normal-font">რეგიონი</span>

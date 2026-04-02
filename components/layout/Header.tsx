@@ -350,7 +350,7 @@ export function Header() {
         aria-hidden={!subheaderVisible}
       >
         <nav
-          className="nav-font-caps mx-auto flex h-12 max-w-7xl items-center justify-between gap-6"
+          className="mx-auto flex h-12 max-w-7xl items-center justify-between gap-6"
           aria-label="Main navigation"
         >
           <div className="flex items-center gap-6">
@@ -383,7 +383,7 @@ export function Header() {
       {/* Mobile nav panel */}
       <div
         id="mobile-nav"
-        className={`nav-font-caps grid overflow-hidden transition-[grid-template-rows,opacity] duration-300 ease-out lg:hidden ${
+        className={`grid overflow-hidden transition-[grid-template-rows,opacity] duration-300 ease-out lg:hidden ${
           menuOpen ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
         }`}
         aria-hidden={!menuOpen}
