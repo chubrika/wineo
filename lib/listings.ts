@@ -185,7 +185,9 @@ export async function getFeaturedListings(limit: number = 6): Promise<Listing[]>
   try {
     const list = await getProducts({ status: "active", limit: 100 });
     const mapped = list.map(mapApiProductToListing);
-    const featured = mapped.filter((l) => l.promotionType === "featured" || l.promotionType === "homepageTop");
+    // const featured = mapped.filter((l) => l.promotionType === "featured" || l.promotionType === "homepageTop");
+        const featured =  [...mapped]
+  .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
     return featured.sort(compareByPromotionThenCreatedAtDesc).slice(0, limit);
   } catch {
     return [];

@@ -2,7 +2,7 @@ import { getFeaturedListings } from "@/lib/listings";
 import { FeaturedListingCard } from "@/components/listing";
 
 export async function FeaturedListings() {
-  const listings = await getFeaturedListings(6);
+  const listings = await getFeaturedListings(10);
 
   if (listings.length === 0) return null;
 

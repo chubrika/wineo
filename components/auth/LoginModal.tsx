@@ -493,7 +493,7 @@ export function LoginModal() {
             </form>
 
             
-            <div className="mt-6 space-y-3">
+            {/* <div className="mt-6 space-y-3">
               <div className="relative flex items-center gap-2 mb-5">
                 <span className="h-px flex-1 bg-zinc-200" />
                 <span className="text-xs text-zinc-500">ან</span>
@@ -524,7 +524,7 @@ export function LoginModal() {
                 Google-ით გაგრძელება
               </a>
               
-            </div>
+            </div> */}
               </>
             )}
           </div>
