@@ -23,6 +23,8 @@ export function CategoriesModal({ open, onClose, initialRootSlug }: CategoriesMo
   const [categoriesApi, setCategoriesApi] = useState<Awaited<ReturnType<typeof getCategories>>>([]);
   const [loading, setLoading] = useState(true);
   const [selectedRoot, setSelectedRoot] = useState<CategoryTreeNode | null>(null);
+  const [childLevelStack, setChildLevelStack] = useState<CategoryTreeNode[][]>([]);
+  const [childLevelTitles, setChildLevelTitles] = useState<string[]>([]);
   const [listingType, setListingType] = useState<ListingType>("buy");
 
   const typesBySlug = useMemo(() => {
@@ -42,7 +44,13 @@ export function CategoriesModal({ open, onClose, initialRootSlug }: CategoriesMo
   const allowRent = allowedTypes ? allowedTypes.includes("rent") : true;
 
   const roots = useMemo(() => buildCategoryTree(categoriesApi), [categoriesApi]);
-  const children = selectedRoot?.children ?? [];
+  const currentChildren =
+    childLevelStack.length > 0 ? childLevelStack[childLevelStack.length - 1] : [];
+  const currentChildTitle =
+    childLevelTitles.length > 0
+      ? childLevelTitles[childLevelTitles.length - 1]
+      : (selectedRoot?.name ?? "");
+  const canGoBackInChildren = childLevelStack.length > 1;
   const hideRootsList = Boolean(initialRootSlug);
 
   function findRootBySlug(rootNodes: CategoryTreeNode[], slug: string): CategoryTreeNode | null {
@@ -102,6 +110,8 @@ export function CategoriesModal({ open, onClose, initialRootSlug }: CategoriesMo
       queueMicrotask(() => {
         if (cancelled) return;
         setSelectedRoot(null);
+        setChildLevelStack([]);
+        setChildLevelTitles([]);
       });
     }
     return () => {
@@ -118,6 +128,13 @@ export function CategoriesModal({ open, onClose, initialRootSlug }: CategoriesMo
     queueMicrotask(() => {
       if (cancelled) return;
       setSelectedRoot(foundRoot);
+      if (foundRoot && foundRoot.children.length > 0) {
+        setChildLevelStack([foundRoot.children]);
+        setChildLevelTitles([foundRoot.name]);
+      } else {
+        setChildLevelStack([]);
+        setChildLevelTitles([]);
+      }
     });
     return () => {
       cancelled = true;
@@ -127,6 +144,8 @@ export function CategoriesModal({ open, onClose, initialRootSlug }: CategoriesMo
   function handleRootClick(node: CategoryTreeNode) {
     if (node.children.length > 0) {
       setSelectedRoot(node);
+      setChildLevelStack([node.children]);
+      setChildLevelTitles([node.name]);
       return;
     }
     onClose();
@@ -134,8 +153,18 @@ export function CategoriesModal({ open, onClose, initialRootSlug }: CategoriesMo
   }
 
   function handleChildClick(node: CategoryTreeNode) {
+    if (node.children.length > 0) {
+      setChildLevelStack((prev) => [...prev, node.children]);
+      setChildLevelTitles((prev) => [...prev, node.name]);
+      return;
+    }
     onClose();
     router.push(listingBasePath(listingType, node.slug));
+  }
+
+  function handleChildBack() {
+    setChildLevelStack((prev) => (prev.length > 1 ? prev.slice(0, -1) : prev));
+    setChildLevelTitles((prev) => (prev.length > 1 ? prev.slice(0, -1) : prev));
   }
 
   if (!open) return null;
@@ -242,7 +271,7 @@ export function CategoriesModal({ open, onClose, initialRootSlug }: CategoriesMo
                   დააკლიკეთ კატეგორიაზე ქვეკატეგორიების სანახავად
                 </p>
               )
-            ) : children.length === 0 ? (
+            ) : selectedRoot.children.length === 0 ? (
               <div className="py-8">
                 <p className="text-center text-sm text-zinc-500">ქვეკატეგორიები არ არის.</p>
                 <div className="mt-4 flex flex-wrap justify-center gap-2">
@@ -257,25 +286,41 @@ export function CategoriesModal({ open, onClose, initialRootSlug }: CategoriesMo
               </div>
             ) : (
               <div>
+                {canGoBackInChildren ? (
+                  <button
+                    type="button"
+                    onClick={handleChildBack}
+                    className="mb-3 flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm text-zinc-600 transition hover:bg-zinc-100"
+                  >
+                    <ChevronRightIcon className="h-4 w-4 rotate-180 shrink-0" aria-hidden />
+                    უკან
+                  </button>
+                ) : null}
                 <p className="mb-3 text-xs font-medium uppercase tracking-wide text-zinc-500">
-                  {selectedRoot.name}
+                  {currentChildTitle}
                 </p>
-                <ul className="flex flex-col gap-0.5">
-                  {children.map((node) => (
-                    <li key={node.id}>
-                      <button
-                        type="button"
-                        onClick={() => handleChildClick(node)}
-                        className="flex w-full cursor-pointer items-center justify-between rounded-lg px-3 py-2.5 text-left text-sm text-zinc-700 transition hover:bg-zinc-100 hover:text-[var(--wineo-red)]"
-                      >
-                        <span>{node.name}</span>
-                        {node.children.length > 0 ? (
-                          <span className="text-xs text-zinc-400">(ქვეკატეგორიებით)</span>
-                        ) : null}
-                      </button>
-                    </li>
-                  ))}
-                </ul>
+                {currentChildren.length === 0 ? (
+                  <p className="py-6 text-center text-sm text-zinc-500">ქვეკატეგორიები არ მოიძებნა.</p>
+                ) : (
+                  <ul className="flex flex-col gap-0.5">
+                    {currentChildren.map((node) => (
+                      <li key={node.id}>
+                        <button
+                          type="button"
+                          onClick={() => handleChildClick(node)}
+                          className={`flex w-full cursor-pointer items-center justify-between rounded-lg px-3 py-2.5 text-left text-sm transition hover:bg-zinc-100 hover:text-[var(--wineo-red)] ${
+                            node.children.length > 0 ? "font-medium text-zinc-900" : "text-zinc-700"
+                          }`}
+                        >
+                          <span>{node.name}</span>
+                          {node.children.length > 0 ? (
+                            <ChevronRightIcon className="h-4 w-4 shrink-0 text-zinc-400" aria-hidden />
+                          ) : null}
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                )}
               </div>
             )}
           </div>
