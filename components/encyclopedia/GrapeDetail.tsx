@@ -72,25 +72,26 @@ export function GrapeDetail({
     agronomy?.acidity?.trim() ? { label: "მჟავიანობა", value: agronomy.acidity.trim() } : null,
   ].filter(Boolean) as { label: string; value: string }[];
 
-  const agronomyRows = [
+  const rows = (pairs: [string, string | undefined][]) =>
+    pairs
+      .map(([label, value]) => ({ label, value: value?.trim() || "" }))
+      .filter((row) => row.value);
+
+  const agronomyRows = rows([
     ["სიმწიფის პერიოდი", agronomy?.ripeningPeriod],
     ["შაქრიანობა", agronomy?.sugarContent],
     ["მჟავიანობა", agronomy?.acidity],
     ["ყინვაგამძლეობა", agronomy?.frostResistance],
     ["დაავადებებისადმი გამძლეობა", agronomy?.diseaseResistance],
-  ]
-    .map(([label, value]) => ({ label, value: value?.trim() || "" }))
-    .filter((row) => row.value);
+  ]);
 
-  const wineRows = [
+  const wineRows = rows([
     ["არომატები", wine?.aromas],
     ["ტანინები", wine?.tannins],
     ["სხეული", wine?.body],
     ["დაძველების პოტენციალი", wine?.agingPotential],
     ["გასტრონომია", wine?.foodPairing],
-  ]
-    .map(([label, value]) => ({ label, value: value?.trim() || "" }))
-    .filter((row) => row.value);
+  ]);
 
   const regionNames = regions.map((region) => region.label || region.slug).filter(Boolean);
   const listingsHref = primary?.slug ? `/buy?region=${encodeURIComponent(primary.slug)}` : "/buy";
