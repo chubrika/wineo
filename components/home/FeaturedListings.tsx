@@ -8,7 +8,7 @@ export async function FeaturedListings() {
 
   return (
     <section
-      className="border-b border-zinc-200 bg-white py-8 md:py-14 sm:py-18 px-4 md:px-0"
+      className="border-b border-zinc-200 py-8 md:py-14 sm:py-18 px-4 md:px-0"
       aria-labelledby="featured-heading"
     >
       <div className="mx-auto max-w-7xl">

@@ -267,6 +267,7 @@ export type ApiRegion = {
   shortDesc?: string;
   image?: string;
   index?: number;
+  microzones?: string[];
   createdAt?: string;
   updatedAt?: string;
 };
@@ -280,6 +281,77 @@ export async function getRegions(): Promise<ApiRegion[]> {
     return await handleRes<ApiRegion[]>(res);
   } catch {
     return [];
+  }
+}
+
+export type GrapeColor = "white" | "red" | "rose";
+export type GrapeType = "wine" | "table" | "universal";
+
+export type GrapeProfile = {
+  ripeningPeriod?: string;
+  sugarContent?: string;
+  acidity?: string;
+  frostResistance?: string;
+  diseaseResistance?: string;
+  aromas?: string;
+  tannins?: string;
+  body?: string;
+  agingPotential?: string;
+  foodPairing?: string;
+};
+
+export type ApiGrapeRegion = {
+  id: string;
+  slug?: string;
+  label?: string;
+  description?: string;
+  shortDesc?: string;
+  image?: string;
+  microzones?: string[];
+};
+
+export type ApiGrape = {
+  id: string;
+  name: string;
+  slug: string;
+  color: GrapeColor;
+  type: GrapeType;
+  description?: string;
+  agronomy?: GrapeProfile;
+  wineProfile?: GrapeProfile;
+  image?: string;
+  regions?: ApiGrapeRegion[];
+};
+
+export type GetGrapesParams = {
+  region?: string;
+  color?: GrapeColor | "";
+  type?: GrapeType | "";
+  search?: string;
+};
+
+export async function getGrapes(params?: GetGrapesParams): Promise<ApiGrape[]> {
+  try {
+    const search = new URLSearchParams();
+    if (params?.region) search.set("region", params.region);
+    if (params?.color) search.set("color", params.color);
+    if (params?.type) search.set("type", params.type);
+    if (params?.search) search.set("search", params.search);
+    const qs = search.toString();
+    const res = await fetch(`${API_BASE}/grapes${qs ? `?${qs}` : ""}`, { cache: "no-store" });
+    return await handleRes<ApiGrape[]>(res);
+  } catch {
+    return [];
+  }
+}
+
+export async function getGrapeBySlug(slug: string): Promise<ApiGrape | null> {
+  try {
+    const res = await fetch(`${API_BASE}/grapes/${encodeURIComponent(slug)}`, { cache: "no-store" });
+    if (res.status === 404) return null;
+    return await handleRes<ApiGrape>(res);
+  } catch {
+    return null;
   }
 }
 

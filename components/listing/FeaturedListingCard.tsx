@@ -58,7 +58,7 @@ export function FeaturedListingCard({ listing }: FeaturedListingCardProps) {
       ? Number(listing.discountedPercent.toFixed(2)).toString()
       : null; 
   return (
-    <article className="group relative overflow-hidden bg-white">
+    <article className="group relative overflow-hidden ">
       <div className="absolute right-5 top-5 z-10">
         <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-500 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-white">
           <svg className="h-3.5 w-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} aria-hidden>

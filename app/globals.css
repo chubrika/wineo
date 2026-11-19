@@ -25,7 +25,7 @@
   font-display: swap;
 }
 :root {
-  --background: #ffffff;
+  --background: #f8f6f4;
   --foreground: #171717;
   --font-normal: "Firago", sans-serif;
   --font-medium: "GL Gordeziani", sans-serif;
@@ -126,4 +126,27 @@ body {
 .hero-swiper .swiper-wrapper,
 .hero-swiper .swiper-slide {
   height: 100%;
+}
+
+.georgia-map {
+  width: 100%;
+  max-width: 100%;
+}
+.georgia-map svg {
+  width: 100%;
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+.georgia-map svg * {
+  pointer-events: none;
+}
+.georgia-map .wine-region {
+  pointer-events: auto;
+  cursor: pointer;
+  transition: fill 160ms ease;
+}
+.georgia-map .wine-region:hover,
+.georgia-map .wine-region.is-active {
+  fill: #8a052d;
 }

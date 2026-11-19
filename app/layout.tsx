@@ -74,7 +74,7 @@ export default function RootLayout({
               <WishlistProvider>
                 <CategoriesModalProvider>
                   <Header />
-                  <main className="flex-1 bg-[color:#f1f3f6] pb-20 lg:pb-0">{children}</main>
+                  <main className="flex-1 bg-[color:#f8f6f4] pb-20 lg:pb-0">{children}</main>
                   <Footer />
                   <LoginModal />
                 </CategoriesModalProvider>

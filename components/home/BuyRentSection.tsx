@@ -13,7 +13,7 @@ export async function BuyRentSection() {
 
   return (
     <section
-      className="border-b border-zinc-200 bg-white py-10 px-4 md:px-0"
+      className="border-b border-zinc-200 py-10 px-4 md:px-0"
       aria-labelledby="buy-rent-heading"
     >
       <div className="mx-auto max-w-7xl">

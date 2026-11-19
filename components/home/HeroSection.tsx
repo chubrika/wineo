@@ -142,7 +142,7 @@ export function HeroSection() {
 
   return (
     <section
-      className="bg-white pt-0 md:pt-5"
+      className="pt-0 md:pt-5"
       aria-label="Hero"
     >
      <div className="relative overflow-visible rounded-none md:rounded-md z-11 min-h-[350px] mx-auto max-w-7xl bg-zinc-100 text-zinc-900 md:min-h-[300px] border-b border-zinc-200">

@@ -98,7 +98,7 @@ export function CategoryGrid() {
 
   return (
     <section
-      className="border-b border-zinc-200 bg-[#f5f6f8] py-8 md:py-14 px-4 md:px-0"
+      className="border-b border-zinc-200  py-8 md:py-14 px-4 md:px-0"
       aria-labelledby="categories-heading"
     >
       <div className="mx-auto max-w-7xl">
