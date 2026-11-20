@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import type { ApiGrape, ApiRegion, GrapeColor, GrapeType } from "@/lib/api";
+import type { ApiGrape, ApiRegion, ApiWinery, GrapeColor, GrapeType } from "@/lib/api";
 import { GRAPE_COLOR_LABELS, GRAPE_TYPE_LABELS, MAP_LABELS, mapSlugForRegion } from "@/lib/encyclopedia";
 import { GeorgiaMap } from "./GeorgiaMap";
 import { GrapeCard } from "./GrapeCard";
@@ -10,6 +10,7 @@ import { GrapeCard } from "./GrapeCard";
 type Props = {
   regions: ApiRegion[];
   grapes: ApiGrape[];
+  wineries?: ApiWinery[];
   initialRegionSlug?: string;
 };
 
@@ -22,7 +23,7 @@ function initialSelection(regions: ApiRegion[], initialRegionSlug?: string) {
   return { mapSlug: mapSlugForRegion(region), regionId: region.id };
 }
 
-export function EncyclopediaView({ regions, grapes, initialRegionSlug }: Props) {
+export function EncyclopediaView({ regions, grapes, wineries = [], initialRegionSlug }: Props) {
   const start = initialSelection(regions, initialRegionSlug);
   const [mapSlug, setMapSlug] = useState<string | null>(start.mapSlug);
   const [regionId, setRegionId] = useState(start.regionId);
@@ -48,6 +49,15 @@ export function EncyclopediaView({ regions, grapes, initialRegionSlug }: Props) 
         })
       )
     : [];
+  const panelWineries = mapSlug
+    ? wineries.filter((winery) => {
+        const region = winery.region;
+        if (!region) return false;
+        const slug = mapSlugForRegion({ slug: region.slug, label: region.label });
+        return slug === mapSlug || matchedRegions.some((match) => match.id === region.id);
+      })
+    : [];
+  const wineriesHref = panelRegion?.slug || mapSlug ? `/wineries?region=${encodeURIComponent(panelRegion?.slug || mapSlug || "")}` : "/wineries";
 
   const filtered = grapes.filter((grape) => {
     if (regionId && !(grape.regions ?? []).some((region) => region.id === regionId)) return false;
@@ -116,6 +126,15 @@ export function EncyclopediaView({ regions, grapes, initialRegionSlug }: Props) 
                     ))}
                   </ul>
                 )}
+              </div>
+            )}
+            {mapSlug && (
+              <div className="mt-4 border-t border-zinc-100 pt-4">
+                <h3 className="text-sm font-semibold text-zinc-900">მარნები</h3>
+                <p className="mt-1 text-sm text-zinc-600">{panelWineries.length} მარანი ამ რეგიონში</p>
+                <Link href={wineriesHref} className="mt-2 inline-flex text-sm font-medium text-[#721c24] hover:underline">
+                  მარნების ნახვა →
+                </Link>
               </div>
             )}
           </aside>

@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { getGrapes, getRegions } from "@/lib/api";
+import { getGrapes, getRegions, getWineries } from "@/lib/api";
 import { EncyclopediaView } from "@/components/encyclopedia/EncyclopediaView";
 import { buildMetadata } from "@/lib/seo";
 
@@ -13,10 +13,10 @@ export const metadata: Metadata = buildMetadata({
 
 export default async function EncyclopediaPage({ searchParams }: Props) {
   const { region } = await searchParams;
-  const [regions, grapes] = await Promise.all([getRegions(), getGrapes()]);
+  const [regions, grapes, wineries] = await Promise.all([getRegions(), getGrapes(), getWineries()]);
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 md:px-0">
-      <EncyclopediaView regions={regions} grapes={grapes} initialRegionSlug={region} />
+      <EncyclopediaView regions={regions} grapes={grapes} wineries={wineries} initialRegionSlug={region} />
     </div>
   );
 }

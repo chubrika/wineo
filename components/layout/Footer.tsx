@@ -25,6 +25,8 @@ const footerSections = [
     links: [
       { href: "/buy", label: "იყიდე" },
       { href: "/rent", label: "იქირავე" },
+      { href: "/wineries", label: "მარნები" },
+      { href: "/encyclopedia", label: "ენციკლოპედია" },
       { href: "/contact", label: "კონტაქტი" },
     ],
   },

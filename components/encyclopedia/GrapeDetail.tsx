@@ -1,5 +1,6 @@
 import Link from "next/link";
-import type { ApiGrape, ApiGrapeRegion } from "@/lib/api";
+import type { ApiGrape, ApiGrapeRegion, ApiWinery } from "@/lib/api";
+import { WineryCard } from "@/components/wineries/WineryCard";
 import type { Listing } from "@/types/listing";
 import { ListingGrid } from "@/components/listing/ListingGrid";
 import { GRAPE_COLOR_LABELS, GRAPE_TYPE_LABELS, latinNameFromSlug, mapSlugForRegion } from "@/lib/encyclopedia";
@@ -56,9 +57,11 @@ function FactList({ rows }: { rows: { label: string; value: string }[] }) {
 export function GrapeDetail({
   grape,
   listings,
+  wineries = [],
 }: {
   grape: ApiGrape;
   listings: Listing[];
+  wineries?: ApiWinery[];
 }) {
   const latin = latinNameFromSlug(grape.slug);
   const regions = grape.regions ?? [];
@@ -97,7 +100,7 @@ export function GrapeDetail({
   const listingsHref = primary?.slug ? `/buy?region=${encodeURIComponent(primary.slug)}` : "/buy";
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-8">
+    <div className="mx-auto max-w-7xl py-8">
       <Link href="/encyclopedia" className="text-sm text-zinc-500 hover:text-zinc-900">
         ← ენციკლოპედია
       </Link>
@@ -108,7 +111,7 @@ export function GrapeDetail({
             // eslint-disable-next-line @next/next/no-img-element
             <img src={grape.image} alt={grape.name} className="mx-auto h-40 w-40 rounded-full object-cover" />
           ) : (
-            <div className="mx-auto flex h-40 w-40 items-center justify-center rounded-full border border-zinc-200 text-5xl font-serif text-zinc-800">
+            <div className="mx-auto flex h-40 w-40 items-center justify-center rounded-full border border-zinc-200 text-5xl font-dejavu-sans text-zinc-800">
               {latin.slice(0, 1)}
             </div>
           )}
@@ -227,6 +230,33 @@ export function GrapeDetail({
           </ul>
         </section>
       )}
+
+      <section className="mt-12">
+        <div className="flex items-end justify-between gap-4">
+          <div>
+            <h2 className="text-lg font-semibold text-zinc-900">მარნები, რომლებიც ამ ჯიშს აყენებენ</h2>
+            <p className="mt-1 text-sm text-zinc-500">
+              {wineries.length > 0
+                ? `${grape.name} მიბმულია ამ მარნებზე.`
+                : "ამ ჯიშზე მარანი ჯერ არ არის მიბმული."}
+            </p>
+          </div>
+          {wineries.length > 0 && (
+            <Link href={`/wineries?grape=${encodeURIComponent(grape.slug)}`} className="shrink-0 text-sm text-[#721c24] hover:underline">
+              ყველა ნახვა ({wineries.length})
+            </Link>
+          )}
+        </div>
+        {wineries.length > 0 && (
+          <ul className="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {wineries.map((winery) => (
+              <li key={winery.id}>
+                <WineryCard winery={winery} />
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
 
       <section className="mt-12">
         <div className="flex items-end justify-between gap-4">

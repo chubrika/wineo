@@ -355,6 +355,106 @@ export async function getGrapeBySlug(slug: string): Promise<ApiGrape | null> {
   }
 }
 
+export type WineryType = "family" | "organic" | "industrial";
+
+export type ApiWineryRegion = {
+  id: string;
+  slug?: string;
+  label?: string;
+  description?: string;
+  shortDesc?: string;
+  image?: string;
+  microzones?: string[];
+};
+
+export type ApiWineryGrape = {
+  id: string;
+  name?: string;
+  slug?: string;
+  color?: GrapeColor | "";
+};
+
+export type ApiFeaturedWine = {
+  name: string;
+  wineType?: string;
+  vintage?: number | null;
+  description?: string;
+};
+
+export type ApiWinery = {
+  id: string;
+  name: string;
+  slug: string;
+  tagline?: string;
+  description?: string;
+  wineryType: WineryType;
+  foundedYear?: number | null;
+  region?: ApiWineryRegion | null;
+  microzone?: string;
+  address?: string;
+  coordinates?: { lat?: number; lng?: number } | null;
+  grapes?: ApiWineryGrape[];
+  winemakingMethods?: string[];
+  vineyardAreaHectares?: number | null;
+  annualProductionBottles?: number | null;
+  featuredWines?: ApiFeaturedWine[];
+  tourism?: {
+    acceptsVisitors?: boolean;
+    services?: string[];
+    workingHours?: string;
+    reservationRequired?: boolean;
+  };
+  contact?: {
+    phone?: string;
+    email?: string;
+    website?: string;
+    facebook?: string;
+    instagram?: string;
+  };
+  logo?: string;
+  coverImage?: string;
+  gallery?: string[];
+  owner?: { id: string; name?: string } | null;
+  isVerified?: boolean;
+  listings?: ApiProduct[];
+};
+
+export type GetWineriesParams = {
+  region?: string;
+  grape?: string;
+  wineryType?: WineryType | "";
+  winemakingMethod?: string;
+  acceptsVisitors?: boolean;
+  search?: string;
+};
+
+export async function getWineries(params?: GetWineriesParams): Promise<ApiWinery[]> {
+  try {
+    const search = new URLSearchParams();
+    if (params?.region) search.set("region", params.region);
+    if (params?.grape) search.set("grape", params.grape);
+    if (params?.wineryType) search.set("wineryType", params.wineryType);
+    if (params?.winemakingMethod) search.set("winemakingMethod", params.winemakingMethod);
+    if (params?.acceptsVisitors) search.set("acceptsVisitors", "true");
+    if (params?.search) search.set("search", params.search);
+    const qs = search.toString();
+    const res = await fetch(`${API_BASE}/wineries${qs ? `?${qs}` : ""}`, { cache: "no-store" });
+    return await handleRes<ApiWinery[]>(res);
+  } catch {
+    return [];
+  }
+}
+
+export async function getWineryBySlug(slug: string): Promise<ApiWinery | null> {
+  try {
+    const res = await fetch(`${API_BASE}/wineries/${encodeURIComponent(slug)}`, { cache: "no-store" });
+    if (res.status === 404) return null;
+    return await handleRes<ApiWinery>(res);
+  } catch {
+    return null;
+  }
+}
+
 /** City from backend GET /cities?regionId= */
 export type ApiCity = {
   id: string;

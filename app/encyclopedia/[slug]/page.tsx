@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { getGrapeBySlug, getProducts } from "@/lib/api";
+import { getGrapeBySlug, getProducts, getWineries } from "@/lib/api";
 import { mapApiProductToListing } from "@/lib/listings";
 import { GrapeDetail } from "@/components/encyclopedia/GrapeDetail";
 import { buildMetadata, truncateForMeta } from "@/lib/seo";
@@ -24,21 +24,24 @@ export default async function GrapePage({ params }: Props) {
   const grape = await getGrapeBySlug(slug);
   if (!grape) notFound();
 
-  const regions = grape.regions ?? [];
-  const regionTokens = [...new Set(regions.flatMap((region) => [region.slug, region.label].filter(Boolean)))] as string[];
-  let listings: ReturnType<typeof mapApiProductToListing>[] = [];
-  if (regionTokens.length > 0) {
-    try {
-      const products = await getProducts({
-        status: "active",
-        regionSlug: regionTokens.join(","),
-        limit: 12,
-      });
-      listings = products.map(mapApiProductToListing);
-    } catch {
-      listings = [];
-    }
-  }
+  const [productsResult, wineries] = await Promise.all([
+    (async () => {
+      const regionsForListings = grape.regions ?? [];
+      const regionTokens = [...new Set(regionsForListings.flatMap((region) => [region.slug, region.label].filter(Boolean)))] as string[];
+      if (regionTokens.length === 0) return [];
+      try {
+        return await getProducts({
+          status: "active",
+          regionSlug: regionTokens.join(","),
+          limit: 12,
+        });
+      } catch {
+        return [];
+      }
+    })(),
+    getWineries({ grape: grape.slug || slug }),
+  ]);
+  const listings = productsResult.map(mapApiProductToListing);
 
-  return <GrapeDetail grape={grape} listings={listings} />;
+  return <GrapeDetail grape={grape} listings={listings} wineries={wineries} />;
 }

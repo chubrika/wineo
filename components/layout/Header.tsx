@@ -22,9 +22,10 @@ const SUBHEADER_COOLDOWN_MS = 350; // min ms between hide/show to prevent flicke
 const navLinks = [
   { href: "/buy", label: "იყიდე" },
   { href: "/rent", label: "იქირავე" },
+  { href: "/wineries", label: "მარნები" },
+  { href: "/encyclopedia", label: "ენციკლოპედია" },
   { href: "/news", label: "სიახლეები" },
   { href: "/events", label: "ღონისძიებები" },
-  { href: "/encyclopedia", label: "ენციკლოპედია" },
   { href: "/pages/about-us", label: "ჩვენ შესახებ" },
   { href: "/contact", label: "კონტაქტი" },
 ] as const;
@@ -32,6 +33,94 @@ const navLinks = [
 function isActive(pathname: string, href: string) {
   if (href === "/") return pathname === "/";
   return pathname === href || pathname.startsWith(href + "/");
+}
+
+function DesktopNavLinks({
+  links,
+  pathname,
+  className,
+}: {
+  links: readonly { href: string; label: string }[];
+  pathname: string;
+  className: string;
+}) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [ready, setReady] = useState(false);
+  const [marker, setMarker] = useState({ left: 0, width: 0, top: 0, visible: false });
+
+  const activeHref = links.find((link) => isActive(pathname, link.href))?.href ?? null;
+
+  useEffect(() => {
+    const frame = requestAnimationFrame(() => setReady(true));
+    return () => cancelAnimationFrame(frame);
+  }, []);
+
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    const update = () => {
+      if (!activeHref) {
+        setMarker((current) => (current.visible ? { ...current, visible: false } : current));
+        return;
+      }
+      const el = container.querySelector<HTMLElement>(`[data-nav-href="${CSS.escape(activeHref)}"]`);
+      if (!el) return;
+      const cRect = container.getBoundingClientRect();
+      const r = el.getBoundingClientRect();
+      if (r.width === 0) return;
+      const next = {
+        left: Math.round((r.left - cRect.left) * 10) / 10,
+        width: Math.round(r.width * 10) / 10,
+        top: Math.round((r.bottom - cRect.top + 4) * 10) / 10,
+        visible: true,
+      };
+      setMarker((current) =>
+        current.left === next.left && current.width === next.width && current.top === next.top && current.visible
+          ? current
+          : next
+      );
+    };
+
+    const frame = requestAnimationFrame(update);
+    const observer = new ResizeObserver(update);
+    observer.observe(container);
+    window.addEventListener("resize", update);
+    return () => {
+      cancelAnimationFrame(frame);
+      observer.disconnect();
+      window.removeEventListener("resize", update);
+    };
+  }, [activeHref]);
+
+  return (
+    <div ref={containerRef} className={`relative flex items-center ${className}`}>
+      {links.map(({ href, label }) => (
+        <Link
+          key={href}
+          href={href}
+          data-nav-href={href}
+          className={`nav-link whitespace-nowrap text-[14px] font-semibold ${isActive(pathname, href) ? "nav-link-active" : ""}`}
+          aria-current={isActive(pathname, href) ? "page" : undefined}
+        >
+          {label}
+        </Link>
+      ))}
+      <span
+        aria-hidden
+        className="pointer-events-none absolute h-[2px] rounded-full bg-[var(--nav-link-active)]"
+        style={{
+          left: marker.left,
+          width: marker.width,
+          top: marker.top,
+          opacity: marker.visible ? 1 : 0,
+          transition: ready
+            ? "left 280ms cubic-bezier(0.4, 0, 0.2, 1), width 280ms cubic-bezier(0.4, 0, 0.2, 1), top 280ms cubic-bezier(0.4, 0, 0.2, 1), opacity 180ms ease"
+            : "none",
+        }}
+      />
+    </div>
+  );
 }
 
 function MenuIcon({ open }: { open: boolean }) {
@@ -184,7 +273,7 @@ export function Header() {
 
   return (
     <>
-    <header className="sticky top-0 z-50 border-b border-zinc-200 bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/80">
+    <header className="sticky top-0 z-50 border-b border-zinc-200 bg-[#fbf9f5]">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-3 px-4 md:px-0">
         <HomeLogoLink
           className="shrink-0 text-xl font-semibold tracking-tight text-zinc-900"
@@ -345,39 +434,17 @@ export function Header() {
 
       {/* Subheader: desktop only — hides on scroll down, shows on scroll up */}
       <div
-        className={`hidden overflow-hidden transition-[max-height,opacity] duration-300 ease-out border-t border-zinc-200 bg-zinc-50 lg:block ${
+        className={`hidden overflow-hidden transition-[max-height,opacity] duration-300 ease-out border-t border-zinc-200 bg-[#fbf9f5] lg:block ${
           subheaderVisible ? "max-h-24 opacity-100" : "max-h-0 opacity-0"
         }`}
         aria-hidden={!subheaderVisible}
       >
         <nav
-          className="mx-auto flex h-12 max-w-7xl items-center justify-between gap-6"
+          className="mx-auto flex h-12 max-w-7xl items-center justify-between gap-4"
           aria-label="Main navigation"
         >
-          <div className="flex items-center gap-6">
-            {navLinks.slice(0, -2).map(({ href, label }) => (
-              <Link
-                key={href}
-                href={href}
-                className={`nav-link text-[14px] font-semibold ${isActive(pathname, href) ? "nav-link-active" : ""}`}
-                aria-current={isActive(pathname, href) ? "page" : undefined}
-              >
-                {label}
-              </Link>
-            ))}
-          </div>
-          <div className="flex items-center gap-6">
-            {navLinks.slice(-2).map(({ href, label }) => (
-              <Link
-                key={href}
-                href={href}
-                className={`nav-link text-[14px] font-semibold ${isActive(pathname, href) ? "nav-link-active" : ""}`}
-                aria-current={isActive(pathname, href) ? "page" : undefined}
-              >
-                {label}
-              </Link>
-            ))}
-          </div>
+          <DesktopNavLinks links={navLinks.slice(0, -2)} pathname={pathname} className="gap-4" />
+          <DesktopNavLinks links={navLinks.slice(-2)} pathname={pathname} className="gap-6" />
         </nav>
       </div>
 
