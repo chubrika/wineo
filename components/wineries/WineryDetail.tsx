@@ -102,7 +102,7 @@ export function WineryDetail({ winery }: { winery: ApiWinery }) {
       </nav>
 
       <section className="mt-4">
-        <div className="h-64 overflow-hidden rounded-3xl bg-[#efe6df] sm:h-80">
+        <div className="h-64 overflow-hidden rounded-none md:rounded-3xl bg-[#efe6df] sm:h-80">
           {winery.coverImage ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img src={winery.coverImage} alt="" className="h-full w-full object-cover" />
@@ -111,7 +111,7 @@ export function WineryDetail({ winery }: { winery: ApiWinery }) {
           )}
         </div>
 
-        <div className="relative z-10 -mt-16 rounded-3xl bg-white p-5 shadow-[0_16px_40px_rgba(60,40,20,0.08)] sm:mx-4 sm:p-6">
+        <div className="relative z-10 -mt-16 rounded-none md:rounded-3xl bg-white p-5 shadow-[0_16px_40px_rgba(60,40,20,0.08)] sm:mx-4 sm:p-6">
           <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
             <div className="flex min-w-0 items-start gap-4">
               <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-[#721c24]/30 bg-[#F9F7F5] text-2xl font-semibold text-[#721c24]">
@@ -159,7 +159,7 @@ export function WineryDetail({ winery }: { winery: ApiWinery }) {
       </section>
 
       {stats.length > 0 && (
-        <dl className="mt-5 grid gap-4 rounded-[28px] bg-white px-5 py-5 shadow-[0_10px_30px_rgba(60,40,20,0.05)] sm:grid-cols-2 sm:px-6 lg:grid-cols-5">
+        <dl className="mt-5 grid gap-4 rounded-none md:rounded-[28px] bg-white px-5 py-5 shadow-[0_10px_30px_rgba(60,40,20,0.05)] sm:grid-cols-2 sm:px-6 lg:grid-cols-5">
           {stats.map((stat) => (
             <div key={stat.label} className="min-w-0">
               <dt className="text-xs text-zinc-400">{stat.label}</dt>
@@ -176,7 +176,7 @@ export function WineryDetail({ winery }: { winery: ApiWinery }) {
           {showColumn && (
             <div className="space-y-6">
               {showAbout && (
-                <section className="rounded-[28px] bg-white p-6 shadow-[0_10px_30px_rgba(60,40,20,0.05)] sm:p-7">
+                <section className="rounded-none md:rounded-[28px] bg-white p-6 shadow-[0_10px_30px_rgba(60,40,20,0.05)] sm:p-7">
                   <div className="flex items-start justify-between gap-4">
                     <div>
                       <p className="text-xs text-[#b08980]">მეღვინეობა და ხედვა</p>
@@ -202,7 +202,7 @@ export function WineryDetail({ winery }: { winery: ApiWinery }) {
               )}
               {grapes.length > 0 && (
                 <section>
-                  <div className="flex items-end justify-between gap-4">
+                  <div className="flex items-end justify-between gap-4 px-4 md:px-0">
                     <div>
                       {regionLabel && <p className="text-xs text-[#b08980]">{regionLabel}</p>}
                       <h2 className="mt-1 font-dejavu-sans text-3xl text-zinc-900">ყურძნის ჯიშები</h2>
@@ -216,7 +216,7 @@ export function WineryDetail({ winery }: { winery: ApiWinery }) {
                       const color = grapeColorLabel(grape.color);
                       const latin = grape.slug ? latinNameFromSlug(grape.slug) : "";
                       return (
-                        <li key={grape.id} className="rounded-[24px] bg-white p-5 shadow-[0_10px_30px_rgba(60,40,20,0.04)]">
+                        <li key={grape.id} className="rounded-none md:rounded-[24px] bg-white p-5 shadow-[0_10px_30px_rgba(60,40,20,0.04)]">
                           {color && (
                             <p className="inline-flex rounded-full bg-[#f6f1ec] px-2.5 py-1 text-xs text-zinc-500">{color} ჯიში</p>
                           )}
@@ -237,7 +237,7 @@ export function WineryDetail({ winery }: { winery: ApiWinery }) {
                 </section>
               )}
               {gallery.length > 0 && (
-                <section>
+                <section className="px-4 md:px-0">
                   <h2 className="font-dejavu-sans text-2xl text-zinc-900">გალერეა</h2>
                   <ul className="mt-4 grid grid-cols-2 gap-3">
                     {gallery.map((image, index) => (
@@ -255,7 +255,7 @@ export function WineryDetail({ winery }: { winery: ApiWinery }) {
           {showSidebar && (
             <aside className="space-y-4 lg:sticky lg:top-24">
               {showTourism && (
-                <section className="rounded-[28px] bg-white p-5 shadow-[0_10px_30px_rgba(60,40,20,0.05)]">
+                <section className="rounded-none md:rounded-[28px] bg-white p-5 shadow-[0_10px_30px_rgba(60,40,20,0.05)]">
                   <div className="flex items-center justify-between gap-3 text-xs">
                     {acceptsVisitors ? (
                       <span className="inline-flex items-center gap-1.5 font-medium text-[#1f7a45]">
@@ -308,7 +308,7 @@ export function WineryDetail({ winery }: { winery: ApiWinery }) {
               )}
 
               {(mapEmbed || mapLink) && (
-                <section className="overflow-hidden rounded-[28px] bg-white shadow-[0_10px_30px_rgba(60,40,20,0.05)]">
+                <section className="overflow-hidden rounded-none md:rounded-[28px] bg-white shadow-[0_10px_30px_rgba(60,40,20,0.05)]">
                   <div className="relative">
                     {mapEmbed && (
                       <iframe
@@ -335,7 +335,7 @@ export function WineryDetail({ winery }: { winery: ApiWinery }) {
               )}
 
               {showContact && (
-                <section className="rounded-3xl bg-white p-5 shadow-sm">
+                <section className="rounded-none md:rounded-3xl bg-white p-5 shadow-sm">
                   <h2 className="text-lg font-semibold text-zinc-900">კონტაქტი</h2>
                   <ul className="mt-4 space-y-3">
                     {contacts.map((contact) => {
@@ -371,7 +371,7 @@ export function WineryDetail({ winery }: { winery: ApiWinery }) {
       )}
 
       {listings.length > 0 && (
-        <section className="mt-10">
+        <section className="mt-10 px-4 md:px-0">
           <h2 className="font-dejavu-sans text-2xl text-zinc-900">მარნის განცხადებები</h2>
           <p className="mt-1 text-sm text-zinc-500">ამ მარნის ან მისი მფლობელის აქტიური განცხადებები.</p>
           <div className="mt-4">

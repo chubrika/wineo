@@ -178,7 +178,7 @@ export function WineriesView({
 
   return (
     <div>
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between px-4 md:px-0">
         <nav aria-label="breadcrumb" className="text-sm text-zinc-500">
           <Link href="/" className="hover:text-[#721c24]">
             მთავარი
@@ -196,8 +196,8 @@ export function WineriesView({
         </p>
       </div>
 
-      <h1 className="mt-4 font-dejavu-sans font-bold text-4xl tracking-tight text-[#721c24] sm:text-5xl">ქართული მარნები</h1>
-      <p className="mt-3 max-w-3xl text-sm leading-7 text-zinc-600">
+      <h1 className="mt-4 font-dejavu-sans font-bold text-4xl tracking-tight text-[#721c24] sm:text-5xl px-4 md:px-0">ქართული მარნები</h1>
+      <p className="mt-3 max-w-3xl text-sm leading-7 text-zinc-600 px-4 md:px-0">
         აღმოაჩინეთ საქართველოს ოჯახური და ტრადიციული მარნები, ათასწლოვანი ქვევრის ღვინო, საკუთარი ვენახები და უნიკალური დეგუსტაციის ტურები.
       </p>
 
@@ -249,7 +249,7 @@ export function WineriesView({
                   key={chip.label}
                   type="button"
                   onClick={() => update({ wineryType: chip.value })}
-                  className={`rounded-full px-4 py-2 text-sm ${
+                  className={`rounded-full cursor-pointer px-4 py-2 text-sm ${
                     active ? "bg-[#f6e7ea] font-medium text-[#721c24]" : "text-zinc-600 hover:bg-[#f6f1ec]"
                   }`}
                 >
@@ -268,7 +268,7 @@ export function WineriesView({
             <Wine className="h-4 w-4 shrink-0 text-[#721c24]" aria-hidden />
             იღებს სტუმრებს (დეგუსტაცია)
             <span
-              className={`inline-flex h-6 w-11 shrink-0 items-center rounded-full p-0.5 transition-colors ${
+              className={`inline-flex h-6 w-11 shrink-0 items-center rounded-full cursor-pointer p-0.5 transition-colors ${
                 filters.acceptsVisitors ? "bg-[#721c24]" : "bg-zinc-300"
               }`}
             >
@@ -310,7 +310,7 @@ export function WineriesView({
         </ul>
       )}
 
-      <section className="mt-8 flex flex-col gap-6 rounded-3xl bg-[#f4ece7] px-6 py-7 sm:flex-row sm:items-center sm:justify-between sm:px-8">
+      <section className="mt-8 flex flex-col gap-6 rounded-none md:rounded-3xl bg-[#f4ece7] px-6 py-7 sm:flex-row sm:items-center sm:justify-between sm:px-8">
         <div className="max-w-2xl">
           <p className="inline-flex items-center gap-2 text-xs font-medium tracking-wide text-zinc-500">
             <Wine className="h-4 w-4 text-[#721c24]" aria-hidden />
@@ -331,7 +331,7 @@ export function WineriesView({
         </Link>
       </section>
 
-      <div className="mt-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      <div className="mt-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between px-4 md:px-0">
         <p className="text-sm text-zinc-500">სულ მოიძებნა {filtered.length} მარანი</p>
         {pageCount > 1 && (
           <nav aria-label="გვერდები" className="flex flex-wrap items-center gap-1">

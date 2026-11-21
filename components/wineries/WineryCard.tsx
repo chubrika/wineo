@@ -15,7 +15,7 @@ export function WineryCard({ winery }: { winery: ApiWinery }) {
   const href = `/wineries/${winery.slug}`;
 
   return (
-    <article className="flex h-full flex-col overflow-hidden rounded-3xl bg-white shadow-[0_10px_30px_rgba(60,40,20,0.06)]">
+    <article className="flex h-full flex-col overflow-hidden rounded-none md:rounded-3xl bg-white shadow-[0_10px_30px_rgba(60,40,20,0.06)]">
       <div className="relative aspect-[16/10] bg-[#efe6df]">
         {winery.coverImage ? (
           // Cover images are arbitrary URLs, outside next/image remote patterns.

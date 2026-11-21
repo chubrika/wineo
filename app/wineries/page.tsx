@@ -39,7 +39,7 @@ export default async function WineriesPage({ searchParams }: { searchParams: Pro
   const [regions, grapes, wineries] = await Promise.all([getRegions(), getGrapes(), getWineries()]);
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-8 md:px-0">
+    <div className="mx-auto max-w-7xl py-8">
       <WineriesView regions={regions} grapes={grapes} wineries={wineries} initial={initial} />
     </div>
   );

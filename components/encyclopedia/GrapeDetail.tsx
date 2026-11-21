@@ -101,7 +101,7 @@ export function GrapeDetail({
 
   return (
     <div className="mx-auto max-w-7xl py-8">
-      <Link href="/encyclopedia" className="text-sm text-zinc-500 hover:text-zinc-900">
+      <Link href="/encyclopedia" className="text-sm text-zinc-500 hover:text-zinc-900 px-4 md:px-0">
         ← ენციკლოპედია
       </Link>
 
@@ -126,7 +126,7 @@ export function GrapeDetail({
           </p>
         </aside>
 
-        <div>
+        <div className="px-4 md:px-0">
           <div className="flex flex-wrap items-center gap-3">
             <h1 className="text-4xl font-bold tracking-tight text-zinc-900">
               {grape.name} <span className="font-normal text-zinc-400">{latin}</span>
@@ -173,7 +173,7 @@ export function GrapeDetail({
       </section>
 
       {(agronomyRows.length > 0 || wineRows.length > 0) && (
-        <section className="mt-12 grid gap-10 lg:grid-cols-2">
+        <section className="mt-12 grid gap-10 lg:grid-cols-2 px-4 md:px-0">
           {agronomyRows.length > 0 && (
             <div>
               <h2 className="text-lg font-semibold text-zinc-900">აგრონომია</h2>
@@ -197,7 +197,7 @@ export function GrapeDetail({
 
       {regions.length > 0 && (
         <section className="mt-12">
-          <div className="flex items-end justify-between gap-4">
+          <div className="flex items-end justify-between gap-4 px-4 md:px-0">
             <div>
               <h2 className="text-lg font-semibold text-zinc-900">გავრცელების რეგიონები</h2>
               <p className="mt-1 text-sm text-zinc-500">
@@ -213,7 +213,7 @@ export function GrapeDetail({
               const zones = (region.microzones ?? []).filter(Boolean);
               const text = excerpt(region.shortDesc || region.description);
               return (
-                <li key={region.id} className="rounded-3xl bg-white p-5 shadow-[0_10px_30px_rgba(60,40,20,0.04)]">
+                <li key={region.id} className="rounded-none md:rounded-3xl bg-white p-5 shadow-[0_10px_30px_rgba(60,40,20,0.04)]">
                   <Link
                     href={`/encyclopedia?region=${encodeURIComponent(region.slug || region.id)}`}
                     className="text-base font-semibold text-zinc-900 hover:text-[#8a052d]"
@@ -231,7 +231,7 @@ export function GrapeDetail({
         </section>
       )}
 
-      <section className="mt-12">
+      <section className="mt-12 px-4 md:px-0">
         <div className="flex items-end justify-between gap-4">
           <div>
             <h2 className="text-lg font-semibold text-zinc-900">მარნები, რომლებიც ამ ჯიშს აყენებენ</h2>
@@ -259,7 +259,7 @@ export function GrapeDetail({
       </section>
 
       <section className="mt-12">
-        <div className="flex items-end justify-between gap-4">
+        <div className="flex items-end justify-between gap-4 px-4 md:px-0">
           <div>
             <h2 className="text-lg font-semibold text-zinc-900">განცხადებები ამ რეგიონებიდან</h2>
             <p className="mt-1 text-sm text-zinc-500">
