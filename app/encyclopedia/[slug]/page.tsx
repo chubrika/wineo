@@ -3,7 +3,8 @@ import { notFound } from "next/navigation";
 import { getGrapeBySlug, getProducts, getWineries } from "@/lib/api";
 import { mapApiProductToListing } from "@/lib/listings";
 import { GrapeDetail } from "@/components/encyclopedia/GrapeDetail";
-import { buildMetadata, truncateForMeta } from "@/lib/seo";
+import { JsonLd } from "@/components/seo/JsonLd";
+import { buildBreadcrumbJsonLd, buildGrapeJsonLd, buildMetadata, truncateForMeta } from "@/lib/seo";
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -43,5 +44,17 @@ export default async function GrapePage({ params }: Props) {
   ]);
   const listings = productsResult.map(mapApiProductToListing);
 
-  return <GrapeDetail grape={grape} listings={listings} wineries={wineries} />;
+  return (
+    <>
+      <JsonLd data={buildGrapeJsonLd(grape)} />
+      <JsonLd
+        data={buildBreadcrumbJsonLd([
+          { name: "მთავარი", path: "/" },
+          { name: "ენციკლოპედია", path: "/encyclopedia" },
+          { name: grape.name },
+        ])}
+      />
+      <GrapeDetail grape={grape} listings={listings} wineries={wineries} />
+    </>
+  );
 }

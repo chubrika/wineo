@@ -86,6 +86,10 @@ const AUTH_OPTS: RequestInit = {
   headers: { "Content-Type": "application/json" },
 };
 
+/** Public catalog data. ISR instead of no-store so list and detail HTML can be cached. */
+const REVALIDATE_HOUR: RequestInit = { next: { revalidate: 3600 } };
+const REVALIDATE_LIST: RequestInit = { next: { revalidate: 300 } };
+
 /**
  * Example: PATCH/DELETE with cookie-based auth against the backend origin.
  *
@@ -237,7 +241,7 @@ export async function getCategories(params?: {
   if (params?.type) qs.set("type", params.type);
   if (params?.types && params.types.length > 0) qs.set("types", params.types.join(","));
   const search = qs.toString() ? `?${qs.toString()}` : "";
-  const res = await fetch(`${API_BASE}/categories${search}`, { cache: "no-store" });
+  const res = await fetch(`${API_BASE}/categories${search}`, REVALIDATE_HOUR);
   return handleRes<ApiCategory[]>(res);
 }
 
@@ -249,7 +253,7 @@ export async function getCategoryBySlug(slug: string): Promise<ApiCategory | nul
   try {
     const normalizedSlug = typeof slug === "string" ? slug.trim().toLowerCase() : "";
     if (!normalizedSlug) return null;
-    const res = await fetch(`${API_BASE}/categories/slug/${encodeURIComponent(normalizedSlug)}`, { cache: "no-store" });
+    const res = await fetch(`${API_BASE}/categories/slug/${encodeURIComponent(normalizedSlug)}`, REVALIDATE_HOUR);
     if (!res.ok) return null;
     return await handleRes<ApiCategory>(res);
   } catch {
@@ -277,7 +281,7 @@ export type ApiRegion = {
  */
 export async function getRegions(): Promise<ApiRegion[]> {
   try {
-    const res = await fetch(`${API_BASE}/regions`, { cache: "no-store" });
+    const res = await fetch(`${API_BASE}/regions`, REVALIDATE_HOUR);
     return await handleRes<ApiRegion[]>(res);
   } catch {
     return [];
@@ -338,7 +342,7 @@ export async function getGrapes(params?: GetGrapesParams): Promise<ApiGrape[]> {
     if (params?.type) search.set("type", params.type);
     if (params?.search) search.set("search", params.search);
     const qs = search.toString();
-    const res = await fetch(`${API_BASE}/grapes${qs ? `?${qs}` : ""}`, { cache: "no-store" });
+    const res = await fetch(`${API_BASE}/grapes${qs ? `?${qs}` : ""}`, REVALIDATE_HOUR);
     return await handleRes<ApiGrape[]>(res);
   } catch {
     return [];
@@ -347,7 +351,7 @@ export async function getGrapes(params?: GetGrapesParams): Promise<ApiGrape[]> {
 
 export async function getGrapeBySlug(slug: string): Promise<ApiGrape | null> {
   try {
-    const res = await fetch(`${API_BASE}/grapes/${encodeURIComponent(slug)}`, { cache: "no-store" });
+    const res = await fetch(`${API_BASE}/grapes/${encodeURIComponent(slug)}`, REVALIDATE_HOUR);
     if (res.status === 404) return null;
     return await handleRes<ApiGrape>(res);
   } catch {
@@ -438,7 +442,7 @@ export async function getWineries(params?: GetWineriesParams): Promise<ApiWinery
     if (params?.acceptsVisitors) search.set("acceptsVisitors", "true");
     if (params?.search) search.set("search", params.search);
     const qs = search.toString();
-    const res = await fetch(`${API_BASE}/wineries${qs ? `?${qs}` : ""}`, { cache: "no-store" });
+    const res = await fetch(`${API_BASE}/wineries${qs ? `?${qs}` : ""}`, REVALIDATE_HOUR);
     return await handleRes<ApiWinery[]>(res);
   } catch {
     return [];
@@ -447,7 +451,7 @@ export async function getWineries(params?: GetWineriesParams): Promise<ApiWinery
 
 export async function getWineryBySlug(slug: string): Promise<ApiWinery | null> {
   try {
-    const res = await fetch(`${API_BASE}/wineries/${encodeURIComponent(slug)}`, { cache: "no-store" });
+    const res = await fetch(`${API_BASE}/wineries/${encodeURIComponent(slug)}`, REVALIDATE_HOUR);
     if (res.status === 404) return null;
     return await handleRes<ApiWinery>(res);
   } catch {
@@ -472,7 +476,7 @@ export type ApiCity = {
 export async function getCities(regionId?: string): Promise<ApiCity[]> {
   try {
     const qs = regionId ? `?regionId=${encodeURIComponent(regionId)}` : "";
-    const res = await fetch(`${API_BASE}/cities${qs}`, { cache: "no-store" });
+    const res = await fetch(`${API_BASE}/cities${qs}`, REVALIDATE_HOUR);
     return handleRes<ApiCity[]>(res);
   } catch {
     return [];
@@ -501,9 +505,7 @@ export type ApiFilter = {
  */
 export async function getFiltersByCategoryId(categoryId: string): Promise<ApiFilter[]> {
   try {
-    const res = await fetch(`${API_BASE}/filters/by-category/${encodeURIComponent(categoryId)}`, {
-      cache: "no-store",
-    });
+    const res = await fetch(`${API_BASE}/filters/by-category/${encodeURIComponent(categoryId)}`, REVALIDATE_HOUR);
     if (!res.ok) return [];
     return await handleRes<ApiFilter[]>(res);
   } catch {
@@ -566,6 +568,8 @@ export type GetProductsParams = {
   regionSlug?: string;
   /** Dynamic attribute filters (slug -> value or values). Sent as query params for backend filtering. */
   attributeFilters?: Record<string, string | string[]>;
+  /** Override the public list cache. Defaults to 5 minutes. */
+  revalidate?: number;
 };
 
 /**
@@ -595,7 +599,9 @@ export async function getProducts(params?: GetProductsParams): Promise<ApiProduc
     categorySlug
       ? `${API_BASE}/products/by-category/${encodeURIComponent(categorySlug)}`
       : `${API_BASE}/products`;
-  const res = await fetch(`${baseUrl}${qs ? `?${qs}` : ""}`, { cache: "no-store" });
+  const res = await fetch(`${baseUrl}${qs ? `?${qs}` : ""}`, {
+    next: { revalidate: params?.revalidate ?? 300 },
+  });
   return handleRes<ApiProduct[]>(res);
 }
 
@@ -626,7 +632,7 @@ export async function getProductBySlug(
     const qs = type ? `?type=${type}` : "";
     const res = await fetch(
       `${API_BASE}/products/slug/${encodeURIComponent(normalizedSlug)}${qs}`,
-      { cache: "no-store" }
+      REVALIDATE_LIST
     );
     if (!res.ok) return null;
     return await handleRes<ApiProduct>(res);
@@ -826,12 +832,15 @@ export type ApiNewsListResponse = {
 export async function getNewsList(params?: {
   limit?: number;
   skip?: number;
+  revalidate?: number;
 }): Promise<ApiNewsListResponse> {
   const qs = new URLSearchParams();
   if (params?.limit != null) qs.set("limit", String(params.limit));
   if (params?.skip != null) qs.set("skip", String(params.skip));
   const search = qs.toString() ? `?${qs.toString()}` : "";
-  const res = await fetch(`${API_BASE}/news${search}`, { cache: "no-store" });
+  const res = await fetch(`${API_BASE}/news${search}`, {
+    next: { revalidate: params?.revalidate ?? 300 },
+  });
   return handleRes<ApiNewsListResponse>(res);
 }
 
@@ -845,7 +854,7 @@ export async function getNewsBySlug(slug: string): Promise<ApiNewsItem | null> {
     if (!normalizedSlug) return null;
     const res = await fetch(
       `${API_BASE}/news/slug/${encodeURIComponent(normalizedSlug)}`,
-      { cache: "no-store" }
+      REVALIDATE_LIST
     );
     if (!res.ok) return null;
     return await handleRes<ApiNewsItem>(res);
@@ -859,9 +868,7 @@ export async function getNewsBySlug(slug: string): Promise<ApiNewsItem | null> {
  */
 export async function getNewsById(id: string): Promise<ApiNewsItem | null> {
   try {
-    const res = await fetch(`${API_BASE}/news/${encodeURIComponent(id)}`, {
-      cache: "no-store",
-    });
+    const res = await fetch(`${API_BASE}/news/${encodeURIComponent(id)}`, REVALIDATE_LIST);
     if (!res.ok) return null;
     return await handleRes<ApiNewsItem>(res);
   } catch {
@@ -894,7 +901,7 @@ export type ApiHeroSlidesResponse = {
  */
 export async function getActiveHeroSlides(): Promise<ApiHeroSlide[]> {
   try {
-    const res = await fetch(`${API_BASE}/hero-slides/active`, { cache: "no-store" });
+    const res = await fetch(`${API_BASE}/hero-slides/active`, REVALIDATE_HOUR);
     const data = await handleRes<ApiHeroSlidesResponse>(res);
     const items = Array.isArray(data?.items) ? data.items : [];
     return items.slice().sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
@@ -924,7 +931,7 @@ export type ApiPagesListResponse = {
  */
 export async function getPages(): Promise<ApiPage[]> {
   try {
-    const res = await fetch(`${API_BASE}/pages`, { cache: "no-store" });
+    const res = await fetch(`${API_BASE}/pages`, REVALIDATE_HOUR);
     const data = await handleRes<ApiPagesListResponse>(res);
     return Array.isArray(data?.items) ? data.items : [];
   } catch {
@@ -941,7 +948,7 @@ export async function getPageBySlug(slug: string): Promise<ApiPage | null> {
     if (!normalizedSlug) return null;
     const res = await fetch(
       `${API_BASE}/pages/slug/${encodeURIComponent(normalizedSlug)}`,
-      { cache: "no-store" }
+      REVALIDATE_HOUR
     );
     if (!res.ok) return null;
     return await handleRes<ApiPage>(res);

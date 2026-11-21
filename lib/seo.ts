@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
-import { SITE_NAME, SITE_URL, DEFAULT_OG_IMAGE } from "@/constants/site";
+import { SITE_DESCRIPTION, SITE_NAME, SITE_URL, DEFAULT_OG_IMAGE } from "@/constants/site";
 import type { Listing } from "@/types/listing";
-import type { ApiNewsItem } from "@/lib/api";
+import type { ApiGrape, ApiNewsItem, ApiWinery } from "@/lib/api";
 
 /** Default keywords for the site (homepage and fallback). */
 export const DEFAULT_KEYWORDS = [
@@ -80,7 +80,7 @@ export function buildMetadata(input: BaseMetaInput): Metadata {
       siteName: SITE_NAME,
       type: openGraphType,
       images: [{ url: imageUrl, width: 1200, height: 630, alt: title }],
-      locale: "en_US",
+      locale: "ka_GE",
       ...(article &&
         openGraphType === "article" && {
           publishedTime: article.publishedTime,
@@ -304,7 +304,7 @@ export function newsToArticleJsonLd(
     publisher: {
       "@type": "Organization",
       name: SITE_NAME,
-      logo: { "@type": "ImageObject", url: `${SITE_URL}/og-default.png` },
+      logo: { "@type": "ImageObject", url: `${SITE_URL}${DEFAULT_OG_IMAGE}` },
     },
   };
 }
@@ -343,6 +343,94 @@ export function formatListingPriceForMeta(listing: Listing): string {
 /**
  * Build meta description for a listing: price + truncated description (for SEO / OG).
  */
+/** Organization + WebSite graph for the homepage. */
+export function buildWebSiteJsonLd() {
+  const organizationId = `${SITE_URL}/#organization`;
+  return {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Organization",
+        "@id": organizationId,
+        name: SITE_NAME,
+        url: SITE_URL,
+        description: SITE_DESCRIPTION,
+        logo: `${SITE_URL}${DEFAULT_OG_IMAGE}`,
+      },
+      {
+        "@type": "WebSite",
+        "@id": `${SITE_URL}/#website`,
+        name: SITE_NAME,
+        url: SITE_URL,
+        description: SITE_DESCRIPTION,
+        inLanguage: "ka",
+        publisher: { "@id": organizationId },
+      },
+    ],
+  };
+}
+
+/** BreadcrumbList for detail pages. `path` is a site path such as `/buy`. */
+export function buildBreadcrumbJsonLd(items: { name: string; path?: string }[]) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: items.map((item, index) => ({
+      "@type": "ListItem",
+      position: index + 1,
+      name: item.name,
+      ...(item.path ? { item: buildCanonicalUrl(item.path) } : {}),
+    })),
+  };
+}
+
+/** Winery + LocalBusiness for a winery detail page. */
+export function buildWineryJsonLd(winery: ApiWinery) {
+  const images = [winery.coverImage, winery.logo, ...(winery.gallery ?? [])].filter(
+    (value): value is string => Boolean(value && value.trim()),
+  );
+  const lat = winery.coordinates?.lat;
+  const lng = winery.coordinates?.lng;
+  const regionLabel = winery.region?.label || undefined;
+  const hasAddress = Boolean(winery.address?.trim() || regionLabel);
+
+  return {
+    "@context": "https://schema.org",
+    "@type": ["Winery", "LocalBusiness"],
+    name: winery.name,
+    description: winery.tagline || winery.description || undefined,
+    url: buildCanonicalUrl(`/wineries/${winery.slug}`),
+    ...(images.length > 0 ? { image: images } : {}),
+    ...(winery.contact?.phone ? { telephone: winery.contact.phone } : {}),
+    ...(winery.contact?.email ? { email: winery.contact.email } : {}),
+    ...(hasAddress
+      ? {
+          address: {
+            "@type": "PostalAddress",
+            ...(winery.address?.trim() ? { streetAddress: winery.address.trim() } : {}),
+            ...(regionLabel ? { addressRegion: regionLabel } : {}),
+            addressCountry: "GE",
+          },
+        }
+      : {}),
+    ...(typeof lat === "number" && typeof lng === "number"
+      ? { geo: { "@type": "GeoCoordinates", latitude: lat, longitude: lng } }
+      : {}),
+  };
+}
+
+/** Thing describing a grape variety. */
+export function buildGrapeJsonLd(grape: ApiGrape) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "Thing",
+    name: grape.name,
+    ...(grape.description?.trim() ? { description: grape.description.trim() } : {}),
+    ...(grape.image?.trim() ? { image: grape.image } : {}),
+    url: buildCanonicalUrl(`/encyclopedia/${grape.slug}`),
+  };
+}
+
 export function buildListingMetaDescription(listing: Listing, maxLength: number = 160): string {
   const priceStr = formatListingPriceForMeta(listing);
   const rawDesc = (listing.description || listing.excerpt || "").trim();

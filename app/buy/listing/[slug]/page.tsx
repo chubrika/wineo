@@ -7,6 +7,7 @@ import {
   listingToProductJsonLd,
   buildMetadata,
   buildListingMetaDescription,
+  buildBreadcrumbJsonLd,
 } from "@/lib/seo";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { ListingImageGallery } from "@/components/listing/ListingImageGallery";
@@ -116,6 +117,13 @@ export default async function BuyListingPage({ params }: Props) {
   return (
     <div className="mx-auto max-w-7xl bg-white px-4 py-8 sm:px-6 lg:px-8">
       <JsonLd data={productJsonLd} />
+      <JsonLd
+        data={buildBreadcrumbJsonLd([
+          { name: "მთავარი", path: "/" },
+          { name: "ყიდვა", path: "/buy" },
+          { name: listing.title },
+        ])}
+      />
       <nav className="mb-6 text-sm text-zinc-500" aria-label="Breadcrumb">
         <Link href="/buy" className="hover:text-zinc-700">
           ყიდვა

@@ -1,63 +1,28 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
-import { getRegions } from "@/lib/api";
+import { useMemo, useState } from "react";
+import type { ApiRegion } from "@/lib/api";
 import type { ListingType } from "@/types/listing";
 import { ChevronRightIcon } from "lucide-react";
 
-type RegionCardItem = {
-  id: string;
-  slug: string;
-  label: string;
-  description?: string;
-  largeTitle?: string;
-  shortDesc?: string;
-  image?: string;
-  index?: number;
-};
-
-export function RegionSection() {
+export function RegionSection({ regions }: { regions: ApiRegion[] }) {
   const [listingType, setListingType] = useState<ListingType>("buy");
-  const [regions, setRegions] = useState<RegionCardItem[]>([]);
-  const [selectedRegionSlug, setSelectedRegionSlug] = useState<string>("");
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    let cancelled = false;
-    getRegions()
-      .then((list) => {
-        if (cancelled) return;
-        const ordered = [...(list as RegionCardItem[])];
-        const firstSix = ordered
-          .sort(
-            (a, b) =>
-              (a.index ?? Number.MAX_SAFE_INTEGER) -
-              (b.index ?? Number.MAX_SAFE_INTEGER),
-          )
-          .slice(0, 5);
-        setRegions(firstSix);
-        if (firstSix[0]?.slug) setSelectedRegionSlug(firstSix[0].slug);
-      })
-      .catch(() => {
-        if (!cancelled) {
-          setRegions([]);
-          setSelectedRegionSlug("");
-        }
-      })
-      .finally(() => {
-        if (!cancelled) setLoading(false);
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, []);
+  const featuredRegions = useMemo(
+    () =>
+      [...regions]
+        .sort(
+          (a, b) =>
+            (a.index ?? Number.MAX_SAFE_INTEGER) - (b.index ?? Number.MAX_SAFE_INTEGER),
+        )
+        .slice(0, 5),
+    [regions],
+  );
+  const [selectedRegionSlug, setSelectedRegionSlug] = useState(featuredRegions[0]?.slug ?? "");
 
   const baseHref = listingType === "buy" ? "/buy" : "/rent";
-  const featuredRegions = regions;
   const selectedRegion =
-    featuredRegions.find((region) => region.slug === selectedRegionSlug) ??
-    featuredRegions[0];
+    featuredRegions.find((region) => region.slug === selectedRegionSlug) ?? featuredRegions[0];
 
   return (
     <section
@@ -73,7 +38,6 @@ export function RegionSection() {
             რეგიონებით ძებნა
           </h2>
 
-          {/* იყიდე / იქირავე toggle */}
           <div
             className="mt-4 md:mt-6 flex items-center gap-2"
             role="group"
@@ -104,12 +68,7 @@ export function RegionSection() {
           </div>
         </div>
 
-        {loading && (
-          <p className="mt-8 text-zinc-500" aria-live="polite">
-            რეგიონები იტვირთება...
-          </p>
-        )}
-        {!loading && regions.length > 0 && selectedRegion && (
+        {featuredRegions.length > 0 && selectedRegion && (
           <div className="mt-6 md:mt-8 grid gap-6 md:gap-8 lg:grid-cols-2 lg:items-start">
             <div className="relative bg-white p-3 rounded-lg border border-zinc-200 shadow-lg">
               <div
@@ -143,11 +102,13 @@ export function RegionSection() {
               <ul className="mt-6 space-y-3">
                 {featuredRegions.map((region) => {
                   const isActive = region.slug === selectedRegion.slug;
+                  const href = `${baseHref}?region=${encodeURIComponent(region.slug)}`;
                   return (
                     <li key={region.slug}>
-                      <button
-                        type="button"
-                        onClick={() => setSelectedRegionSlug(region.slug)}
+                      <Link
+                        href={href}
+                        onMouseEnter={() => setSelectedRegionSlug(region.slug)}
+                        onFocus={() => setSelectedRegionSlug(region.slug)}
                         className={`w-full cursor-pointer rounded-md flex items-center justify-between px-4 py-3 text-left text-sm font-medium transition sm:text-base ${
                           isActive
                             ? " border-l-3 border-l-[#8a052d]  bg-white"
@@ -159,7 +120,7 @@ export function RegionSection() {
                           className="h-5 w-5 shrink-0 text-zinc-400"
                           aria-hidden
                         />
-                      </button>
+                      </Link>
                     </li>
                   );
                 })}
@@ -174,7 +135,7 @@ export function RegionSection() {
             </div>
           </div>
         )}
-        {!loading && regions.length === 0 && (
+        {featuredRegions.length === 0 && (
           <p className="mt-8 text-zinc-500">რეგიონები ვერ მოიძებნა.</p>
         )}
       </div>

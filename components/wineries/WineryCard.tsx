@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { ApiWinery } from "@/lib/api";
+import { ContentImage } from "@/components/media/ContentImage";
 import { WINERY_TYPE_LABELS } from "@/lib/wineries";
 
 function excerpt(value?: string) {
@@ -18,9 +19,13 @@ export function WineryCard({ winery }: { winery: ApiWinery }) {
     <article className="flex h-full flex-col overflow-hidden rounded-none md:rounded-3xl bg-white shadow-[0_10px_30px_rgba(60,40,20,0.06)]">
       <div className="relative aspect-[16/10] bg-[#efe6df]">
         {winery.coverImage ? (
-          // Cover images are arbitrary URLs, outside next/image remote patterns.
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={winery.coverImage} alt="" className="h-full w-full object-cover" />
+          <ContentImage
+            src={winery.coverImage}
+            alt={winery.name}
+            fill
+            sizes="(max-width: 768px) 100vw, 33vw"
+            className="object-cover"
+          />
         ) : (
           <div className="h-full w-full bg-gradient-to-br from-[#8d3a45] to-[#3d1016]" />
         )}

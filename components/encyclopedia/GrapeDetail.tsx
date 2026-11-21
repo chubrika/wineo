@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ContentImage } from "@/components/media/ContentImage";
 import type { ApiGrape, ApiGrapeRegion, ApiWinery } from "@/lib/api";
 import { WineryCard } from "@/components/wineries/WineryCard";
 import type { Listing } from "@/types/listing";
@@ -108,8 +109,13 @@ export function GrapeDetail({
       <section className="mt-6 grid items-start gap-8 lg:grid-cols-[280px_1fr]">
         <aside className="rounded-3xl bg-white px-6 py-8 text-center shadow-[0_10px_30px_rgba(60,40,20,0.04)]">
           {grape.image ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={grape.image} alt={grape.name} className="mx-auto h-40 w-40 rounded-full object-cover" />
+            <ContentImage
+              src={grape.image}
+              alt={grape.name}
+              width={160}
+              height={160}
+              className="mx-auto h-40 w-40 rounded-full object-cover"
+            />
           ) : (
             <div className="mx-auto flex h-40 w-40 items-center justify-center rounded-full border border-zinc-200 text-5xl font-dejavu-sans text-zinc-800">
               {latin.slice(0, 1)}

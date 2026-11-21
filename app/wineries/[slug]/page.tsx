@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getWineryBySlug } from "@/lib/api";
 import { WineryDetail } from "@/components/wineries/WineryDetail";
-import { buildMetadata, truncateForMeta } from "@/lib/seo";
+import { JsonLd } from "@/components/seo/JsonLd";
+import { buildBreadcrumbJsonLd, buildMetadata, buildWineryJsonLd, truncateForMeta } from "@/lib/seo";
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -23,5 +24,17 @@ export default async function WineryPage({ params }: Props) {
   const { slug } = await params;
   const winery = await getWineryBySlug(slug);
   if (!winery) notFound();
-  return <WineryDetail winery={winery} />;
+  return (
+    <>
+      <JsonLd data={buildWineryJsonLd(winery)} />
+      <JsonLd
+        data={buildBreadcrumbJsonLd([
+          { name: "მთავარი", path: "/" },
+          { name: "მარნები", path: "/wineries" },
+          { name: winery.name },
+        ])}
+      />
+      <WineryDetail winery={winery} />
+    </>
+  );
 }

@@ -6,6 +6,7 @@ import { AccountGuard } from "@/components/account/AccountGuard";
 export const metadata: Metadata = {
   title: "ჩემი ანგარიში",
   description: `პროფილი და განცხადებები — ${SITE_NAME}.`,
+  robots: { index: false, follow: false },
 };
 
 export default function AccountLayout({

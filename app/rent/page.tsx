@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { getCategories, getRegions } from "@/lib/api";
+import { buildMetadata } from "@/lib/seo";
 import { buildCategoryTree } from "@/lib/categories";
 import { searchListings } from "@/lib/listings";
 import {
@@ -13,16 +14,12 @@ import {
   Pagination,
 } from "@/components/listing";
 
-export const metadata: Metadata = {
-  title: "Rent Winemaking Equipment",
+export const metadata: Metadata = buildMetadata({
+  title: "იქირავე დანადგარები",
   description:
-    "Rent winemaking equipment for harvest and production: tanks, presses, barrel racks, and more. Flexible rental terms for vineyards and home winemakers.",
-  openGraph: {
-    title: "Rent Winemaking Equipment",
-    description:
-      "Rent winemaking equipment. Tanks, presses, barrel racks. Flexible terms.",
-  },
-};
+    "იქირავე ღვინის დანადგარები, ავზები, წნეხები და ვენახის ინვენტარი. მოქნილი პირობები მეღვინეებისთვის.",
+  path: "/rent",
+});
 
 interface PageProps {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
@@ -59,6 +56,7 @@ export default async function RentPage({ searchParams }: PageProps) {
       regions={regionsRes}
     >
       <div className="space-y-6">
+        <h1 className="text-2xl font-bold tracking-tight text-zinc-900">იქირავე დანადგარები</h1>
         <ListingToolbar
           total={total}
           state={state}

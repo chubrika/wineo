@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { getCategories, getRegions } from "@/lib/api";
+import { buildMetadata } from "@/lib/seo";
 import { buildCategoryTree } from "@/lib/categories";
 import { searchListings } from "@/lib/listings";
 import {
@@ -13,16 +14,12 @@ import {
   Pagination,
 } from "@/components/listing";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = buildMetadata({
   title: "იყიდე პროდუქტები",
   description:
     "პროდუქტების მოძიება და ყიდვა. საწნახელები, პრესები, ფერმენტაციის მოწყობილობები და ა.შ.",
-  openGraph: {
-    title: "იყიდე პროდუქტები",
-    description:
-      "პროდუქტების მოძიება და ყიდვა. საწნახელები, პრესები, ფერმენტაციის მოწყობილობები და ა.შ.",
-  },
-};
+  path: "/buy",
+});
 
 interface PageProps {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
@@ -59,6 +56,7 @@ export default async function BuyPage({ searchParams }: PageProps) {
       regions={regionsRes}
     >
       <div className="space-y-2">
+        <h1 className="text-2xl font-bold tracking-tight text-zinc-900">იყიდე პროდუქტები</h1>
         <ListingToolbar
           total={total}
           state={state}

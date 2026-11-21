@@ -6,6 +6,8 @@ import type { ApiHeroSlide } from "@/lib/api";
 
 export type HeroSlideProps = {
   slide: ApiHeroSlide;
+  /** First slide on the homepage is the page's single h1. */
+  titleAs?: "h1" | "span";
 };
 
 /**
@@ -13,7 +15,7 @@ export type HeroSlideProps = {
  * mobile → mobileImage or image), overlay gradient, centered title, subtitle, CTA.
  * Uses <picture> for responsive images and lazy loading.
  */
-export function HeroSlideContent({ slide }: HeroSlideProps) {
+export function HeroSlideContent({ slide, titleAs = "span" }: HeroSlideProps) {
   const desktopImage = slide.image || "";
   const mobileImage = slide.mobileImage || desktopImage;
   const hasMobileImage = Boolean(slide.mobileImage?.trim());
@@ -49,11 +51,16 @@ export function HeroSlideContent({ slide }: HeroSlideProps) {
 
       {/* Content */}
       <div className="relative z-10 mx-auto max-w-2xl">
-        {slide.title && (
-          <span className="text-lg font-bold tracking-tight text-white drop-shadow-sm sm:text-3xl">
-            {slide.title}
-          </span>
-        )}
+        {slide.title &&
+          (titleAs === "h1" ? (
+            <h1 className="text-lg font-bold tracking-tight text-white drop-shadow-sm sm:text-3xl">
+              {slide.title}
+            </h1>
+          ) : (
+            <span className="text-lg font-bold tracking-tight text-white drop-shadow-sm sm:text-3xl">
+              {slide.title}
+            </span>
+          ))}
         {slide.subtitle && (
           <p className="mt-3 text-sm text-white/95 sm:text-base md:mt-4 md:text-lg lg:text-xl">
             {slide.subtitle}

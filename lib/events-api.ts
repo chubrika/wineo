@@ -24,15 +24,11 @@ export function parseEventsListResponse(data: ApiEventsListResponse): { items: A
 
 type NextFetchOpts = RequestInit & { next?: { revalidate?: number } };
 
-export async function fetchEventsCalendar(opts?: NextFetchOpts): Promise<ApiEventsCalendarResponse> {
-  const hasRevalidate =
-    typeof opts === "object" &&
-    opts != null &&
-    "next" in opts &&
-    typeof (opts as { next?: { revalidate?: number } }).next?.revalidate === "number";
+const EVENTS_CACHE: NextFetchOpts = { next: { revalidate: 300 } };
 
+export async function fetchEventsCalendar(opts?: NextFetchOpts): Promise<ApiEventsCalendarResponse> {
   const res = await fetch(`${API_BASE}/events/calendar`, {
-    ...(hasRevalidate ? null : { cache: "no-store" }),
+    ...EVENTS_CACHE,
     ...opts,
   });
   const data = (await res.json().catch(() => ({}))) as ApiEventsCalendarResponse & { error?: string };
@@ -48,14 +44,8 @@ export async function getEventBySlug(slug: string, opts?: NextFetchOpts): Promis
     const normalized = typeof slug === "string" ? slug.trim() : "";
     if (!normalized) return null;
 
-    const hasRevalidate =
-      typeof opts === "object" &&
-      opts != null &&
-      "next" in opts &&
-      typeof (opts as { next?: { revalidate?: number } }).next?.revalidate === "number";
-
     const res = await fetch(`${API_BASE}/events/slug/${encodeURIComponent(normalized)}`, {
-      ...(hasRevalidate ? null : { cache: "no-store" }),
+      ...EVENTS_CACHE,
       ...opts,
     });
     if (!res.ok) return null;
@@ -71,6 +61,7 @@ export async function fetchEventsList(params?: {
   date?: string | null;
   page?: number;
   limit?: number;
+  revalidate?: number;
 }): Promise<{ items: ApiEvent[]; total: number }> {
   const qs = new URLSearchParams();
   if (params?.date) qs.set("date", params.date);
@@ -78,7 +69,7 @@ export async function fetchEventsList(params?: {
   if (params?.limit != null) qs.set("limit", String(params.limit));
 
   const res = await fetch(`${API_BASE}/events${qs.toString() ? `?${qs.toString()}` : ""}`, {
-    cache: "no-store",
+    next: { revalidate: params?.revalidate ?? 300 },
   });
   const data = (await res.json().catch(() => ({}))) as ApiEventsListResponse & { error?: string };
   if (!res.ok) throw new Error((data as { error?: string })?.error || res.statusText);

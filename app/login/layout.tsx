@@ -4,6 +4,7 @@ import { SITE_NAME } from "@/constants/site";
 export const metadata: Metadata = {
   title: "შესვლა / რეგისტრაცია",
   description: `შედით ან დარეგისტრირდით — ${SITE_NAME}.`,
+  robots: { index: false, follow: false },
 };
 
 export default function LoginLayout({

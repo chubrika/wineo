@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ContentImage } from "@/components/media/ContentImage";
 import type { ApiGrape, GrapeColor } from "@/lib/api";
 import { GRAPE_COLOR_LABELS, GRAPE_TYPE_LABELS, latinNameFromSlug } from "@/lib/encyclopedia";
 
@@ -62,9 +63,13 @@ export function GrapeCard({
     <article className="flex h-full flex-col rounded-3xl bg-white p-3 shadow-[0_10px_30px_rgba(60,40,20,0.05)]">
       <div className={`relative aspect-[4/3] overflow-hidden rounded-2xl ${grape.image ? "bg-zinc-100" : PLACEHOLDER[grape.color]}`}>
         {grape.image ? (
-          // Grape images are arbitrary URLs, outside next/image remote patterns.
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={grape.image} alt="" className="h-full w-full object-cover" />
+          <ContentImage
+            src={grape.image}
+            alt={grape.name}
+            fill
+            sizes="(max-width: 768px) 100vw, 33vw"
+            className="object-cover"
+          />
         ) : (
           <div className="flex h-full flex-col items-center justify-center gap-3 text-white">
             <PlaceholderArt color={grape.color} />

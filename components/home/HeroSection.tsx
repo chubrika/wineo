@@ -11,8 +11,9 @@ import { listingBasePath, buildListingSearchString } from "@/lib/listing-search"
 import { useFiltersModal } from "@/contexts/FiltersModalContext";
 import { ChevronDownIcon, ChevronUpIcon, ClockIcon, FilterIcon, SearchIcon, ShoppingBagIcon, XIcon } from "lucide-react";
 import { HeroSlider } from "@/components/hero/HeroSlider";
+import type { ApiHeroSlide } from "@/lib/api";
 
-export function HeroSection() {
+export function HeroSection({ slides }: { slides: ApiHeroSlide[] }) {
   const router = useRouter();
   const [listingType, setListingType] = useState<ListingType>("buy");
   const [category, setCategory] = useState("");
@@ -148,7 +149,7 @@ export function HeroSection() {
      <div className="relative overflow-visible rounded-none md:rounded-md z-11 min-h-[350px] mx-auto max-w-7xl bg-zinc-100 text-zinc-900 md:min-h-[300px] border-b border-zinc-200">
        {/* Hero slider: full-bleed background + slides (title, subtitle, CTA per slide) */}
        <div className="absolute inset-0 overflow-hidden rounded-none md:rounded-md">
-        <HeroSlider />
+        <HeroSlider slides={slides} />
       </div>
 
       {/* Search bar overlaid at bottom */}

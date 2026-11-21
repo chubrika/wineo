@@ -30,7 +30,7 @@ export const metadata: Metadata = {
   description: SITE_DESCRIPTION,
   openGraph: {
     type: "website",
-    locale: "en_US",
+    locale: "ka_GE",
     images: [
       {
         url: DEFAULT_OG_IMAGE,
@@ -52,7 +52,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="light">
+    <html lang="ka" className="light">
       <body
         className={`${geistSans.variable} ${geistMono.variable} min-h-screen antialiased flex flex-col`}
       >

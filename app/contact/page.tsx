@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
 import { SITE_NAME } from "@/constants/site";
+import { buildMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = buildMetadata({
   title: "კონტაქტი",
   description: `დაგვიკავშირდით — ${SITE_NAME}. კითხვები, წინადადებები და მხარდაჭერა.`,
-};
+  path: "/contact",
+});
 
 export default function ContactPage() {
   return (

@@ -1,10 +1,11 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import Link from "next/link";
+import { useMemo, useState } from "react";
 import type { ReactNode } from "react";
 import * as LucideIcons from "lucide-react";
-import { getCategories, type ApiCategory } from "@/lib/api";
-import { useCategoriesModal } from "@/contexts/CategoriesModalContext";
+import type { ApiCategory } from "@/lib/api";
+import { listingBasePath } from "@/lib/listing-search";
 
 function toPascalCase(input: string) {
   return input
@@ -54,13 +55,12 @@ function resolveCategoryIcon({
   );
 }
 
-function CategoryCard({
-  category,
-  onOpen,
-}: {
-  category: ApiCategory;
-  onOpen: (slug: string) => void;
-}) {
+function categoryHref(category: ApiCategory) {
+  const type = category.types?.includes("buy") || !category.types?.length ? "buy" : "rent";
+  return listingBasePath(type, category.slug);
+}
+
+function CategoryCard({ category }: { category: ApiCategory }) {
   const iconBg = category.iconBg?.trim() ? category.iconBg.trim() : "#ffffff";
   const iconColor = category.iconColor?.trim() ? category.iconColor.trim() : "#000";
   const [isHovered, setIsHovered] = useState(false);
@@ -68,9 +68,8 @@ function CategoryCard({
   const squareBg = isHovered ? iconColor : iconBg;
   const currentIconColor = isHovered ? "#ffffff" : iconColor;
   return (
-    <button
-      type="button"
-      onClick={() => onOpen(category.slug)}
+    <Link
+      href={categoryHref(category)}
       className="block text-left cursor-pointer"
       onPointerEnter={() => setIsHovered(true)}
       onPointerLeave={() => setIsHovered(false)}
@@ -86,35 +85,22 @@ function CategoryCard({
         </div>
         <p className="mt-3 text-zinc-700 text-[12px] md:text-sm font-semibold normal-font text-center">{category.name}</p>
       </div>
-    </button>
+    </Link>
   );
 }
 
-export function CategoriesCards() {
-  const { openCategoriesModal } = useCategoriesModal();
-  const [categories, setCategories] = useState<ApiCategory[]>([]);
-
+export function CategoriesCards({ categories }: { categories: ApiCategory[] }) {
   const withIcons = useMemo(
     () =>
       categories.filter(
-        (c) => c.active && typeof c.icon === "string" && c.icon.trim().length > 0
+        (c) =>
+          c.active &&
+          !c.parentId &&
+          typeof c.icon === "string" &&
+          c.icon.trim().length > 0,
       ),
-    [categories]
+    [categories],
   );
-
-  useEffect(() => {
-    let cancelled = false;
-    getCategories({ roots: true })
-      .then((list) => {
-        if (!cancelled) setCategories(list);
-      })
-      .catch(() => {
-        if (!cancelled) setCategories([]);
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, []);
 
   if (withIcons.length === 0) return null;
 
@@ -123,11 +109,7 @@ export function CategoriesCards() {
       <div className="mx-auto max-w-7xl">
         <div className="grid grid-cols-3 gap-2 md:gap-4 sm:grid-cols-3 lg:grid-cols-6">
           {withIcons.map((category) => (
-            <CategoryCard
-              key={category.id}
-              category={category}
-              onOpen={(slug) => openCategoriesModal({ initialRootSlug: slug })}
-            />
+            <CategoryCard key={category.id} category={category} />
           ))}
         </div>
       </div>

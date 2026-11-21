@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ContentImage } from "@/components/media/ContentImage";
 import { Calendar, Check, Clock, Facebook, Globe, Instagram, Mail, MapPin, Phone, Wine } from "lucide-react";
 import type { ApiWinery, GrapeColor } from "@/lib/api";
 import { mapApiProductToListing } from "@/lib/listings";
@@ -102,10 +103,15 @@ export function WineryDetail({ winery }: { winery: ApiWinery }) {
       </nav>
 
       <section className="mt-4">
-        <div className="h-64 overflow-hidden rounded-none md:rounded-3xl bg-[#efe6df] sm:h-80">
+        <div className="relative h-64 overflow-hidden rounded-none md:rounded-3xl bg-[#efe6df] sm:h-80">
           {winery.coverImage ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={winery.coverImage} alt="" className="h-full w-full object-cover" />
+            <ContentImage
+              src={winery.coverImage}
+              alt={winery.name}
+              fill
+              sizes="100vw"
+              className="object-cover"
+            />
           ) : (
             <div className="h-full w-full bg-gradient-to-br from-[#8d3a45] to-[#3d1016]" />
           )}
@@ -114,10 +120,15 @@ export function WineryDetail({ winery }: { winery: ApiWinery }) {
         <div className="relative z-10 -mt-16 rounded-none md:rounded-3xl bg-white p-5 shadow-[0_16px_40px_rgba(60,40,20,0.08)] sm:mx-4 sm:p-6">
           <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
             <div className="flex min-w-0 items-start gap-4">
-              <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-[#721c24]/30 bg-[#F9F7F5] text-2xl font-semibold text-[#721c24]">
+              <div className="relative flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-[#721c24]/30 bg-[#F9F7F5] text-2xl font-semibold text-[#721c24]">
                 {winery.logo ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={winery.logo} alt="" className="h-full w-full object-cover" />
+                  <ContentImage
+                    src={winery.logo}
+                    alt={`${winery.name} ლოგო`}
+                    fill
+                    sizes="64px"
+                    className="object-cover"
+                  />
                 ) : (
                   initial
                 )}
@@ -241,9 +252,14 @@ export function WineryDetail({ winery }: { winery: ApiWinery }) {
                   <h2 className="font-dejavu-sans text-2xl text-zinc-900">გალერეა</h2>
                   <ul className="mt-4 grid grid-cols-2 gap-3">
                     {gallery.map((image, index) => (
-                      <li key={`${image}-${index}`} className="overflow-hidden rounded-3xl bg-white">
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img src={image} alt="" className="aspect-[16/10] h-full w-full object-cover" />
+                      <li key={`${image}-${index}`} className="relative aspect-[16/10] overflow-hidden rounded-3xl bg-white">
+                        <ContentImage
+                          src={image}
+                          alt={`${winery.name} — სურათი ${index + 1}`}
+                          fill
+                          sizes="(max-width: 768px) 100vw, 33vw"
+                          className="object-cover"
+                        />
                       </li>
                     ))}
                   </ul>

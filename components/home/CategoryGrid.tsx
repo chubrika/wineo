@@ -1,8 +1,7 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { useEffect, useState, useMemo, useRef } from "react";
-import { getCategories } from "@/lib/api";
 import type { ApiCategory } from "@/lib/api";
 import { buildCategoryTree } from "@/lib/categories";
 import type { CategoryTreeNode } from "@/types/category";
@@ -11,32 +10,57 @@ import { listingBasePath } from "@/lib/listing-search";
 import { ChevronDownIcon, ChevronRightIcon, XIcon } from "lucide-react";
 import { ChevronUpIcon } from "lucide-react";
 
-export function CategoryGrid() {
-  const router = useRouter();
+const PILL_CLASS =
+  "group relative flex w-full cursor-pointer items-center justify-between gap-2 overflow-hidden rounded-full border border-zinc-200/90 bg-white px-4 py-2.5 text-left text-zinc-900 transition-all duration-200 hover:-translate-y-0.5 hover:border-[#8a052d]/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#8a052d]/40 focus-visible:ring-offset-2 sm:gap-4 sm:rounded-2xl sm:px-5 sm:py-4 sm:shadow-[0_2px_10px_rgba(24,24,27,0.04)] sm:hover:shadow-[0_10px_24px_rgba(138,5,45,0.12)]";
+
+function collectLinks(
+  nodes: CategoryTreeNode[],
+  categories: ApiCategory[],
+  type: ListingType,
+): { id: string; name: string; href: string }[] {
+  const links: { id: string; name: string; href: string }[] = [];
+  for (const node of nodes) {
+    const category = categories.find((item) => item.slug === node.slug);
+    const allowed =
+      category?.active !== false &&
+      (Array.isArray(category?.types) ? category.types.includes(type) : true);
+    if (allowed) {
+      links.push({
+        id: `${type}-${node.id}`,
+        name: node.name,
+        href: listingBasePath(type, node.slug),
+      });
+    }
+    if (node.children.length > 0) {
+      links.push(...collectLinks(node.children, categories, type));
+    }
+  }
+  return links;
+}
+
+export function CategoryGrid({ categories }: { categories: ApiCategory[] }) {
   const [listingType, setListingType] = useState<ListingType>("buy");
-  const [categoriesApi, setCategoriesApi] = useState<ApiCategory[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [categoryLevelStack, setCategoryLevelStack] = useState<CategoryTreeNode[][]>([]);
   const [modalTitle, setModalTitle] = useState("");
   const [showAllCategories, setShowAllCategories] = useState(false);
-  const [isMobile, setIsMobile] = useState(
-    () => typeof window !== "undefined" && window.matchMedia("(max-width: 639px)").matches
-  );
+  const [isMobile, setIsMobile] = useState(false);
   const categoryDropdownRefModal = useRef<HTMLDivElement>(null);
 
   const INITIAL_CATEGORIES_COUNT = 6;
 
-  const categoryTree = useMemo(() => buildCategoryTree(categoriesApi), [categoriesApi]);
+  const categoryTree = useMemo(() => buildCategoryTree(categories), [categories]);
   const roots = useMemo(() => {
-    const filtered = categoryTree.filter((node) => {
-      const cat = categoriesApi.find((c) => c.slug === node.slug);
+    return categoryTree.filter((node) => {
+      const cat = categories.find((item) => item.slug === node.slug);
       if (!cat?.active) return false;
       return Array.isArray(cat.types) ? cat.types.includes(listingType) : true;
     });
-    return filtered;
-  }, [categoryTree, categoriesApi, listingType]);
+  }, [categoryTree, categories, listingType]);
+  const crawlLinks = useMemo(
+    () => [...collectLinks(categoryTree, categories, "buy"), ...collectLinks(categoryTree, categories, "rent")],
+    [categoryTree, categories],
+  );
 
   const visibleRoots = isMobile || showAllCategories ? roots : roots.slice(0, INITIAL_CATEGORIES_COUNT);
   const hasMoreCategories = !isMobile && roots.length > INITIAL_CATEGORIES_COUNT;
@@ -44,48 +68,22 @@ export function CategoryGrid() {
   useEffect(() => {
     const mediaQuery = window.matchMedia("(max-width: 639px)");
     const handleChange = (event: MediaQueryListEvent) => setIsMobile(event.matches);
-
+    setIsMobile(mediaQuery.matches);
     mediaQuery.addEventListener("change", handleChange);
-
     return () => {
       mediaQuery.removeEventListener("change", handleChange);
     };
   }, []);
 
-  useEffect(() => {
-    let cancelled = false;
-    getCategories()
-      .then((list) => {
-        if (cancelled) return;
-        setCategoriesApi(list);
-      })
-      .catch((err) => {
-        if (!cancelled) setError(err instanceof Error ? err.message : "Failed to load categories");
-      })
-      .finally(() => {
-        if (!cancelled) setLoading(false);
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, []);
-
-  function handleCategoryClick(rootNode: CategoryTreeNode) {
-    if (rootNode.children.length === 0) {
-      router.push(listingBasePath(listingType, rootNode.slug));
-      return;
-    }
-    setModalTitle(rootNode.name);
-    setCategoryLevelStack([rootNode.children]);
+  function openChildren(node: CategoryTreeNode) {
+    setModalTitle(node.name);
+    setCategoryLevelStack([node.children]);
     setModalOpen(true);
   }
 
   function handleModalOptionClick(node: CategoryTreeNode) {
     if (node.children.length > 0) {
       setCategoryLevelStack((prev) => [...prev, node.children]);
-    } else {
-      setModalOpen(false);
-      router.push(listingBasePath(listingType, node.slug));
     }
   }
 
@@ -125,9 +123,6 @@ export function CategoryGrid() {
             )}
       </div>
 
-     
-
-        {/* იყიდე / იქირავე toggle */}
         <div className="mt-6 flex items-center gap-2" role="group" aria-label="Listing type">
           <button
             type="button"
@@ -153,43 +148,55 @@ export function CategoryGrid() {
           </button>
         </div>
 
-        {loading && (
-          <p className="mt-8 text-zinc-500" aria-live="polite">
-            კატეგორიები იტვირთება...
-          </p>
-        )}
-        {error && (
-          <p className="mt-8 text-red-600" role="alert">
-            {error}
-          </p>
-        )}
-        {!loading && !error && roots.length > 0 && (
+        {roots.length > 0 && (
           <>
             <ul className="mt-8 flex gap-2 md:gap-3 overflow-x-auto pb-2 sm:grid sm:grid-cols-2 sm:gap-3 sm:overflow-visible sm:pb-0 lg:grid-cols-3">
-              {visibleRoots.map((node) => (
-                <li key={node.id} className=" shrink-0 sm:min-w-0 sm:shrink">
-                  <button
-                    type="button"
-                    onClick={() => handleCategoryClick(node)}
-                    className="group relative flex w-full cursor-pointer items-center justify-between gap-2 overflow-hidden rounded-full border border-zinc-200/90 bg-white px-4 py-2.5 text-left text-zinc-900 transition-all duration-200 hover:-translate-y-0.5 hover:border-[#8a052d]/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#8a052d]/40 focus-visible:ring-offset-2 sm:gap-4 sm:rounded-2xl sm:px-5 sm:py-4 sm:shadow-[0_2px_10px_rgba(24,24,27,0.04)] sm:hover:shadow-[0_10px_24px_rgba(138,5,45,0.12)]"
-                    aria-label={`${node.name} კატეგორია`}
-                  >
+              {visibleRoots.map((node) => {
+                const href = listingBasePath(listingType, node.slug);
+                const inner = (
+                  <>
                     <span className="relative text-sm font-normal md:font-semibold tracking-tight text-zinc-700 sm:pl-2 sm:text-base">{node.name}</span>
                     <span className="hidden h-8 w-8 shrink-0 items-center justify-center rounded-full bg-zinc-100 text-zinc-500 transition-colors group-hover:bg-[#8a052d]/10 group-hover:text-[#8a052d] sm:inline-flex">
                       <ChevronRightIcon className="h-4 w-4" aria-hidden />
                     </span>
-                  </button>
-                </li>
-              ))}
+                  </>
+                );
+                return (
+                  <li key={node.id} className=" shrink-0 sm:min-w-0 sm:shrink">
+                    {node.children.length === 0 ? (
+                      <Link href={href} className={PILL_CLASS} aria-label={`${node.name} კატეგორია`}>
+                        {inner}
+                      </Link>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => openChildren(node)}
+                        className={PILL_CLASS}
+                        aria-label={`${node.name} კატეგორია`}
+                      >
+                        {inner}
+                      </button>
+                    )}
+                  </li>
+                );
+              })}
             </ul>
+            <nav className="sr-only" aria-label="კატეგორიები">
+              <ul>
+                {crawlLinks.map((link) => (
+                  <li key={link.id}>
+                    <Link href={link.href}>{link.name}</Link>
+                  </li>
+                ))}
+              </ul>
+            </nav>
           </>
         )}
-        {!loading && !error && roots.length === 0 && (
+        {roots.length === 0 && (
           <p className="mt-8 text-zinc-500">კატეგორიები ვერ მოიძებნა.</p>
         )}
       </div>
 
-      {/* Category children modal — cascading */}
       {modalOpen && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
@@ -234,21 +241,25 @@ export function CategoryGrid() {
               )}
               <ul className="flex flex-col gap-1">
                 {currentOptions.map((node) => (
-                  <li key={node.id} className="border-b border-zinc-200 last:border-b-0"  >
-                    <button
-                      type="button"
-                      onClick={() => handleModalOptionClick(node)}
-                      className={`flex w-full cursor-pointer items-center justify-between rounded-lg px-3 py-2.5 text-left text-sm transition ${
-                        node.children.length > 0
-                          ? "font-medium text-zinc-900 hover:bg-zinc-50"
-                          : "text-zinc-700 hover:bg-zinc-100"
-                      }`}
-                    >
-                      <span>{node.name}</span>
-                      {node.children.length > 0 ? (
+                  <li key={node.id} className="border-b border-zinc-200 last:border-b-0">
+                    {node.children.length > 0 ? (
+                      <button
+                        type="button"
+                        onClick={() => handleModalOptionClick(node)}
+                        className="flex w-full cursor-pointer items-center justify-between rounded-lg px-3 py-2.5 text-left text-sm font-medium text-zinc-900 transition hover:bg-zinc-50"
+                      >
+                        <span>{node.name}</span>
                         <ChevronRightIcon className="h-4 w-4 text-zinc-400" aria-hidden />
-                      ) : null}
-                    </button>
+                      </button>
+                    ) : (
+                      <Link
+                        href={listingBasePath(listingType, node.slug)}
+                        onClick={() => setModalOpen(false)}
+                        className="flex w-full items-center justify-between rounded-lg px-3 py-2.5 text-left text-sm text-zinc-700 transition hover:bg-zinc-100"
+                      >
+                        <span>{node.name}</span>
+                      </Link>
+                    )}
                   </li>
                 ))}
               </ul>

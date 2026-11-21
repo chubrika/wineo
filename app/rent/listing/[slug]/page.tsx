@@ -3,7 +3,7 @@ import { notFound, redirect } from "next/navigation";
 import Link from "next/link";
 import { getListingBySlug, getListings } from "@/lib/listings";
 import { SITE_NAME, SITE_URL } from "@/constants/site";
-import { listingToProductJsonLd, buildMetadata, buildListingMetaDescription } from "@/lib/seo";
+import { listingToProductJsonLd, buildMetadata, buildListingMetaDescription, buildBreadcrumbJsonLd } from "@/lib/seo";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { ListingImageGallery } from "@/components/listing/ListingImageGallery";
 import { RichTextContent } from "@/components/listing/RichTextContent";
@@ -127,6 +127,13 @@ export default async function RentListingPage({ params }: Props) {
   return (
     <div className="mx-auto max-w-7xl bg-white px-4 py-8 sm:px-6 lg:px-8">
       <JsonLd data={productJsonLd} />
+      <JsonLd
+        data={buildBreadcrumbJsonLd([
+          { name: "მთავარი", path: "/" },
+          { name: "ქირაობა", path: "/rent" },
+          { name: listing.title },
+        ])}
+      />
       <nav className="mb-6 text-sm text-zinc-500" aria-label="Breadcrumb">
         <Link href="/rent" className="hover:text-zinc-700">
           ქირაობა

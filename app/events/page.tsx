@@ -14,7 +14,7 @@ export const metadata: Metadata = buildMetadata({
   openGraphType: "website",
 });
 
-export const revalidate = 60;
+export const revalidate = 300;
 
 function isYmd(s: string | null): s is string {
   return !!s && /^\d{4}-\d{2}-\d{2}$/.test(s);

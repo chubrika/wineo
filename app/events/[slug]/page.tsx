@@ -4,12 +4,12 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getEventBySlug } from "@/lib/events-api";
 import { SITE_NAME, SITE_URL, DEFAULT_OG_IMAGE } from "@/constants/site";
-import { buildMetadata, truncateForMeta, buildCanonicalUrl } from "@/lib/seo";
+import { buildMetadata, truncateForMeta, buildCanonicalUrl, buildBreadcrumbJsonLd } from "@/lib/seo";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { RichTextContent } from "@/components/listing/RichTextContent";
 import type { ApiEvent } from "@/types/event";
 
-export const revalidate = 60;
+export const revalidate = 300;
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -133,6 +133,12 @@ export default async function EventDetailPage({ params }: Props) {
   return (
     <div className="mx-auto max-w-7xl py-8 px-4 md:px-0">
       <JsonLd data={jsonLd} />
+      <JsonLd
+        data={buildBreadcrumbJsonLd([
+          { name: "ღონისძიებები", path: "/events" },
+          { name: ev.title },
+        ])}
+      />
 
       <Link
         href="/events"

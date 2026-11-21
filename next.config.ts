@@ -17,6 +17,11 @@ const nextConfig: NextConfig = {
         hostname: "pub-5bebe1386b8f4ea6a055f37e193c6567.r2.dev",
         pathname: "/**",
       },
+      {
+        protocol: "https",
+        hostname: "*.r2.dev",
+        pathname: "/**",
+      },
     ],
   },
   async rewrites() {

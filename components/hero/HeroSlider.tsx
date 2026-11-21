@@ -1,9 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { EffectFade, Autoplay, Pagination, Navigation } from "swiper/modules";
-import { getActiveHeroSlides } from "@/lib/api";
 import type { ApiHeroSlide } from "@/lib/api";
 import { HeroSlideContent } from "./HeroSlide";
 
@@ -25,41 +25,33 @@ const FALLBACK_SLIDE: ApiHeroSlide = {
   active: true,
 };
 
-export function HeroSlider() {
-  const [slides, setSlides] = useState<ApiHeroSlide[]>([]);
-  const [mounted, setMounted] = useState(false);
+export function HeroSlider({ slides }: { slides: ApiHeroSlide[] }) {
+  const list = slides.length > 0 ? slides : [FALLBACK_SLIDE];
+  const [enhanced, setEnhanced] = useState(false);
 
   useEffect(() => {
-    const raf = requestAnimationFrame(() => setMounted(true));
-    return () => cancelAnimationFrame(raf);
+    setEnhanced(true);
   }, []);
 
-  useEffect(() => {
-    if (!mounted) return;
-    getActiveHeroSlides()
-      .then((items) => {
-        setSlides(items.length > 0 ? items : [FALLBACK_SLIDE]);
-      })
-      .catch(() => {
-        setSlides([FALLBACK_SLIDE]);
-      });
-  }, [mounted]);
-
-  if (!mounted) {
+  if (!enhanced) {
     return (
-      <div className="relative h-full min-h-[320px] w-full md:min-h-[420px]" aria-hidden>
-        <div className="absolute inset-0 bg-zinc-200" />
-        <div className="relative flex min-h-[320px] h-full flex-col justify-center px-4 py-12 md:min-h-[420px]">
-          <div className="h-8 w-3/4 max-w-md animate-pulse rounded bg-zinc-300" />
-          <div className="mt-3 h-4 w-full max-w-xl animate-pulse rounded bg-zinc-300" />
-          <div className="mt-2 h-4 w-2/3 max-w-lg animate-pulse rounded bg-zinc-300" />
-        </div>
+      <div className="relative h-full min-h-[320px] w-full md:min-h-[420px]">
+        <HeroSlideContent slide={list[0]} titleAs="h1" />
+        {list.length > 1 ? (
+          <ul className="sr-only">
+            {list.slice(1).map((slide) => (
+              <li key={slide.id}>
+                <p>{slide.title}</p>
+                {slide.subtitle ? <p>{slide.subtitle}</p> : null}
+                {slide.buttonLink ? (
+                  <Link href={slide.buttonLink}>{slide.buttonText || slide.title}</Link>
+                ) : null}
+              </li>
+            ))}
+          </ul>
+        ) : null}
       </div>
     );
-  }
-
-  if (slides.length === 0) {
-    return null;
   }
 
   return (
@@ -67,7 +59,7 @@ export function HeroSlider() {
       className="hero-swiper h-full w-full !overflow-hidden"
       modules={[EffectFade, Autoplay, Pagination, Navigation]}
       effect="fade"
-      loop={slides.length > 1}
+      loop={list.length > 1}
       autoplay={{
         delay: 5000,
         disableOnInteraction: false,
@@ -84,9 +76,9 @@ export function HeroSlider() {
       slidesPerView={1}
       spaceBetween={0}
     >
-      {slides.map((slide) => (
+      {list.map((slide, index) => (
         <SwiperSlide key={slide.id}>
-          <HeroSlideContent slide={slide} />
+          <HeroSlideContent slide={slide} titleAs={index === 0 ? "h1" : "span"} />
         </SwiperSlide>
       ))}
       {/* Arrows: desktop only */}

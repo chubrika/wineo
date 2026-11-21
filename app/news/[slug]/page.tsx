@@ -12,6 +12,7 @@ import {
   truncateForMeta,
   newsToArticleJsonLd,
   buildCanonicalUrl,
+  buildBreadcrumbJsonLd,
 } from "@/lib/seo";
 import { JsonLd } from "@/components/seo/JsonLd";
 
@@ -69,6 +70,12 @@ export default async function NewsDetailPage({ params }: Props) {
   return (
     <div className="mx-auto max-w-7xl py-8 px-4 md:px-0">
       <JsonLd data={articleJsonLd} />
+      <JsonLd
+        data={buildBreadcrumbJsonLd([
+          { name: "სიახლეები", path: "/news" },
+          { name: item.title },
+        ])}
+      />
       <div className="grid gap-8 lg:grid-cols-[1fr_360px]">
         {/* Left: full article */}
         <article className="min-w-0">
