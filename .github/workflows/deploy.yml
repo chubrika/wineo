@@ -3,7 +3,7 @@ name: Deploy Frontend
 on:
   push:
     branches:
-      - master
+      - main
 
 jobs:
   deploy:
@@ -17,7 +17,7 @@ jobs:
           key: ${{ secrets.DO_SSH_KEY }}
           script: |
             cd /var/www/projects/wineo
-            git pull origin master
+            git pull origin main
             npm install
             npm run build
             pm2 restart wineo
