@@ -530,7 +530,6 @@ export function AddProductForm({
 
   useEffect(() => {
     if (!categoryId) return;
-    // If user switched listing type, clear an incompatible selected category.
     const cat = categories.find((c) => c.id === categoryId);
     if (!cat) return;
     const ok = Array.isArray(cat.types) && cat.types.includes(requiredCategoryType);
