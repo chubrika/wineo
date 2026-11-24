@@ -10,6 +10,8 @@ export async function EventsSection() {
     total: 0,
   }));
 
+  if (items.length === 0) return null;
+
   return (
     <section
       className="border-b border-zinc-200 py-8 md:py-14 sm:py-18 px-4 md:px-0"
@@ -18,29 +20,23 @@ export async function EventsSection() {
       <div className="mx-auto max-w-7xl">
         <div className="flex items-center justify-between">
           <div>
-            <h2 id="events-heading" className="text-md md:text-2xl nav-font-caps font-bold tracking-tight wineo-red sm:text-3xl">
+            <h2 id="events-heading" className="text-md tracking-widest md:text-2xl nav-font-caps font-bold tracking-tight wineo-red sm:text-3xl">
               ღონისძიებები
             </h2>
           </div>
-          {items.length > 0 && (
-            <Link
-              href="/events"
-              className="shrink-0 text-sm font-medium wineo-red hover:underline sm:mt-0"
-            >
-              ყველა ღონისძიება →
-            </Link>
-          )}
+          <Link
+            href="/events"
+            className="shrink-0 text-sm font-medium wineo-red hover:underline sm:mt-0"
+          >
+            ყველა ღონისძიება →
+          </Link>
         </div>
 
-        {items.length === 0 ? (
-          <p className="mt-10 text-zinc-500">ღონისძიებები ჯერ არ არის.</p>
-        ) : (
-          <div className="mt-6 md:mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-            {items.map((event) => (
-              <EventCard key={event.id} event={event} />
-            ))}
-          </div>
-        )}
+        <div className="mt-6 md:mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+          {items.map((event) => (
+            <EventCard key={event.id} event={event} />
+          ))}
+        </div>
       </div>
     </section>
   );

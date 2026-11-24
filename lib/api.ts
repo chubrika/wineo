@@ -430,6 +430,8 @@ export type GetWineriesParams = {
   winemakingMethod?: string;
   acceptsVisitors?: boolean;
   search?: string;
+  sort?: "name" | "newest";
+  limit?: number;
 };
 
 export async function getWineries(params?: GetWineriesParams): Promise<ApiWinery[]> {
@@ -441,6 +443,8 @@ export async function getWineries(params?: GetWineriesParams): Promise<ApiWinery
     if (params?.winemakingMethod) search.set("winemakingMethod", params.winemakingMethod);
     if (params?.acceptsVisitors) search.set("acceptsVisitors", "true");
     if (params?.search) search.set("search", params.search);
+    if (params?.sort === "newest") search.set("sort", "newest");
+    if (params?.limit != null && params.limit > 0) search.set("limit", String(params.limit));
     const qs = search.toString();
     const res = await fetch(`${API_BASE}/wineries${qs ? `?${qs}` : ""}`, REVALIDATE_HOUR);
     return await handleRes<ApiWinery[]>(res);
@@ -925,6 +929,25 @@ export type ApiPagesListResponse = {
   items: ApiPage[];
   total: number;
 };
+
+export type ContactPayload = {
+  fullName: string;
+  email: string;
+  phone?: string;
+  subject: string;
+  message: string;
+  agreedToPolicy: boolean;
+};
+
+/** POST /contact — public contact form. */
+export async function submitContact(body: ContactPayload): Promise<{ message: string }> {
+  const res = await fetch(`${API_BASE}/contact`, {
+    ...AUTH_OPTS,
+    method: "POST",
+    body: JSON.stringify(body),
+  });
+  return handleRes<{ message: string }>(res);
+}
 
 /**
  * GET /pages — list all CMS pages (for footer, sitemap).

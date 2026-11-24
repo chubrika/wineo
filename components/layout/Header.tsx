@@ -287,7 +287,7 @@ export function Header() {
           <button
             type="button"
             onClick={() => openCategoriesModal()}
-            className="flex items-center cursor-pointer gap-2 rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm font-medium text-zinc-700 transition-colors hover:bg-zinc-50 hover:text-[var(--wineo-red)] focus:outline-none"
+            className="flex items-center cursor-pointer gap-2 rounded-full border border-zinc-300 bg-white px-3 py-2 text-sm font-medium text-zinc-700 transition-colors hover:bg-zinc-50 hover:text-[var(--wineo-red)] focus:outline-none"
             aria-label="კატეგორიები"
           >
             <LayoutGrid className="h-5 w-5 shrink-0" />
@@ -302,7 +302,7 @@ export function Header() {
           <button
             type="button"
             onClick={handleAddProductClick}
-            className="flex items-center cursor-pointer gap-2 rounded-lg border border-zinc-300 bg-[#8a052d2e] px-3 py-2 text-sm font-medium transition-colors hover:bg-[#8a052d5c] text-[var(--wineo-red)] focus:outline-none"
+            className="flex items-center cursor-pointer gap-2 rounded-full border border-zinc-300 bg-[#8a052d2e] px-3 py-2 text-sm font-medium transition-colors hover:bg-[#8a052d5c] text-[var(--wineo-red)] focus:outline-none"
             aria-label="განცხადების დამატება"
           >
             <CirclePlus className="h-5 w-5 shrink-0" />

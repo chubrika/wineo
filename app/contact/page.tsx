@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { SITE_NAME } from "@/constants/site";
 import { buildMetadata } from "@/lib/seo";
+import { getPages } from "@/lib/api";
+import { ContactView } from "@/components/contact/ContactView";
 
 export const metadata: Metadata = buildMetadata({
   title: "კონტაქტი",
@@ -8,43 +10,11 @@ export const metadata: Metadata = buildMetadata({
   path: "/contact",
 });
 
-export default function ContactPage() {
-  return (
-    <div className="mx-auto max-w-3xl px-4 py-10 sm:px-6 lg:px-8 bg-white border border-zinc-200">
-      <h1 className="text-3xl font-bold tracking-tight text-zinc-900">
-        კონტაქტი
-      </h1>
-      <div className="mt-6 space-y-6 text-zinc-600">
-        <p>
-          გაქვთ კითხვები ან გსურთ თანამშრომლობა? დაგვიკავშირდით.
-        </p>
-        <div className="rounded-xl border border-zinc-200 bg-zinc-50 p-6">
-          <dl className="space-y-3">
-            <div>
-              <dt className="text-sm font-medium text-zinc-500">ელფოსტა</dt>
-              <dd>
-                <a
-                  href="mailto:info@wineo.ge"
-                  className="font-medium text-zinc-900 hover:underline"
-                >
-                  info@wineo.ge
-                </a>
-              </dd>
-            </div>
-            <div>
-              <dt className="text-sm font-medium text-zinc-500">ტელეფონი</dt>
-              <dd>
-                <a
-                  href="tel:+995591170265"
-                  className="font-medium text-zinc-900 hover:underline"
-                >
-                  +995 591 170 265
-                </a>
-              </dd>
-            </div>
-          </dl>
-        </div>
-      </div>
-    </div>
+export default async function ContactPage() {
+  const pages = await getPages();
+  const privacy = pages.find((page) =>
+    /privacy|konfidencial|კონფიდენც/i.test(`${page.slug} ${page.title}`)
   );
+
+  return <ContactView privacyHref={privacy ? `/pages/${privacy.slug}` : null} />;
 }

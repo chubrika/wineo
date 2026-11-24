@@ -13,6 +13,69 @@ import { ChevronDownIcon, ChevronUpIcon, ClockIcon, FilterIcon, SearchIcon, Shop
 import { HeroSlider } from "@/components/hero/HeroSlider";
 import type { ApiHeroSlide } from "@/lib/api";
 
+function ListingTypeToggle({
+  listingType,
+  onChange,
+  className = "",
+}: {
+  listingType: ListingType;
+  onChange: (type: ListingType) => void;
+  className?: string;
+}) {
+  return (
+    <div
+      className={`relative grid h-10 grid-cols-2 rounded-full bg-zinc-100 p-1 ${className}`}
+      role="radiogroup"
+      aria-label="განცხადების ტიპი"
+      onKeyDown={(event) => {
+        if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return;
+        event.preventDefault();
+        const next = listingType === "buy" ? "rent" : "buy";
+        onChange(next);
+        const target = event.currentTarget.querySelector<HTMLButtonElement>(
+          `[data-type="${next}"]`,
+        );
+        target?.focus();
+      }}
+    >
+      <span
+        aria-hidden
+        className={`pointer-events-none absolute top-1 bottom-1 left-1 w-[calc(50%-4px)] rounded-full bg-[#8a052d] shadow-[0_1px_2px_rgba(138,5,45,0.35)] transition-transform duration-300 ease-[cubic-bezier(0.25,0.1,0.25,1)] motion-reduce:transition-none ${
+          listingType === "rent" ? "translate-x-full" : "translate-x-0"
+        }`}
+      />
+      <button
+        type="button"
+        role="radio"
+        data-type="buy"
+        aria-checked={listingType === "buy"}
+        tabIndex={listingType === "buy" ? 0 : -1}
+        onClick={() => onChange("buy")}
+        className={`relative z-10 flex cursor-pointer items-center justify-center gap-1.5 rounded-full px-3 text-sm font-medium transition-colors duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#8a052d]/35 ${
+          listingType === "buy" ? "text-white" : "text-zinc-500 hover:text-zinc-800"
+        }`}
+      >
+        <ShoppingBagIcon className="h-4 w-4 shrink-0" aria-hidden />
+        იყიდე
+      </button>
+      <button
+        type="button"
+        role="radio"
+        data-type="rent"
+        aria-checked={listingType === "rent"}
+        tabIndex={listingType === "rent" ? 0 : -1}
+        onClick={() => onChange("rent")}
+        className={`relative z-10 flex cursor-pointer items-center justify-center gap-1.5 rounded-full px-3 text-sm font-medium transition-colors duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#8a052d]/35 ${
+          listingType === "rent" ? "text-white" : "text-zinc-500 hover:text-zinc-800"
+        }`}
+      >
+        <ClockIcon className="h-4 w-4 shrink-0" aria-hidden />
+        იქირავე
+      </button>
+    </div>
+  );
+}
+
 export function HeroSection({ slides }: { slides: ApiHeroSlide[] }) {
   const router = useRouter();
   const [listingType, setListingType] = useState<ListingType>("buy");
@@ -168,32 +231,7 @@ export function HeroSection({ slides }: { slides: ApiHeroSlide[] }) {
             className="hidden md:flex flex-col gap-3 h-full justify-between sm:flex-row sm:flex-wrap sm:items-end sm:gap-4"
             role="search"
           >
-            <div className="flex items-center justify-between md:justify-start gap-2" role="group" aria-label="Listing type">
-              <button
-                type="button"
-                onClick={() => setListingType("buy")}
-                className={`min-h-[40px] min-w-[120px] rounded-md cursor-pointer px-3 py-2.5 text-sm font-medium transition flex items-center justify-center ${
-                  listingType === "buy"
-                    ? "bg-[#8a052d] text-white"
-                    : "bg-zinc-100 text-zinc-600 hover:bg-zinc-200"
-                }`}
-              >
-                <ShoppingBagIcon className="h-4 w-4 shrink-0 mr-2" />
-                იყიდე
-              </button>
-              <button
-                type="button"
-                onClick={() => setListingType("rent")}
-                className={`min-h-[40px] min-w-[120px] rounded-md cursor-pointer px-3 py-2.5 text-sm font-medium transition flex items-center justify-center ${
-                  listingType === "rent"
-                    ? "bg-[#8a052d] text-white"
-                    : "bg-zinc-100 text-zinc-600 hover:bg-zinc-200"
-                }`}
-              >
-                <ClockIcon className="h-4 w-4 shrink-0 mr-2" />
-                იქირავე
-              </button>
-            </div>
+            <ListingTypeToggle listingType={listingType} onChange={setListingType} />
             
             <label className="w-full sm:w-auto min-w-[160px]">
               <span className="sr-only">კატეგორია</span>
@@ -370,7 +408,7 @@ export function HeroSection({ slides }: { slides: ApiHeroSlide[] }) {
             </label>
             <button
               type="submit"
-              className="min-h-[40px] min-w-[150px] rounded-md cursor-pointer wineo-green-bg px-5 py-2.5 text-sm font-normal text-white transition hover:bg-[#6d0423] flex items-center justify-center"
+              className="min-h-[40px] min-w-[150px] rounded-full cursor-pointer wineo-green-bg px-5 py-2.5 text-sm font-normal text-white transition hover:bg-[#6d0423] flex items-center justify-center"
             >
               <FilterIcon className="h-4 w-4 shrink-0 mr-2" />
               ძებნა
@@ -407,24 +445,11 @@ export function HeroSection({ slides }: { slides: ApiHeroSlide[] }) {
             </div>
             <div className="p-4 pb-24 lg:pb-4">
               <form onSubmit={handleSubmit} className="flex flex-col gap-4" role="search">
-                <div className="flex items-center gap-2 h-full" role="group" aria-label="Listing type">
-                  <button
-                    type="button"
-                    onClick={() => setListingType("buy")}
-                    className={`min-h-[40px] flex flex-1 h-full items-center justify-center gap-2 rounded-md px-3 py-2.5 text-sm font-medium transition ${listingType === "buy" ? "bg-[#8a052d] text-white" : "bg-zinc-100 text-zinc-600 hover:bg-zinc-200"}`}
-                  >
-                    <ShoppingBagIcon className="h-4 w-4 shrink-0" />
-                    იყიდე
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setListingType("rent")}
-                    className={`min-h-[40px] flex flex-1 h-full items-center justify-center gap-2 rounded-md px-3 py-2.5 text-sm font-medium transition ${listingType === "rent" ? "bg-[#8a052d] text-white" : "bg-zinc-100 text-zinc-600 hover:bg-zinc-200"}`}
-                  >
-                    <ClockIcon className="h-4 w-4 shrink-0" />
-                    იქირავე
-                  </button>
-                </div>
+                <ListingTypeToggle
+                  listingType={listingType}
+                  onChange={setListingType}
+                  className="w-full"
+                />
                 <div ref={categoryDropdownRefModal} className="relative">
                   <button
                     type="button"

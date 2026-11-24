@@ -5,6 +5,7 @@ import {
   CategoriesCards,
   BuyRentSection,
   FeaturedListings,
+  WineriesSection,
   RegionSection,
   HowItWorks,
   EventsSection,
@@ -41,6 +42,7 @@ export default async function HomePage() {
       <BuyRentSection />
       <CategoryGrid categories={categories} />
       <FeaturedListings />
+      <WineriesSection />
       <RegionSection regions={regions} />
       <EventsSection />
       <NewsSection />

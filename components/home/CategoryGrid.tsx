@@ -102,7 +102,7 @@ export function CategoryGrid({ categories }: { categories: ApiCategory[] }) {
       <div className="mx-auto max-w-7xl">
       <div className="flex items-center justify-between">
         <div>
-          <h2 id="categories-heading" className="text-md md:text-2xl nav-font-caps font-bold tracking-tight wineo-red sm:text-3xl">
+          <h2 id="categories-heading" className="text-md tracking-widest md:text-2xl nav-font-caps font-bold tracking-tight wineo-red sm:text-3xl">
               მოძებნეთ კატეგორიით
           </h2>
             <p className="mt-2 text-xs md:text-sm text-zinc-600">
@@ -123,25 +123,49 @@ export function CategoryGrid({ categories }: { categories: ApiCategory[] }) {
             )}
       </div>
 
-        <div className="mt-6 flex items-center gap-2" role="group" aria-label="Listing type">
+        <div
+          className="relative mt-6 inline-grid grid-cols-2 rounded-full bg-white p-1 shadow-[inset_0_0_0_1px_rgba(24,24,27,0.08)]"
+          role="radiogroup"
+          aria-label="განცხადების ტიპი"
+          onKeyDown={(event) => {
+            if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return;
+            event.preventDefault();
+            const next = listingType === "buy" ? "rent" : "buy";
+            setListingType(next);
+            const target = event.currentTarget.querySelector<HTMLButtonElement>(
+              `[data-type="${next}"]`,
+            );
+            target?.focus();
+          }}
+        >
+          <span
+            aria-hidden
+            className={`pointer-events-none absolute top-1 bottom-1 left-1 w-[calc(50%-4px)] rounded-full bg-[#8a052d] shadow-[0_1px_2px_rgba(138,5,45,0.35)] transition-transform duration-300 ease-[cubic-bezier(0.25,0.1,0.25,1)] motion-reduce:transition-none ${
+              listingType === "rent" ? "translate-x-full" : "translate-x-0"
+            }`}
+          />
           <button
             type="button"
+            role="radio"
+            data-type="buy"
+            aria-checked={listingType === "buy"}
+            tabIndex={listingType === "buy" ? 0 : -1}
             onClick={() => setListingType("buy")}
-            className={`rounded-lg px-4 py-2.5 text-sm font-medium transition ${
-              listingType === "buy"
-                ? "bg-[#8a052d] text-white"
-                : "bg-zinc-100 text-zinc-600 hover:bg-zinc-200"
+            className={`relative z-10 cursor-pointer rounded-full px-5 py-2 text-sm font-medium transition-colors duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#8a052d]/35 ${
+              listingType === "buy" ? "text-white" : "text-zinc-500 hover:text-zinc-800"
             }`}
           >
             იყიდე
           </button>
           <button
             type="button"
+            role="radio"
+            data-type="rent"
+            aria-checked={listingType === "rent"}
+            tabIndex={listingType === "rent" ? 0 : -1}
             onClick={() => setListingType("rent")}
-            className={`rounded-lg px-4 py-2.5 text-sm font-medium transition ${
-              listingType === "rent"
-                ? "bg-[#8a052d] text-white"
-                : "bg-zinc-100 text-zinc-600 hover:bg-zinc-200"
+            className={`relative z-10 cursor-pointer rounded-full px-5 py-2 text-sm font-medium transition-colors duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#8a052d]/35 ${
+              listingType === "rent" ? "text-white" : "text-zinc-500 hover:text-zinc-800"
             }`}
           >
             იქირავე

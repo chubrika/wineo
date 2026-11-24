@@ -3,6 +3,7 @@ export { CategoryGrid } from "./CategoryGrid";
 export { CategoriesCards } from "./CategoriesCards";
 export { BuyRentSection } from "./BuyRentSection";
 export { FeaturedListings } from "./FeaturedListings";
+export { WineriesSection } from "./WineriesSection";
 export { RegionSection } from "./RegionSection";
 export { HowItWorks } from "./HowItWorks";
 export { EventsSection } from "./EventsSection";

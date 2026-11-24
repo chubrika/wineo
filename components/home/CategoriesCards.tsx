@@ -76,7 +76,7 @@ function CategoryCard({ category }: { category: ApiCategory }) {
       onFocus={() => setIsHovered(true)}
       onBlur={() => setIsHovered(false)}
     >
-      <div className="rounded-2xl bg-none sm:bg-[#f5f6f8] hover:bg-[#fff] transition-colors duration-300 p-0 md:p-5 flex flex-col items-center justify-start">
+      <div className="rounded-2xl bg-none sm:bg-[#dabebe3b] hover:bg-[#fbf9f5] transition-colors duration-300 p-0 md:p-5 flex flex-col items-center justify-start">
         <div
           className="w-15 h-15 sm:w-20 sm:h-20 rounded-xl flex items-center justify-center transition-colors duration-300"
           style={{ backgroundColor: squareBg }}

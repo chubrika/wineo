@@ -31,7 +31,7 @@ export default async function DynamicPage({ params }: Props) {
   const displaySlug = (page.slug && page.slug.trim()) ? page.slug : slug;
 
   return (
-    <div className="mx-auto max-w-3xl px-4 py-10 sm:px-6 lg:px-8 bg-white  border border-zinc-200">
+    <div className="mx-auto max-w-7xl px-4 py-10  lg:px-0">
       <Link
         href="/"
         className="mb-6 inline-flex items-center gap-1 text-sm text-zinc-500 hover:text-zinc-900"
@@ -47,7 +47,7 @@ export default async function DynamicPage({ params }: Props) {
           {page.title}
         </h1>
         {page.content?.trim() ? (
-          <div className="mt-6 border-t border-zinc-200 pt-6">
+          <div className="mt-6 border-t border-zinc-200 pt-6 max-w-3xl">
             <RichTextContent
               content={page.content}
               className="text-base leading-relaxed text-zinc-700"

@@ -196,34 +196,60 @@ export function CategoriesModal({ open, onClose, initialRootSlug }: CategoriesMo
               <XIcon className="h-5 w-5" />
             </button>
           </div>
-          <div className="mt-2 flex items-center gap-2" role="group" aria-label="Listing type">
-            {allowBuy ? (
+          {allowBuy && allowRent ? (
+            <div
+              className="relative mt-3 inline-grid h-9 grid-cols-2 rounded-full bg-zinc-100 p-1"
+              role="radiogroup"
+              aria-label="განცხადების ტიპი"
+              onKeyDown={(event) => {
+                if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return;
+                event.preventDefault();
+                const next = listingType === "buy" ? "rent" : "buy";
+                setListingType(next);
+                const target = event.currentTarget.querySelector<HTMLButtonElement>(
+                  `[data-type="${next}"]`,
+                );
+                target?.focus();
+              }}
+            >
+              <span
+                aria-hidden
+                className={`pointer-events-none absolute top-1 bottom-1 left-1 w-[calc(50%-4px)] rounded-full bg-[#8a052d] shadow-[0_1px_2px_rgba(138,5,45,0.35)] transition-transform duration-300 ease-[cubic-bezier(0.25,0.1,0.25,1)] motion-reduce:transition-none ${
+                  listingType === "rent" ? "translate-x-full" : "translate-x-0"
+                }`}
+              />
               <button
                 type="button"
+                role="radio"
+                data-type="buy"
+                aria-checked={listingType === "buy"}
+                tabIndex={listingType === "buy" ? 0 : -1}
                 onClick={() => setListingType("buy")}
-                className={`rounded-lg cursor-pointer px-3 py-1.5 text-sm font-medium transition ${
-                  listingType === "buy"
-                    ? "bg-[#8a052d] text-white"
-                    : "bg-zinc-100 text-zinc-600 hover:bg-zinc-200"
+                className={`relative z-10 cursor-pointer rounded-full px-4 text-sm font-medium transition-colors duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#8a052d]/35 ${
+                  listingType === "buy" ? "text-white" : "text-zinc-500 hover:text-zinc-800"
                 }`}
               >
                 იყიდე
               </button>
-            ) : null}
-            {allowRent ? (
               <button
                 type="button"
+                role="radio"
+                data-type="rent"
+                aria-checked={listingType === "rent"}
+                tabIndex={listingType === "rent" ? 0 : -1}
                 onClick={() => setListingType("rent")}
-                className={`rounded-lg cursor-pointer px-3 py-1.5 text-sm font-medium transition ${
-                  listingType === "rent"
-                    ? "bg-[#8a052d] text-white"
-                    : "bg-zinc-100 text-zinc-600 hover:bg-zinc-200"
+                className={`relative z-10 cursor-pointer rounded-full px-4 text-sm font-medium transition-colors duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#8a052d]/35 ${
+                  listingType === "rent" ? "text-white" : "text-zinc-500 hover:text-zinc-800"
                 }`}
               >
                 იქირავე
               </button>
-            ) : null}
-          </div>
+            </div>
+          ) : allowBuy || allowRent ? (
+            <p className="mt-3 inline-flex h-9 items-center rounded-full bg-[#8a052d] px-4 text-sm font-medium text-white">
+              {allowBuy ? "იყიდე" : "იქირავე"}
+            </p>
+          ) : null}
         </div>
 
         <div className="flex min-h-0 flex-1 flex-col sm:flex-row">
